@@ -1,4 +1,4 @@
-package currency
+package fiat
 
 type Currency int
 
@@ -10,3 +10,5 @@ const (
 func (d Currency) String() string {
 	return [...]string{"UAH", "USD"}[d]
 }
+
+type Rate float32

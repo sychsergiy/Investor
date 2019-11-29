@@ -1,18 +1,26 @@
 package asset
 
 import (
+	"Investor/asset/amount/fiat"
 	"Investor/asset/period"
 )
 
-type Asset interface {
+type ProfitCalculator interface {
 	CalcProfit() Profit
 	CalcProfitOnPeriod(p period.Period) Profit
+}
 
-	// calculate currency exchange rate.
+type CurrencyRateCalculator interface {
+	// calculate fiat exchange rate.
 	// If investment returned with calculated rate investor will have profit (from arguments)
 	// gives possibility to calculate which rate you need to have when returning to get expected profit
-	CalcCurrencyRate(profit Profit) float32 // todo: type for currency exchange rate
-	CalcCurrencyRateOnPeriod(profit Profit, p period.Period) float32
+	CalcCurrencyRate(profit Profit) fiat.Rate
+	CalcCurrencyRateOnPeriod(profit Profit, p period.Period) fiat.Rate
+}
+
+type Asset interface {
+	ProfitCalculator
+	CurrencyRateCalculator
 }
 
 type Profit float32

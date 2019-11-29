@@ -1,7 +1,7 @@
 package amount
 
 import (
-	"Investor/asset/amount/currency"
+	"Investor/asset/amount/fiat"
 	"fmt"
 )
 
@@ -14,7 +14,7 @@ type USD struct {
 }
 
 func (a *USD) AbsoluteValue() float32 {
-	return convertToUSD(currency.USD, a.Value)
+	return convertToUSD(fiat.USD, a.Value)
 }
 
 type UAH struct {
@@ -22,15 +22,15 @@ type UAH struct {
 }
 
 func (a *UAH) AbsoluteValue() float32 {
-	return convertToUSD(currency.UAH, a.Value)
+	return convertToUSD(fiat.UAH, a.Value)
 }
 
-func convertToUSD(inCur currency.Currency, amount float32) float32 {
+func convertToUSD(inCur fiat.Currency, amount float32) float32 {
 	switch inCur {
-	case currency.USD:
+	case fiat.USD:
 		return amount
-	case currency.UAH:
+	case fiat.UAH:
 		return amount / 25
 	}
-	panic(fmt.Sprintf("Unresolved currency: %s", inCur))
+	panic(fmt.Sprintf("Unresolved fiat: %s", inCur))
 }

@@ -3,6 +3,7 @@ package crypto
 import (
 	"Investor/asset"
 	"Investor/asset/amount"
+	"Investor/asset/amount/fiat"
 	"Investor/asset/payment/storage"
 	"Investor/asset/period"
 	"fmt"
@@ -35,7 +36,7 @@ func TestCurrencyAsset_CalcCurrencyRate(t *testing.T) {
 	currencyAsset := CurrencyAsset{storage_}
 	currencyRate := currencyAsset.CalcCurrencyRate(1.5)
 
-	assert.Equal(t, float32(300), currencyRate)
+	assert.Equal(t, fiat.Rate(300), currencyRate)
 }
 
 func TestCurrencyAsset_CalcCurrencyRateOnPeriod(t *testing.T) {
@@ -53,5 +54,5 @@ func TestCurrencyAsset_CalcCurrencyRateOnPeriod(t *testing.T) {
 	currencyAsset := CurrencyAsset{storage_}
 	currencyRate := currencyAsset.CalcCurrencyRateOnPeriod(1.5, period.Year{Value: 2019})
 
-	assert.Equal(t, float32(300), currencyRate)
+	assert.Equal(t, fiat.Rate(300), currencyRate)
 }

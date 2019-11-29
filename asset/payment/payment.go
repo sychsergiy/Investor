@@ -20,18 +20,10 @@ type Payment struct {
 	Type           Type
 }
 
-type InvestPayment struct {
-	Payment
+func NewInvestPayment(absAmount, currAmount float32, date time.Time) Payment {
+	return Payment{absAmount, currAmount, date, Invest}
 }
 
-type ReturnPayment struct {
-	Payment
-}
-
-func NewInvestPayment(absAmount, currAmount float32, date time.Time) InvestPayment {
-	return InvestPayment{Payment{absAmount, currAmount, date, Invest}}
-}
-
-func NewReturnPayment(absAmount, currencyAmount float32, date time.Time) ReturnPayment {
-	return ReturnPayment{Payment{absAmount, currencyAmount, date, Return}}
+func NewReturnPayment(absAmount, currAmount float32, date time.Time) Payment {
+	return Payment{absAmount, currAmount, date, Return}
 }
