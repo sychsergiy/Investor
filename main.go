@@ -1,5 +1,7 @@
 package main
 
+import "Investor/asset"
+
 func main() {
-	println("Main")
+	asset.CreateInvestment()
 }
