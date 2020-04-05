@@ -8,20 +8,11 @@ const (
 	Stock
 )
 
-type Asset struct {
-	Category string
-	Name     string
+func (c Category) String() string {
+	return [...]string{"PreciousMetal", "CryptoCurrency", "Stock"}[c]
 }
 
-type CryptoCurrencies string
-
-const (
-	BTC  CryptoCurrencies = "BTC"
-	ETH                   = "ETH"
-	XRP                   = "XRP"
-	DASH                  = "DASH"
-)
-
-func NewCryptoCurrency(name CryptoCurrencies) Asset {
-	return Asset{string(CryptoCurrency), string(name)}
+type Asset struct {
+	Category Category
+	Name     string
 }
