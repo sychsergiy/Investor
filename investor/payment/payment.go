@@ -12,7 +12,7 @@ const (
 	Return
 )
 
-func String(t Type) string {
+func (t Type) String() string {
 	return [...]string{"Invest", "Return"}[t]
 }
 
