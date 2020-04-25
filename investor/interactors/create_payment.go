@@ -3,17 +3,18 @@ package interactors
 import (
 	"bufio"
 	"fmt"
-	"investor/asset"
-	"investor/asset/crypto_currency"
-	"investor/payment"
+	"investor/entities"
+	"investor/entities/asset"
+	"investor/entities/asset/crypto_currency"
+	"investor/ports"
 	"os"
 	"strconv"
 	"time"
 )
 
 type PaymentCreator struct {
-	Storage     payment.Creator
-	RateFetcher asset.RateFetcher
+	Storage     ports.Creator
+	RateFetcher ports.RateFetcher
 }
 
 
@@ -35,13 +36,13 @@ func (pc PaymentCreator) Create() {
 	fmt.Println("Enter invested amount in asset: ")
 	assetAmount := readAmount()
 
-	var record payment.Record
-	if paymentType == payment.Return {
-		record = payment.NewReturn(assetAmount, absoluteAmount, asset_, date)
-	} else if paymentType == payment.Invest {
-		record = payment.NewInvestment(assetAmount, absoluteAmount, asset_, date)
+	var record ports.Record
+	if paymentType == entities.Return {
+		record = ports.NewReturn(assetAmount, absoluteAmount, asset_, date)
+	} else if paymentType == entities.Invest {
+		record = ports.NewInvestment(assetAmount, absoluteAmount, asset_, date)
 	} else {
-		panic(fmt.Sprintf("unexpected payment type: %d", paymentType))
+		panic(fmt.Sprintf("unexpected ports type: %d", paymentType))
 	}
 
 	saveRecord := readCompleteOrAbort(record)
@@ -56,8 +57,8 @@ func readFromConsole() string {
 	return scanner.Text()
 }
 
-func readCompleteOrAbort(record payment.Record) bool {
-	fmt.Println("Verify created payment: ")
+func readCompleteOrAbort(record ports.Record) bool {
+	fmt.Println("Verify created ports: ")
 	fmt.Printf("%+v\n", record)
 	fmt.Println("Enter:  1 - to save record, 2 - to abort")
 	input := readFromConsole()
@@ -86,13 +87,13 @@ func ParseTime(str string) (time.Time, error){
 }
 
 
-func choosePaymentType() payment.Type {
-	fmt.Println("Choose payment type:\n 1 - Invest \n 2 - Return")
+func choosePaymentType() entities.Type {
+	fmt.Println("Choose ports type:\n 1 - Invest \n 2 - Return")
 	switch input := readFromConsole(); input {
 	case "1":
-		return payment.Invest
+		return entities.Invest
 	case "2":
-		return payment.Return
+		return entities.Return
 	default:
 		panic("Unexpected input")
 	}

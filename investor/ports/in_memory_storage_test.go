@@ -1,7 +1,7 @@
-package payment
+package ports
 
 import (
-	"investor/asset"
+	"investor/entities/asset"
 	"testing"
 	"time"
 )
@@ -16,6 +16,6 @@ func TestInMemoryStorage_Create(t *testing.T) {
 	}
 	id = storage.Create(NewInvestment(0, 0, testAsset, creationTime))
 	if id != Identifier(1) {
-		t.Errorf("Identfier of second created payment should be 1", )
+		t.Errorf("Identfier of second created ports should be 1", )
 	}
 }

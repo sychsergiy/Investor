@@ -1,23 +1,22 @@
 package main
 
 import (
-	"investor/asset/crypto_currency"
 	"investor/interactors"
-	"investor/payment"
+	"investor/ports"
 	"log"
 	"os"
 )
 
 func setupDependencies(coinMarketCupApiKey string) interactors.PaymentCreator {
 
-	coinMarketCupClient := crypto_currency.NewCoinMarketCupClient(
+	coinMarketCupClient := ports.NewCoinMarketCupClient(
 		"https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest", coinMarketCupApiKey,
 	)
-	fetcher := crypto_currency.RateFetcher{
+	fetcher := ports.CMCRateFetcher{
 		Client: coinMarketCupClient,
 	}
 
-	storage := payment.NewInMemoryStorage()
+	storage := ports.NewInMemoryStorage()
 	return interactors.PaymentCreator{Storage: storage, RateFetcher: fetcher}
 }
 func main() {

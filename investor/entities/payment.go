@@ -1,7 +1,7 @@
-package payment
+package entities
 
 import (
-	"investor/asset"
+	"investor/entities/asset"
 	"time"
 )
 

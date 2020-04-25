@@ -1,9 +1,10 @@
-package crypto_currency
+package ports
 
 import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"investor/entities/asset/crypto_currency"
 	"io/ioutil"
 	"net/http"
 	"testing"
@@ -123,9 +124,9 @@ func TestCoinMarketCupClient_FetchCurrencyRate_WrongCurrencyID(t *testing.T) {
 func TestCoinMarketCupClient_FetchCurrencyRate_RequestError(t *testing.T) {
 	client := NewCoinMarketCupClient("http://url.com", "api_key")
 	client.HttpClient = HttpClientErrorMock{}
-	expectedErr := RateRequestFailedError{BTC, "mocked error"}
+	expectedErr := RateRequestFailedError{crypto_currency.BTC, "mocked error"}
 
-	rate, err := client.FetchCurrencyRate(BTC)
+	rate, err := client.FetchCurrencyRate(crypto_currency.BTC)
 	if err != expectedErr {
 		t.Errorf("Rate request failed error expected.")
 	}
@@ -137,7 +138,7 @@ func TestCoinMarketCupClient_FetchCurrencyRate_RequestError(t *testing.T) {
 func TestCoinMarketCupClient_FetchCurrencyRate_Ok(t *testing.T) {
 	client := NewCoinMarketCupClient("http://url.com", "api_key")
 	client.HttpClient = HttpClientMock{}
-	rate, err := client.FetchCurrencyRate(BTC)
+	rate, err := client.FetchCurrencyRate(crypto_currency.BTC)
 	if err != nil {
 		t.Errorf("No error expected.")
 	}

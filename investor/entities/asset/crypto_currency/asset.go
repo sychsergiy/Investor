@@ -1,6 +1,8 @@
 package crypto_currency
 
-import "investor/asset"
+import (
+	"investor/entities/asset"
+)
 
 type CryptoCurrency string
 
