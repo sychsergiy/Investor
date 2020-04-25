@@ -3,9 +3,9 @@ package cli
 import (
 	"bufio"
 	"fmt"
-	"investor/entities"
 	"investor/entities/asset"
 	"investor/entities/asset/crypto_currency"
+	"investor/entities/payment"
 	"investor/interactors"
 	"os"
 	"strconv"
@@ -80,13 +80,13 @@ func ParseTime(str string) (time.Time, error) {
 	return time.Parse("2006-01-02 15:04:05", str)
 }
 
-func choosePaymentType() entities.PaymentType {
+func choosePaymentType() payment.Type {
 	fmt.Println("Choose ports type:\n 1 - Invest \n 2 - Return")
 	switch input := readFromConsole(); input {
 	case "1":
-		return entities.Invest
+		return payment.Invest
 	case "2":
-		return entities.Return
+		return payment.Return
 	default:
 		panic("Unexpected input")
 	}

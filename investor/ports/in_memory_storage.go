@@ -2,11 +2,11 @@ package ports
 
 import (
 	"fmt"
-	"investor/entities"
+	"investor/entities/payment"
 )
 
 type InMemoryStorage struct {
-	payments map[string]entities.Payment
+	payments map[string]payment.Payment
 }
 
 type PaymentAlreadyExitsError struct {
@@ -17,7 +17,7 @@ func (e PaymentAlreadyExitsError) Error() string {
 	return fmt.Sprintf("payment with id %s already exists", e.PaymentId)
 }
 
-func (storage *InMemoryStorage) Create(payment entities.Payment) (err error) {
+func (storage *InMemoryStorage) Create(payment payment.Payment) (err error) {
 	_, idExists := storage.payments[payment.Id]
 	if idExists {
 		err = PaymentAlreadyExitsError{PaymentId: payment.Id}
@@ -28,5 +28,5 @@ func (storage *InMemoryStorage) Create(payment entities.Payment) (err error) {
 }
 
 func NewInMemoryStorage() *InMemoryStorage {
-	return &InMemoryStorage{payments: make(map[string]entities.Payment)}
+	return &InMemoryStorage{payments: make(map[string]payment.Payment)}
 }

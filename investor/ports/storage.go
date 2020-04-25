@@ -1,9 +1,11 @@
 package ports
 
-import "investor/entities"
+import (
+	"investor/entities/payment"
+)
 
 type Identifier int
 
 type PaymentSaver interface {
-	Create(payment entities.Payment) error
+	Create(payment payment.Payment) error
 }

@@ -1,18 +1,18 @@
-package entities
+package payment
 
 import (
 	"investor/entities/asset"
 	"time"
 )
 
-type PaymentType int
+type Type int
 
 const (
-	Invest PaymentType = iota
+	Invest Type = iota
 	Return
 )
 
-func (t PaymentType) String() string {
+func (t Type) String() string {
 	return [...]string{"Invest", "Return"}[t]
 }
 
@@ -21,11 +21,11 @@ type Payment struct {
 	AssetAmount    float32
 	AbsoluteAmount float32
 	Asset          asset.Asset
-	Type           PaymentType
+	Type           Type
 	CreationDate   time.Time
 }
 
-func NewInvestmentPayment(
+func NewInvestment(
 	id string, assetAmount float32, absoluteAmount float32,
 	asset asset.Asset, creationDate time.Time,
 ) Payment {
@@ -39,7 +39,7 @@ func NewInvestmentPayment(
 	}
 }
 
-func NewReturnPayment(
+func NewReturn(
 	id string, assetAmount float32, absoluteAmount float32,
 	asset asset.Asset, creationDate time.Time,
 ) Payment {

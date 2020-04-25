@@ -2,8 +2,8 @@ package interactors
 
 import (
 	"fmt"
-	"investor/entities"
-	"investor/entities/asset"
+	assetEntity "investor/entities/asset"
+	paymentEntity "investor/entities/payment"
 	"investor/ports"
 	"time"
 )
@@ -16,19 +16,19 @@ type PaymentCreator struct {
 type CreatePaymentModel struct {
 	AssetAmount    float32
 	AbsoluteAmount float32
-	Asset          asset.Asset
-	Type           entities.PaymentType
+	Asset          assetEntity.Asset
+	Type           paymentEntity.Type
 	CreationDate   time.Time
 }
 
-func (pc PaymentCreator) cratePaymentInstance(paymentModel CreatePaymentModel, id string) (payment entities.Payment) {
-	if paymentModel.Type == entities.Return {
-		payment = entities.NewReturnPayment(
+func (pc PaymentCreator) cratePaymentInstance(paymentModel CreatePaymentModel, id string) (p paymentEntity.Payment) {
+	if paymentModel.Type == paymentEntity.Return {
+		p = paymentEntity.NewReturn(
 			id, paymentModel.AssetAmount, paymentModel.AbsoluteAmount,
 			paymentModel.Asset, paymentModel.CreationDate,
 		)
-	} else if paymentModel.Type == entities.Invest {
-		payment = entities.NewInvestmentPayment(
+	} else if paymentModel.Type == paymentEntity.Invest {
+		p = paymentEntity.NewInvestment(
 			id, paymentModel.AssetAmount, paymentModel.AbsoluteAmount,
 			paymentModel.Asset, paymentModel.CreationDate,
 		)
@@ -40,8 +40,8 @@ func (pc PaymentCreator) cratePaymentInstance(paymentModel CreatePaymentModel, i
 
 func (pc PaymentCreator) Create(paymentModel CreatePaymentModel) (err error) {
 	id := pc.IdGenerator.Generate()
-	payment := pc.cratePaymentInstance(paymentModel, id)
+	p := pc.cratePaymentInstance(paymentModel, id)
 	// todo: add validation
-	err = pc.Storage.Create(payment)
+	err = pc.Storage.Create(p)
 	return
 }
