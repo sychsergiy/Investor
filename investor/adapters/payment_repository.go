@@ -1,4 +1,4 @@
-package ports
+package adapters
 
 import (
 	"fmt"

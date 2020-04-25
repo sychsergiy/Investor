@@ -1,26 +1,27 @@
 package main
 
 import (
-	"investor/cli"
-	"investor/interactors"
 	"investor/adapters"
+	"investor/cli/payment"
+	"investor/cli/payment/rate_fetcher"
+	"investor/interactors"
 	"log"
 	"os"
 )
 
-func setupDependencies(coinMarketCupApiKey string) cli.ConsolePaymentCreator {
+func setupDependencies(coinMarketCupApiKey string) payment.ConsolePaymentCreator {
 
-	coinMarketCupClient := cli.NewCoinMarketCupClient(
+	coinMarketCupClient := rate_fetcher.NewCoinMarketCupClient(
 		"https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest", coinMarketCupApiKey,
 	)
-	fetcher := cli.CMCRateFetcher{
+	fetcher := rate_fetcher.CMCRateFetcher{
 		Client: coinMarketCupClient,
 	}
 
-	storage := ports.NewInMemoryPaymentRepository()
-	paymentCreateInteractor := interactors.PaymentCreator{PaymentSaver: storage, IdGenerator: ports.NewStubIdGenerator()}
+	storage := adapters.NewInMemoryPaymentRepository()
+	paymentCreateInteractor := interactors.PaymentCreator{PaymentSaver: storage, IdGenerator: adapters.NewStubIdGenerator()}
 
-	return cli.ConsolePaymentCreator{PaymentCreator: paymentCreateInteractor, RateFetcher: fetcher}
+	return payment.ConsolePaymentCreator{PaymentCreator: paymentCreateInteractor, RateFetcher: fetcher}
 }
 func main() {
 	apiKey := os.Getenv("COIN_MARKET_CAP_API_KEY")

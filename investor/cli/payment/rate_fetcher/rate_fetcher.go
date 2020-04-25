@@ -1,4 +1,4 @@
-package cli
+package rate_fetcher
 
 import (
 	"investor/entities/asset"

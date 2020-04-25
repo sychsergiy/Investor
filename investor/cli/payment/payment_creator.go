@@ -1,8 +1,9 @@
-package cli
+package payment
 
 import (
 	"bufio"
 	"fmt"
+	"investor/cli/payment/rate_fetcher"
 	"investor/entities/asset"
 	"investor/entities/asset/crypto_currency"
 	"investor/entities/payment"
@@ -14,7 +15,7 @@ import (
 
 type ConsolePaymentCreator struct {
 	PaymentCreator interactors.PaymentCreator
-	RateFetcher    RateFetcher
+	RateFetcher    rate_fetcher.RateFetcher
 }
 
 func (cpc ConsolePaymentCreator) Create() error {
