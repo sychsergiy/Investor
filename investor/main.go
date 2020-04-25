@@ -2,7 +2,7 @@ package main
 
 import (
 	"investor/adapters"
-	"investor/adapters/payment_repository/json"
+	"investor/adapters/payment_repository/in_memory"
 	"investor/cli/payment"
 	"investor/cli/payment/rate_fetcher"
 	"investor/interactors"
@@ -19,7 +19,7 @@ func setupDependencies(coinMarketCupApiKey string) payment.ConsolePaymentCreator
 		Client: coinMarketCupClient,
 	}
 
-	storage := json.NewInMemoryPaymentRepository()
+	storage := in_memory.NewInMemoryPaymentRepository()
 	paymentCreateInteractor := interactors.PaymentCreator{PaymentSaver: storage, IdGenerator: adapters.NewStubIdGenerator()}
 
 	return payment.ConsolePaymentCreator{PaymentCreator: paymentCreateInteractor, RateFetcher: fetcher}

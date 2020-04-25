@@ -1,4 +1,4 @@
-package json
+package in_memory
 
 import (
 	"investor/entities/asset"
