@@ -1,30 +1,36 @@
 package main
 
 import (
-	"fmt"
-	"investor/asset/crypto_currency"
+	"investor/adapters"
+	"investor/cli/payment"
+	"investor/cli/payment/rate_fetcher"
+	"investor/interactors"
 	"log"
 	"os"
 )
 
-func setupDependencies(coinMarketCupApiKey string) crypto_currency.RateFetcher {
-	coinMarketCupClient := crypto_currency.NewCoinMarketCupClient(
+func setupDependencies(coinMarketCupApiKey string) payment.ConsolePaymentCreator {
+
+	coinMarketCupClient := rate_fetcher.NewCoinMarketCupClient(
 		"https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest", coinMarketCupApiKey,
 	)
-	fetcher := crypto_currency.RateFetcher{
+	fetcher := rate_fetcher.CMCRateFetcher{
 		Client: coinMarketCupClient,
 	}
-	return fetcher
+
+	storage := adapters.NewInMemoryPaymentRepository()
+	paymentCreateInteractor := interactors.PaymentCreator{PaymentSaver: storage, IdGenerator: adapters.NewStubIdGenerator()}
+
+	return payment.ConsolePaymentCreator{PaymentCreator: paymentCreateInteractor, RateFetcher: fetcher}
 }
 func main() {
 	apiKey := os.Getenv("COIN_MARKET_CAP_API_KEY")
 	if apiKey == "" {
 		log.Fatal("COIN_MARKET_CAP_API_KEY env var not provided")
 	}
-	fetcher := setupDependencies(apiKey)
-	rate, err := fetcher.Fetch(crypto_currency.NewAsset(crypto_currency.BTC))
+	paymentCreator := setupDependencies(apiKey)
+	err := paymentCreator.Create()
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("BTC rate: %f", rate)
 }
