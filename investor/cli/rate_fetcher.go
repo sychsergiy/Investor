@@ -1,4 +1,4 @@
-package ports
+package cli
 
 import (
 	"investor/entities/asset"

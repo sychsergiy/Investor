@@ -3,6 +3,7 @@ package interactors
 import (
 	"bufio"
 	"fmt"
+	"investor/cli"
 	"investor/entities"
 	"investor/entities/asset"
 	"investor/entities/asset/crypto_currency"
@@ -14,7 +15,7 @@ import (
 
 type PaymentCreator struct {
 	Storage     ports.PaymentSaver // todo: add repository here
-	RateFetcher ports.RateFetcher
+	RateFetcher cli.RateFetcher
 	IdGenerator ports.IdGenerator
 }
 

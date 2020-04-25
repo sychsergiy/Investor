@@ -1,6 +1,7 @@
 package main
 
 import (
+	"investor/cli"
 	"investor/interactors"
 	"investor/ports"
 	"log"
@@ -9,10 +10,10 @@ import (
 
 func setupDependencies(coinMarketCupApiKey string) interactors.PaymentCreator {
 
-	coinMarketCupClient := ports.NewCoinMarketCupClient(
+	coinMarketCupClient := cli.NewCoinMarketCupClient(
 		"https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest", coinMarketCupApiKey,
 	)
-	fetcher := ports.CMCRateFetcher{
+	fetcher := cli.CMCRateFetcher{
 		Client: coinMarketCupClient,
 	}
 
