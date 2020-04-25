@@ -1,27 +1,24 @@
 package ports
 
-import "investor/entities"
+import (
+	"fmt"
+	"investor/entities"
+)
 
 type InMemoryStorage struct {
-	payments map[int]entities.Payment
+	payments map[string]entities.Payment
 }
 
-func getNextID(payments map[int]entities.Payment) int {
-	max := -1
-	for key := range payments {
-		if key > max {
-			max = key
-		}
+func (storage *InMemoryStorage) Create(payment entities.Payment) (err error) {
+	_, idExists := storage.payments[payment.Id]
+	if idExists {
+		err = fmt.Errorf("payment with id %s already exists", payment.Id)
+	} else {
+		storage.payments[payment.Id] = payment
 	}
-	return max + 1
-}
-
-func (storage *InMemoryStorage) Save(payment entities.Payment) Identifier {
-	id := getNextID(storage.payments)
-	storage.payments[id] = payment
-	return Identifier(id)
+	return
 }
 
 func NewInMemoryStorage() *InMemoryStorage {
-	return &InMemoryStorage{payments: make(map[int]entities.Payment)}
+	return &InMemoryStorage{payments: make(map[string]entities.Payment)}
 }

@@ -13,19 +13,52 @@ import (
 )
 
 type PaymentCreator struct {
-	Storage     ports.PaymentSaver
+	Storage     ports.PaymentSaver // todo: add repository here
 	RateFetcher ports.RateFetcher
 	IdGenerator ports.IdGenerator
 }
 
-func (pc PaymentCreator) Create() {
+type CreatePaymentModel struct {
+	AssetAmount    float32
+	AbsoluteAmount float32
+	Asset          asset.Asset
+	Type           entities.PaymentType
+	CreationDate   time.Time
+}
+
+func (pc PaymentCreator) cratePaymentInstance(paymentModel CreatePaymentModel, id string) (payment entities.Payment) {
+	if paymentModel.Type == entities.Return {
+		payment = entities.NewReturnPayment(
+			id, paymentModel.AssetAmount, paymentModel.AbsoluteAmount,
+			paymentModel.Asset, paymentModel.CreationDate,
+		)
+	} else if paymentModel.Type == entities.Invest {
+		payment = entities.NewInvestmentPayment(
+			id, paymentModel.AssetAmount, paymentModel.AbsoluteAmount,
+			paymentModel.Asset, paymentModel.CreationDate,
+		)
+	} else {
+		panic(fmt.Sprintf("unexpected ports type: %d", paymentModel.Type))
+	}
+	return
+}
+
+func (pc PaymentCreator) Create(paymentModel CreatePaymentModel) (err error) {
+	id := pc.IdGenerator.Generate()
+	payment := pc.cratePaymentInstance(paymentModel, id)
+	// todo: add validation
+	err = pc.Storage.Create(payment)
+	return
+}
+
+func (pc PaymentCreator) CreateFromCLI() error {
 	paymentType := choosePaymentType()
 	asset_ := chooseAsset()
 	date := readCreationDate()
 
 	rate, err := pc.RateFetcher.Fetch(asset_)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	fmt.Printf("Suggested currency rate %f\n", rate) // todo: suggest for creation date, now today
 
@@ -36,20 +69,15 @@ func (pc PaymentCreator) Create() {
 	fmt.Println("Enter invested amount in asset: ")
 	assetAmount := readAmount()
 
-	var payment entities.Payment
-	id := pc.IdGenerator.Generate()
-	if paymentType == entities.Return {
-		payment = entities.NewReturnPayment(id, assetAmount, absoluteAmount, asset_, date)
-	} else if paymentType == entities.Invest {
-		payment = entities.NewInvestmentPayment(id, assetAmount, absoluteAmount, asset_, date)
-	} else {
-		panic(fmt.Sprintf("unexpected ports type: %d", paymentType))
+	model := CreatePaymentModel{
+		AssetAmount: assetAmount, AbsoluteAmount: absoluteAmount,
+		Asset: asset_, Type: paymentType, CreationDate: date,
 	}
-
-	saveRecord := readCompleteOrAbort(payment)
+	saveRecord := readCompleteOrAbort(model)
 	if saveRecord {
-		pc.Storage.Save(payment)
+		err = pc.Create(model)
 	}
+	return err
 }
 
 func readFromConsole() string {
@@ -58,10 +86,10 @@ func readFromConsole() string {
 	return scanner.Text()
 }
 
-func readCompleteOrAbort(record entities.Payment) bool {
-	fmt.Println("Verify created ports: ")
-	fmt.Printf("%+v\n", record)
-	fmt.Println("Enter:  1 - to save record, 2 - to abort")
+func readCompleteOrAbort(model CreatePaymentModel) bool {
+	fmt.Println("Verify created payment: ")
+	fmt.Printf("%+v\n", model)
+	fmt.Println("Enter:  1 - to save model, 2 - to abort")
 	input := readFromConsole()
 	if input == "1" {
 		return true
@@ -87,7 +115,7 @@ func ParseTime(str string) (time.Time, error) {
 	return time.Parse("2006-01-02 15:04:05", str)
 }
 
-func choosePaymentType() entities.Type {
+func choosePaymentType() entities.PaymentType {
 	fmt.Println("Choose ports type:\n 1 - Invest \n 2 - Return")
 	switch input := readFromConsole(); input {
 	case "1":

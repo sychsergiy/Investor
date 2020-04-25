@@ -25,5 +25,5 @@ func main() {
 		log.Fatal("COIN_MARKET_CAP_API_KEY env var not provided")
 	}
 	paymentCreator := setupDependencies(apiKey)
-	paymentCreator.Create()
+	paymentCreator.CreateFromCLI()
 }

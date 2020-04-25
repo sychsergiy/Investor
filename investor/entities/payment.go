@@ -5,14 +5,14 @@ import (
 	"time"
 )
 
-type Type int
+type PaymentType int
 
 const (
-	Invest Type = iota
+	Invest PaymentType = iota
 	Return
 )
 
-func (t Type) String() string {
+func (t PaymentType) String() string {
 	return [...]string{"Invest", "Return"}[t]
 }
 
@@ -21,7 +21,7 @@ type Payment struct {
 	AssetAmount    float32
 	AbsoluteAmount float32
 	Asset          asset.Asset
-	Type           Type
+	Type           PaymentType
 	CreationDate   time.Time
 }
 
