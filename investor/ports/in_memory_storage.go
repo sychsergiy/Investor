@@ -9,10 +9,18 @@ type InMemoryStorage struct {
 	payments map[string]entities.Payment
 }
 
+type PaymentAlreadyExitsError struct {
+	PaymentId string
+}
+
+func (e PaymentAlreadyExitsError) Error() string {
+	return fmt.Sprintf("payment with id %s already exists", e.PaymentId)
+}
+
 func (storage *InMemoryStorage) Create(payment entities.Payment) (err error) {
 	_, idExists := storage.payments[payment.Id]
 	if idExists {
-		err = fmt.Errorf("payment with id %s already exists", payment.Id)
+		err = PaymentAlreadyExitsError{PaymentId: payment.Id}
 	} else {
 		storage.payments[payment.Id] = payment
 	}
