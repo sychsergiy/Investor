@@ -8,7 +8,7 @@ import (
 	"os"
 )
 
-func setupDependencies(coinMarketCupApiKey string) interactors.PaymentCreator {
+func setupDependencies(coinMarketCupApiKey string) cli.ConsolePaymentCreator {
 
 	coinMarketCupClient := cli.NewCoinMarketCupClient(
 		"https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest", coinMarketCupApiKey,
@@ -18,7 +18,9 @@ func setupDependencies(coinMarketCupApiKey string) interactors.PaymentCreator {
 	}
 
 	storage := ports.NewInMemoryStorage()
-	return interactors.PaymentCreator{Storage: storage, RateFetcher: fetcher, IdGenerator: ports.NewStubIdGenerator()}
+	paymentCreateInteractor := interactors.PaymentCreator{Storage: storage, IdGenerator: ports.NewStubIdGenerator()}
+
+	return cli.ConsolePaymentCreator{PaymentCreator: paymentCreateInteractor, RateFetcher: fetcher}
 }
 func main() {
 	apiKey := os.Getenv("COIN_MARKET_CAP_API_KEY")
@@ -26,5 +28,8 @@ func main() {
 		log.Fatal("COIN_MARKET_CAP_API_KEY env var not provided")
 	}
 	paymentCreator := setupDependencies(apiKey)
-	paymentCreator.CreateFromCLI()
+	err := paymentCreator.Create()
+	if err != nil {
+		log.Fatal(err)
+	}
 }
