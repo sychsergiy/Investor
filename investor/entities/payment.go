@@ -16,10 +16,39 @@ func (t Type) String() string {
 	return [...]string{"Invest", "Return"}[t]
 }
 
-type Payment interface {
-	AbsoluteAmount() float32
-	AssetAmount() float32
-	Asset() asset.Asset
-	Type() Type
-	CreationDate() time.Time
+type Payment struct {
+	Id             string
+	AssetAmount    float32
+	AbsoluteAmount float32
+	Asset          asset.Asset
+	Type           Type
+	CreationDate   time.Time
+}
+
+func NewInvestmentPayment(
+	id string, assetAmount float32, absoluteAmount float32,
+	asset asset.Asset, creationDate time.Time,
+) Payment {
+	return Payment{
+		Id:             id,
+		AssetAmount:    assetAmount,
+		AbsoluteAmount: absoluteAmount,
+		Asset:          asset,
+		Type:           Invest,
+		CreationDate:   creationDate,
+	}
+}
+
+func NewReturnPayment(
+	id string, assetAmount float32, absoluteAmount float32,
+	asset asset.Asset, creationDate time.Time,
+) Payment {
+	return Payment{
+		Id:             id,
+		AssetAmount:    assetAmount,
+		AbsoluteAmount: absoluteAmount,
+		Asset:          asset,
+		Type:           Return,
+		CreationDate:   creationDate,
+	}
 }

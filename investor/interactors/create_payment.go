@@ -13,10 +13,10 @@ import (
 )
 
 type PaymentCreator struct {
-	Storage     ports.Creator
+	Storage     ports.PaymentSaver
 	RateFetcher ports.RateFetcher
+	IdGenerator ports.IdGenerator
 }
-
 
 func (pc PaymentCreator) Create() {
 	paymentType := choosePaymentType()
@@ -32,22 +32,23 @@ func (pc PaymentCreator) Create() {
 	fmt.Println("Enter invested amount in USD: ")
 	absoluteAmount := readAmount()
 
-	fmt.Printf("Suggested asset amount %f\n", float32(rate) * absoluteAmount)
+	fmt.Printf("Suggested asset amount %f\n", float32(rate)*absoluteAmount)
 	fmt.Println("Enter invested amount in asset: ")
 	assetAmount := readAmount()
 
-	var record ports.Record
+	var payment entities.Payment
+	id := pc.IdGenerator.Generate()
 	if paymentType == entities.Return {
-		record = ports.NewReturn(assetAmount, absoluteAmount, asset_, date)
+		payment = entities.NewReturnPayment(id, assetAmount, absoluteAmount, asset_, date)
 	} else if paymentType == entities.Invest {
-		record = ports.NewInvestment(assetAmount, absoluteAmount, asset_, date)
+		payment = entities.NewInvestmentPayment(id, assetAmount, absoluteAmount, asset_, date)
 	} else {
 		panic(fmt.Sprintf("unexpected ports type: %d", paymentType))
 	}
 
-	saveRecord := readCompleteOrAbort(record)
+	saveRecord := readCompleteOrAbort(payment)
 	if saveRecord {
-		pc.Storage.Create(record)
+		pc.Storage.Save(payment)
 	}
 }
 
@@ -57,7 +58,7 @@ func readFromConsole() string {
 	return scanner.Text()
 }
 
-func readCompleteOrAbort(record ports.Record) bool {
+func readCompleteOrAbort(record entities.Payment) bool {
 	fmt.Println("Verify created ports: ")
 	fmt.Printf("%+v\n", record)
 	fmt.Println("Enter:  1 - to save record, 2 - to abort")
@@ -82,10 +83,9 @@ func readCreationDate() time.Time {
 	return creationDate
 }
 
-func ParseTime(str string) (time.Time, error){
+func ParseTime(str string) (time.Time, error) {
 	return time.Parse("2006-01-02 15:04:05", str)
 }
-
 
 func choosePaymentType() entities.Type {
 	fmt.Println("Choose ports type:\n 1 - Invest \n 2 - Return")

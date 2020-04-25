@@ -16,7 +16,7 @@ func getNextID(payments map[int]entities.Payment) int {
 	return max + 1
 }
 
-func (storage *InMemoryStorage) Create(payment entities.Payment) Identifier {
+func (storage *InMemoryStorage) Save(payment entities.Payment) Identifier {
 	id := getNextID(storage.payments)
 	storage.payments[id] = payment
 	return Identifier(id)

@@ -4,6 +4,6 @@ import "investor/entities"
 
 type Identifier int
 
-type Creator interface {
-	Create(payment entities.Payment) Identifier
+type PaymentSaver interface {
+	Save(payment entities.Payment) Identifier
 }

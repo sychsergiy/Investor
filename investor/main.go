@@ -17,7 +17,7 @@ func setupDependencies(coinMarketCupApiKey string) interactors.PaymentCreator {
 	}
 
 	storage := ports.NewInMemoryStorage()
-	return interactors.PaymentCreator{Storage: storage, RateFetcher: fetcher}
+	return interactors.PaymentCreator{Storage: storage, RateFetcher: fetcher, IdGenerator: ports.NewStubIdGenerator()}
 }
 func main() {
 	apiKey := os.Getenv("COIN_MARKET_CAP_API_KEY")
