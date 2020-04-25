@@ -1,4 +1,4 @@
-package adapters
+package json
 
 import (
 	"investor/entities/asset"
