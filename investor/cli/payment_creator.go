@@ -81,7 +81,7 @@ func ParseTime(str string) (time.Time, error) {
 }
 
 func choosePaymentType() payment.Type {
-	fmt.Println("Choose ports type:\n 1 - Invest \n 2 - Return")
+	fmt.Println("Choose adapters type:\n 1 - Invest \n 2 - Return")
 	switch input := readFromConsole(); input {
 	case "1":
 		return payment.Invest

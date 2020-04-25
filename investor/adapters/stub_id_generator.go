@@ -2,9 +2,6 @@ package ports
 
 import "strconv"
 
-type IdGenerator interface {
-	Generate() string
-}
 
 type StubIdGenerator struct {
 	counter int

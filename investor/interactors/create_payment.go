@@ -4,13 +4,12 @@ import (
 	"fmt"
 	assetEntity "investor/entities/asset"
 	paymentEntity "investor/entities/payment"
-	"investor/ports"
 	"time"
 )
 
 type PaymentCreator struct {
-	Storage     ports.PaymentSaver // todo: add repository here
-	IdGenerator ports.IdGenerator
+	PaymentSaver PaymentSaver // todo: add repository here
+	IdGenerator  IdGenerator
 }
 
 type CreatePaymentModel struct {
@@ -21,7 +20,7 @@ type CreatePaymentModel struct {
 	CreationDate   time.Time
 }
 
-func (pc PaymentCreator) cratePaymentInstance(paymentModel CreatePaymentModel, id string) (p paymentEntity.Payment) {
+func (pc PaymentCreator) createPaymentInstance(paymentModel CreatePaymentModel, id string) (p paymentEntity.Payment) {
 	if paymentModel.Type == paymentEntity.Return {
 		p = paymentEntity.NewReturn(
 			id, paymentModel.AssetAmount, paymentModel.AbsoluteAmount,
@@ -33,15 +32,15 @@ func (pc PaymentCreator) cratePaymentInstance(paymentModel CreatePaymentModel, i
 			paymentModel.Asset, paymentModel.CreationDate,
 		)
 	} else {
-		panic(fmt.Sprintf("unexpected ports type: %d", paymentModel.Type))
+		panic(fmt.Sprintf("unexpected adapters type: %d", paymentModel.Type))
 	}
 	return
 }
 
 func (pc PaymentCreator) Create(paymentModel CreatePaymentModel) (err error) {
 	id := pc.IdGenerator.Generate()
-	p := pc.cratePaymentInstance(paymentModel, id)
+	p := pc.createPaymentInstance(paymentModel, id)
 	// todo: add validation
-	err = pc.Storage.Create(p)
+	err = pc.PaymentSaver.Create(p)
 	return
 }

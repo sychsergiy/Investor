@@ -3,7 +3,7 @@ package main
 import (
 	"investor/cli"
 	"investor/interactors"
-	"investor/ports"
+	"investor/adapters"
 	"log"
 	"os"
 )
@@ -17,8 +17,8 @@ func setupDependencies(coinMarketCupApiKey string) cli.ConsolePaymentCreator {
 		Client: coinMarketCupClient,
 	}
 
-	storage := ports.NewInMemoryStorage()
-	paymentCreateInteractor := interactors.PaymentCreator{Storage: storage, IdGenerator: ports.NewStubIdGenerator()}
+	storage := ports.NewInMemoryPaymentRepository()
+	paymentCreateInteractor := interactors.PaymentCreator{PaymentSaver: storage, IdGenerator: ports.NewStubIdGenerator()}
 
 	return cli.ConsolePaymentCreator{PaymentCreator: paymentCreateInteractor, RateFetcher: fetcher}
 }
