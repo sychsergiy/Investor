@@ -1,45 +1,35 @@
 package in_memory
 
 import (
-	"fmt"
+	"investor/adapters/repositories"
 	paymentEntity "investor/entities/payment"
 )
 
 type InMemoryPaymentRepository struct {
-	payments map[string]paymentEntity.Payment
+	repository repositories.InMemoryRepository
 }
 
-type PaymentAlreadyExistsError struct {
-	PaymentId string
+type PaymentRecord struct {
+	Payment paymentEntity.Payment
 }
 
-func (e PaymentAlreadyExistsError) Error() string {
-	return fmt.Sprintf("payment with id %s already exists", e.PaymentId)
+func (p PaymentRecord) Id() string {
+	return p.Payment.Id
 }
 
-func (storage *InMemoryPaymentRepository) Create(payment paymentEntity.Payment) (err error) {
-	_, idExists := storage.payments[payment.Id]
-	if idExists {
-		err = PaymentAlreadyExistsError{PaymentId: payment.Id}
-	} else {
-		storage.payments[payment.Id] = payment
+func (r *InMemoryPaymentRepository) Create(payment paymentEntity.Payment) error {
+	record := PaymentRecord{Payment: payment}
+	return r.repository.Create(record)
+}
+
+func (r *InMemoryPaymentRepository) CreateBulk(payments []paymentEntity.Payment) (int, error) {
+	var records []repositories.Record
+	for _, payment := range payments {
+		records = append(records, PaymentRecord{Payment: payment})
 	}
-	return
+	return r.repository.CreateBulk(records)
 }
 
-func (storage *InMemoryPaymentRepository) CreateBulk(payments []paymentEntity.Payment) (int, error) {
-	var createdCount int
-	for createdCount, payment := range payments {
-		_, idExists := storage.payments[payment.Id]
-		if idExists {
-			return createdCount, PaymentAlreadyExistsError{PaymentId: payment.Id}
-		} else {
-			storage.payments[payment.Id] = payment
-		}
-	}
-	return createdCount, nil
-}
-
-func NewInMemoryPaymentRepository() *InMemoryPaymentRepository {
-	return &InMemoryPaymentRepository{payments: make(map[string]paymentEntity.Payment)}
+func NewInMemoryPaymentRepository(repository repositories.InMemoryRepository) *InMemoryPaymentRepository {
+	return &InMemoryPaymentRepository{repository: repository}
 }

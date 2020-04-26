@@ -13,7 +13,7 @@ func (e EntityMock) Id() string {
 }
 
 func TestInMemoryRepository_Create(t *testing.T) {
-	repository := NewInMemoryCreateRepository()
+	repository := NewInMemoryRepository()
 	e1 := EntityMock{"1"}
 
 	// save first payment, no errors expected
@@ -24,7 +24,7 @@ func TestInMemoryRepository_Create(t *testing.T) {
 
 	// try to save payment with the same id
 	err = repository.Create(e1)
-	expectedErr := EntityAlreadyExistsError{"1"}
+	expectedErr := RecordAlreadyExistsError{"1"}
 	if err != expectedErr {
 		t.Error("Payment with id already exists error expected")
 	}
@@ -33,9 +33,9 @@ func TestInMemoryRepository_Create(t *testing.T) {
 func TestInMemoryRepository_CreateBulk(t *testing.T) {
 	e1 := EntityMock{"1"}
 	e2 := EntityMock{"2"}
-	repository := NewInMemoryCreateRepository()
+	repository := NewInMemoryRepository()
 
-	createdQuantity, err := repository.CreateBulk([]Entity{e1, e2})
+	createdQuantity, err := repository.CreateBulk([]Record{e1, e2})
 	if err != nil {
 		t.Errorf("Unpected error")
 		if createdQuantity != 2 {
@@ -43,9 +43,9 @@ func TestInMemoryRepository_CreateBulk(t *testing.T) {
 		}
 	}
 
-	repository = NewInMemoryCreateRepository()
-	expectedErr := EntityAlreadyExistsError{"1"}
-	createdQuantity, err = repository.CreateBulk([]Entity{e1, e1})
+	repository = NewInMemoryRepository()
+	expectedErr := RecordAlreadyExistsError{"1"}
+	createdQuantity, err = repository.CreateBulk([]Record{e1, e1})
 	if err != expectedErr {
 		t.Errorf("Payment alread exists error expected")
 	}

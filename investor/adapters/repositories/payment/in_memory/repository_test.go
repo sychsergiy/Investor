@@ -1,6 +1,7 @@
 package in_memory
 
 import (
+	"investor/adapters/repositories"
 	"investor/entities/asset"
 	"investor/entities/payment"
 	"testing"
@@ -8,7 +9,8 @@ import (
 )
 
 func TestInMemoryPaymentRepository_Create(t *testing.T) {
-	repository := NewInMemoryPaymentRepository()
+	r := repositories.NewInMemoryRepository()
+	repository := NewInMemoryPaymentRepository(r)
 	testAsset := asset.Asset{Category: asset.CryptoCurrency, Name: "test"}
 	creationTime := time.Date(2020, 0, 0, 0, 0, 0, 0, time.UTC)
 	p := payment.NewReturn("1", 0, 0, testAsset, creationTime)
@@ -21,7 +23,7 @@ func TestInMemoryPaymentRepository_Create(t *testing.T) {
 
 	// try to save payment with the same id
 	err = repository.Create(p)
-	expectedErr := PaymentAlreadyExistsError{"1"}
+	expectedErr := repositories.RecordAlreadyExistsError{RecordId: "1"}
 	if err != expectedErr {
 		t.Error("Payment with id already exists error expected")
 	}
@@ -32,7 +34,7 @@ func TestInMemoryPaymentRepository_CreateBulk(t *testing.T) {
 	testAsset := asset.Asset{Category: asset.CryptoCurrency, Name: "test"}
 	p1 := payment.NewReturn("1", 0, 0, testAsset, creationTime)
 	p2 := payment.NewInvestment("2", 0, 0, testAsset, creationTime)
-	repository := NewInMemoryPaymentRepository()
+	repository := NewInMemoryPaymentRepository(repositories.NewInMemoryRepository())
 
 	createdQuantity, err := repository.CreateBulk([]payment.Payment{p1, p2})
 	if err != nil {
@@ -42,8 +44,8 @@ func TestInMemoryPaymentRepository_CreateBulk(t *testing.T) {
 		}
 	}
 
-	repository = NewInMemoryPaymentRepository()
-	expectedErr := PaymentAlreadyExistsError{"1"}
+	repository = NewInMemoryPaymentRepository(repositories.NewInMemoryRepository())
+	expectedErr := repositories.RecordAlreadyExistsError{RecordId: "1"}
 	createdQuantity, err = repository.CreateBulk([]payment.Payment{p1, p1})
 	if err != expectedErr {
 		t.Errorf("Payment alread exists error expected")
