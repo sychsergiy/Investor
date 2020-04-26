@@ -6,7 +6,7 @@ import (
 )
 
 type AssetRecord struct {
-	Asset assetEntity.Asset
+	assetEntity.Asset
 }
 
 func (a AssetRecord) Id() string {

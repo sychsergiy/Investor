@@ -10,7 +10,7 @@ type InMemoryPaymentRepository struct {
 }
 
 type PaymentRecord struct {
-	Payment paymentEntity.Payment
+	paymentEntity.Payment
 }
 
 func (p PaymentRecord) Id() string {
