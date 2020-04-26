@@ -3,39 +3,10 @@ package repositories
 import (
 	"encoding/json"
 	"io"
-	"os"
 )
 
-type FileReader struct {
-	Path string
-}
-
-type FileWriter struct {
-	Path string
-}
-
-func (fw FileWriter) Write(p []byte) (n int, err error) {
-	f, err := os.Create(fw.Path)
-	if err != nil {
-		return 0, err
-	}
-	n, err = f.Write(p)
-	return
-}
-
-func (reader FileReader) Read(p []byte) (int, error) { // todo: change on io.Reader
-	file, err := os.Open(reader.Path)
-	if err != nil {
-		return 0, err
-	}
-	defer file.Close()
-
-	n, err := file.Read(p)
-	return n, err
-}
-
 type JsonFileRepository struct {
-	recordsReader RecordsJsonReader // todo: change on Json Reader
+	recordsReader RecordsJsonReader
 	recordsWriter RecordsJsonWriter
 	repository    InMemoryRepository
 }
@@ -77,7 +48,8 @@ func (w RecordsJsonWriter) Write(recordsMap map[string]Record) error {
 }
 
 type RecordsJsonReader struct {
-	reader io.Reader
+	reader      io.Reader
+	unmarshaler RecordUnmarshaler
 }
 
 func (w RecordsJsonReader) Read() (map[string]Record, error) {
@@ -87,15 +59,14 @@ func (w RecordsJsonReader) Read() (map[string]Record, error) {
 		return nil, err
 	}
 
-	var recordsMap map[string]Record
-	err = json.Unmarshal(content, &recordsMap)
+	recordsMap, err := w.unmarshaler.Unmarshal(content)
 	return recordsMap, err
 }
 
-func NewJsonFileRepository() JsonFileRepository {
-	return JsonFileRepository{
-		RecordsJsonReader{FileReader{"payments.json"}},
-		RecordsJsonWriter{FileWriter{"payments.json"}},
-		NewInMemoryRepository(),
-	}
+type RecordUnmarshaler interface {
+	Unmarshal([]byte) (map[string]Record, error)
+}
+
+func NewJsonFileRepository(reader RecordsJsonReader, writer RecordsJsonWriter) JsonFileRepository {
+	return JsonFileRepository{reader, writer, NewInMemoryRepository()}
 }
