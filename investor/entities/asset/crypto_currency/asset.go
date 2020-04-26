@@ -13,6 +13,6 @@ const (
 	DASH                = "DASH"
 )
 
-func NewAsset(name CryptoCurrency) asset.Asset {
-	return asset.Asset{Category: asset.CryptoCurrency, Name: string(name)}
+func NewAsset(id string, name CryptoCurrency) asset.Asset {
+	return asset.Asset{Id: id, Category: asset.CryptoCurrency, Name: string(name)}
 }
