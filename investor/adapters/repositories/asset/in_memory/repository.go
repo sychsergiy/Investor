@@ -9,18 +9,18 @@ type InMemoryAssetRepository struct {
 	assets map[string]assetEntity.Asset
 }
 
-type AssetAlreadyExitsError struct {
+type AssetAlreadyExistsError struct {
 	AssetId string
 }
 
-func (e AssetAlreadyExitsError) Error() string {
+func (e AssetAlreadyExistsError) Error() string {
 	return fmt.Sprintf("payment with id %s already exists", e.AssetId)
 }
 
 func (repository *InMemoryAssetRepository) Create(asset assetEntity.Asset) (err error) {
 	_, idExists := repository.assets[asset.Id]
 	if idExists {
-		err = AssetAlreadyExitsError{AssetId: asset.Id}
+		err = AssetAlreadyExistsError{AssetId: asset.Id}
 	} else {
 		repository.assets[asset.Id] = asset
 	}
