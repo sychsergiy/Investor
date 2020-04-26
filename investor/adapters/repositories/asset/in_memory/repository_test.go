@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestInMemoryPaymentRepository_Create(t *testing.T) {
+func TestInMemoryAssetRepository_Create(t *testing.T) {
 	repository := NewInMemoryAssetRepository()
 	a := asset.Asset{Id: "1", Category: asset.PreciousMetal, Name: "gold"}
 

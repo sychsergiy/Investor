@@ -2,7 +2,7 @@ package main
 
 import (
 	"investor/adapters"
-	"investor/adapters/payment_repository/in_memory"
+	"investor/adapters/repositories/payment/in_memory"
 	"investor/cli/payment"
 	"investor/cli/payment/rate_fetcher"
 	"investor/interactors"

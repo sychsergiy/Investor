@@ -118,5 +118,5 @@ func chooseAsset() asset.Asset {
 	default:
 		panic("Unexpected input")
 	}
-	return crypto_currency.NewAsset(currency)
+	return crypto_currency.NewAsset("test", currency)
 }
