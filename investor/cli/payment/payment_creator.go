@@ -14,7 +14,7 @@ import (
 )
 
 type ConsolePaymentCreator struct {
-	PaymentCreator interactors.PaymentCreator
+	PaymentCreator interactors.CreatePayment
 	RateFetcher    rate_fetcher.RateFetcher
 }
 

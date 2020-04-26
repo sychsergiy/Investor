@@ -19,8 +19,8 @@ func setupDependencies(coinMarketCupApiKey string) payment.ConsolePaymentCreator
 		Client: coinMarketCupClient,
 	}
 
-	storage := in_memory.NewInMemoryPaymentRepository()
-	paymentCreateInteractor := interactors.PaymentCreator{PaymentSaver: storage, IdGenerator: adapters.NewStubIdGenerator()}
+	repository := in_memory.NewInMemoryPaymentRepository()
+	paymentCreateInteractor := interactors.CreatePayment{Repository: repository, IdGenerator: adapters.NewStubIdGenerator()}
 
 	return payment.ConsolePaymentCreator{PaymentCreator: paymentCreateInteractor, RateFetcher: fetcher}
 }
