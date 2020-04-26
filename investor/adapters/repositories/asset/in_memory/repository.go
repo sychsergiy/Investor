@@ -22,6 +22,14 @@ func (r *InMemoryAssetRepository) Create(asset assetEntity.Asset) error {
 	return r.repository.Create(record)
 }
 
+func (r *InMemoryAssetRepository) CreateBulk(assets []assetEntity.Asset) (int, error) {
+	var records []repositories.Record
+	for _, payment := range assets {
+		records = append(records, AssetRecord{Asset: payment})
+	}
+	return r.repository.CreateBulk(records)
+}
+
 func NewInMemoryAssetRepository() *InMemoryAssetRepository {
 	return &InMemoryAssetRepository{repositories.NewInMemoryRepository()}
 }

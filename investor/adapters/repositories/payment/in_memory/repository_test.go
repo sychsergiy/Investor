@@ -9,8 +9,7 @@ import (
 )
 
 func TestInMemoryPaymentRepository_Create(t *testing.T) {
-	r := repositories.NewInMemoryRepository()
-	repository := NewInMemoryPaymentRepository(r)
+	repository := NewInMemoryPaymentRepository()
 	testAsset := asset.Asset{Category: asset.CryptoCurrency, Name: "test"}
 	creationTime := time.Date(2020, 0, 0, 0, 0, 0, 0, time.UTC)
 	p := payment.NewReturn("1", 0, 0, testAsset, creationTime)
@@ -34,7 +33,7 @@ func TestInMemoryPaymentRepository_CreateBulk(t *testing.T) {
 	testAsset := asset.Asset{Category: asset.CryptoCurrency, Name: "test"}
 	p1 := payment.NewReturn("1", 0, 0, testAsset, creationTime)
 	p2 := payment.NewInvestment("2", 0, 0, testAsset, creationTime)
-	repository := NewInMemoryPaymentRepository(repositories.NewInMemoryRepository())
+	repository := NewInMemoryPaymentRepository()
 
 	createdQuantity, err := repository.CreateBulk([]payment.Payment{p1, p2})
 	if err != nil {
@@ -44,7 +43,7 @@ func TestInMemoryPaymentRepository_CreateBulk(t *testing.T) {
 		}
 	}
 
-	repository = NewInMemoryPaymentRepository(repositories.NewInMemoryRepository())
+	repository = NewInMemoryPaymentRepository()
 	expectedErr := repositories.RecordAlreadyExistsError{RecordId: "1"}
 	createdQuantity, err = repository.CreateBulk([]payment.Payment{p1, p1})
 	if err != expectedErr {
