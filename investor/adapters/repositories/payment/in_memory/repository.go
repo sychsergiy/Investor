@@ -30,6 +30,6 @@ func (r *InMemoryPaymentRepository) CreateBulk(payments []paymentEntity.Payment)
 	return r.repository.CreateBulk(records)
 }
 
-func NewInMemoryPaymentRepository(repository repositories.InMemoryRepository) *InMemoryPaymentRepository {
-	return &InMemoryPaymentRepository{repository: repository}
+func NewInMemoryPaymentRepository() *InMemoryPaymentRepository {
+	return &InMemoryPaymentRepository{repositories.NewInMemoryRepository()}
 }

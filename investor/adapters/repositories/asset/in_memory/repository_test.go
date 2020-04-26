@@ -1,6 +1,7 @@
 package in_memory
 
 import (
+	"investor/adapters/repositories"
 	"investor/entities/asset"
 	"testing"
 )
@@ -17,8 +18,10 @@ func TestInMemoryAssetRepository_Create(t *testing.T) {
 
 	// try to save payment with the same id
 	err = repository.Create(a)
-	expectedErr := AssetAlreadyExistsError{"1"}
+	expectedErr := repositories.RecordAlreadyExistsError{RecordId: "1"}
 	if err != expectedErr {
 		t.Error("Payment with id already exists error expected")
 	}
 }
+
+

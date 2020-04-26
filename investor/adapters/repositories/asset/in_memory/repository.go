@@ -1,32 +1,27 @@
 package in_memory
 
 import (
-	"fmt"
+	"investor/adapters/repositories"
 	assetEntity "investor/entities/asset"
 )
 
+type AssetRecord struct {
+	Asset assetEntity.Asset
+}
+
+func (a AssetRecord) Id() string {
+	return a.Asset.Id
+}
+
 type InMemoryAssetRepository struct {
-	assets map[string]assetEntity.Asset
+	repository repositories.InMemoryRepository
 }
 
-type AssetAlreadyExistsError struct {
-	AssetId string
-}
-
-func (e AssetAlreadyExistsError) Error() string {
-	return fmt.Sprintf("payment with id %s already exists", e.AssetId)
-}
-
-func (repository *InMemoryAssetRepository) Create(asset assetEntity.Asset) (err error) {
-	_, idExists := repository.assets[asset.Id]
-	if idExists {
-		err = AssetAlreadyExistsError{AssetId: asset.Id}
-	} else {
-		repository.assets[asset.Id] = asset
-	}
-	return
+func (r *InMemoryAssetRepository) Create(asset assetEntity.Asset) error {
+	record := AssetRecord{asset}
+	return r.repository.Create(record)
 }
 
 func NewInMemoryAssetRepository() *InMemoryAssetRepository {
-	return &InMemoryAssetRepository{assets: make(map[string]assetEntity.Asset)}
+	return &InMemoryAssetRepository{repositories.NewInMemoryRepository()}
 }
