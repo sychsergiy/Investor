@@ -2,7 +2,9 @@ package repositories
 
 import (
 	"encoding/json"
+	"investor/helpers/file"
 	"io"
+	"log"
 )
 
 type JsonFileRepository struct {
@@ -34,8 +36,32 @@ func (r JsonFileRepository) dump() error {
 	return err
 }
 
+func (r JsonFileRepository) restore() error {
+	// todo: create empty dict json file on init
+	recordsMap, err := r.recordsReader.Read() // todo: change on records list
+
+	var records []Record
+	for _, value := range recordsMap {
+		records = append(records, value)
+	}
+
+	if err != nil {
+		return err
+	} else {
+		_, err := r.repository.CreateBulk(records)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 type RecordsJsonWriter struct {
 	writer io.Writer
+}
+
+func NewRecordsJsonWriter(writer io.Writer) RecordsJsonWriter {
+	return RecordsJsonWriter{writer}
 }
 
 func (w RecordsJsonWriter) Write(recordsMap map[string]Record) error {
@@ -48,13 +74,16 @@ func (w RecordsJsonWriter) Write(recordsMap map[string]Record) error {
 }
 
 type RecordsJsonReader struct {
-	reader      io.Reader
+	reader      file.Reader
 	unmarshaler RecordUnmarshaler
 }
 
+func NewRecordsJsonReader(reader file.Reader, unmarshaler RecordUnmarshaler) RecordsJsonReader {
+	return RecordsJsonReader{reader, unmarshaler}
+}
+
 func (w RecordsJsonReader) Read() (map[string]Record, error) {
-	var content []byte
-	_, err := w.reader.Read(content)
+	content, err := w.reader.Read()
 	if err != nil {
 		return nil, err
 	}
@@ -68,5 +97,10 @@ type RecordUnmarshaler interface {
 }
 
 func NewJsonFileRepository(reader RecordsJsonReader, writer RecordsJsonWriter) JsonFileRepository {
-	return JsonFileRepository{reader, writer, NewInMemoryRepository()}
+	repo := JsonFileRepository{reader, writer, NewInMemoryRepository()}
+	err := repo.restore()
+	if err != nil {
+		log.Fatal(err)
+	}
+	return repo
 }
