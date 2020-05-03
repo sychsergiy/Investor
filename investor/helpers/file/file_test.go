@@ -202,3 +202,45 @@ func TestPlainFile_Create(t *testing.T) {
 		}
 	}
 }
+
+func TestJsonFile_Create(t *testing.T) {
+	filename := "test_json_file_create_1.json"
+	jf := NewJsonFile(PlainFile{getFullPath(filename)})
+	err := jf.Create()
+	if err != nil {
+		t.Errorf("Unepxected err: %s", err)
+	} else {
+		content := readFile(filename)
+		if string(content) != "{}" {
+			t.Errorf("Json file with empty map expected")
+		}
+	}
+}
+
+func TestJsonFile_Write(t *testing.T) {
+	// setup
+	filename := "test_json_file_write_1.json"
+	writeFile(t, filename, "")
+
+	// test write
+	jf := NewJsonFile(PlainFile{getFullPath(filename)})
+	err := jf.WriteJson("test")
+	if err != nil {
+		t.Errorf("Unepxected err: %s", err)
+	} else {
+		content := readFile(filename)
+		if string(content) != "\"test\"" {
+			t.Errorf("Json file with empty map expected")
+		}
+	}
+
+	err = jf.WriteJson(map[string]int{"test": 1})
+	if err != nil {
+		t.Errorf("Unexpected err: %s", err)
+	} else {
+		content := readFile(filename)
+		if string(content) != "{\"test\":1}" {
+			t.Errorf("Unexpected content written to json file")
+		}
+	}
+}
