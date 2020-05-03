@@ -26,9 +26,14 @@ type PaymentCreator interface {
 	Create(payment paymentEntity.Payment) error
 }
 
+type PaymentsLister interface {
+	ListAll() []paymentEntity.Payment
+}
+
 type PaymentRepository interface {
 	PaymentCreator
 	PaymentBulkCreator
+	PaymentsLister
 }
 
 type IdGenerator interface {
