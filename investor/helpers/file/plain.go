@@ -9,6 +9,10 @@ type PlainFile struct {
 	path string
 }
 
+func (f PlainFile) Path() string {
+	return f.path
+}
+
 func (f PlainFile) Write(p []byte) (n int, err error) {
 	file, err := os.OpenFile(f.path, os.O_WRONLY, os.ModePerm)
 	if err != nil {

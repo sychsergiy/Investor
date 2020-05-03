@@ -1,16 +1,18 @@
 package repositories
 
 import (
-	"encoding/json"
 	"investor/helpers/file"
-	"io"
 	"log"
 )
 
+type RecordUnmarshaler interface {
+	Unmarshal([]byte) (map[string]Record, error)
+}
+
 type JsonFileRepository struct {
-	recordsReader RecordsJsonReader
-	recordsWriter RecordsJsonWriter
-	repository    InMemoryRepository
+	unmarshaler RecordUnmarshaler
+	jsonFile    file.IJsonFile
+	repository  InMemoryRepository
 }
 
 func (r JsonFileRepository) Create(record Record) (err error) {
@@ -32,13 +34,25 @@ func (r JsonFileRepository) CreateBulk(records []Record) (int, error) {
 }
 
 func (r JsonFileRepository) dump() error {
-	err := r.recordsWriter.Write(r.repository.records)
+	created, err := file.CreateIfNotExists(r.jsonFile)
+	if created {
+		log.Printf("\nWARNING: file: %s doesn't exists. Create empty.\n", r.jsonFile.Path())
+	}
+	err = r.jsonFile.WriteJson(r.repository.records)
 	return err
 }
 
 func (r JsonFileRepository) restore() error {
-	// todo: create empty dict json file on init
-	recordsMap, err := r.recordsReader.Read() // todo: change on records list
+	created, err := file.CreateIfNotExists(r.jsonFile)
+	if created {
+		log.Printf("\nWARNING: file: %s doesn't exists. Create empty.\n", r.jsonFile.Path())
+	}
+	content, err := r.jsonFile.Read()
+	if err != nil {
+		return err
+	}
+
+	recordsMap, err := r.unmarshaler.Unmarshal(content)
 
 	var records []Record
 	for _, value := range recordsMap {
@@ -56,48 +70,8 @@ func (r JsonFileRepository) restore() error {
 	return nil
 }
 
-type RecordsJsonWriter struct {
-	writer io.Writer
-}
-
-func NewRecordsJsonWriter(writer io.Writer) RecordsJsonWriter {
-	return RecordsJsonWriter{writer}
-}
-
-func (w RecordsJsonWriter) Write(recordsMap map[string]Record) error {
-	jsonData, err := json.Marshal(recordsMap)
-	if err != nil {
-		return err
-	}
-	_, err = w.writer.Write(jsonData)
-	return err
-}
-
-type RecordsJsonReader struct {
-	reader      file.Reader
-	unmarshaler RecordUnmarshaler
-}
-
-func NewRecordsJsonReader(reader file.Reader, unmarshaler RecordUnmarshaler) RecordsJsonReader {
-	return RecordsJsonReader{reader, unmarshaler}
-}
-
-func (w RecordsJsonReader) Read() (map[string]Record, error) {
-	content, err := w.reader.Read()
-	if err != nil {
-		return nil, err
-	}
-
-	recordsMap, err := w.unmarshaler.Unmarshal(content)
-	return recordsMap, err
-}
-
-type RecordUnmarshaler interface {
-	Unmarshal([]byte) (map[string]Record, error)
-}
-
-func NewJsonFileRepository(reader RecordsJsonReader, writer RecordsJsonWriter) JsonFileRepository {
-	repo := JsonFileRepository{reader, writer, NewInMemoryRepository()}
+func NewJsonFileRepository(jsonFile file.IJsonFile, unmarshaler RecordUnmarshaler) JsonFileRepository {
+	repo := JsonFileRepository{unmarshaler, jsonFile, NewInMemoryRepository()}
 	err := repo.restore()
 	if err != nil {
 		log.Fatal(err)

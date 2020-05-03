@@ -4,6 +4,10 @@ type JsonWriter interface {
 	WriteJson(interface{}) error
 }
 
+type Path interface {
+	Path() string
+}
+
 type Reader interface {
 	Read() ([]byte, error)
 }
@@ -26,7 +30,13 @@ type CreatorExists interface {
 }
 
 type File interface {
+	Path
 	Reader
 	Writer
 	CreatorExists
+}
+
+type IJsonFile interface {
+	File
+	JsonWriter
 }
