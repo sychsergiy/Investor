@@ -46,6 +46,19 @@ func readFile(filename string) []byte {
 	return content
 }
 
+func createDir(t *testing.T, dirName string) {
+	fullPath := getFullPath(dirName)
+	err := os.Mkdir(fullPath, os.ModeDir)
+	if err != nil {
+		checkErr(err, fmt.Sprintf("Failed to create dir with path %s", fullPath))
+	}
+
+	t.Cleanup(func() {
+		err := os.Remove(fullPath)
+		checkErr(err, fmt.Sprintf("Failed to remove dir with path %s", fullPath))
+	})
+}
+
 func checkErr(err error, message string) {
 	if err != nil {
 		log.Fatalf("%s. Root error: %s", message, err)
@@ -127,6 +140,41 @@ func TestPlainFile_Read(t *testing.T) {
 }
 
 func TestPlainFile_Exists(t *testing.T) {
+	// test false without file
+	exists, err := NewPlainFile(getFullPath("not_existent")).Exists()
+	if err != nil {
+		t.Errorf("Unexpected err: %s", err)
+	} else {
+		if exists != false {
+			t.Errorf("File exsists false result expected")
+		}
+	}
+
+	// setup
+	dirName := "test_exists"
+	createDir(t, dirName)
+	exists, err = NewPlainFile(getFullPath(dirName)).Exists()
+	if err != nil {
+		t.Errorf("Unexpected err: %s", err)
+	} else {
+		if exists != false {
+			t.Errorf("File exists with directory path should return false")
+		}
+	}
+	// test false when dir
+
+	// setup
+	filename := "test_exists_2.txt"
+	writeFile(t, filename, "")
+	// test true
+	exists, err = NewPlainFile(getFullPath(filename)).Exists()
+	if err != nil {
+		t.Errorf("Unpected err: %s", err)
+	} else {
+		if exists != true {
+			t.Errorf("File exists true result expected")
+		}
+	}
 
 }
 

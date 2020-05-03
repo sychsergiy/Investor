@@ -22,6 +22,23 @@ func (f PlainFile) Read() ([]byte, error) {
 	return ioutil.ReadFile(f.path)
 }
 
+func (f PlainFile) Create() (*os.File, error) {
+	file, err := os.OpenFile(f.path, os.O_RDWR|os.O_CREATE, os.ModePerm)
+	return file, err
+}
+
+func (f PlainFile) Exists() (bool, error) {
+	info, err := os.Stat(f.path)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return false, nil
+		} else {
+			return false, err
+		}
+	}
+	return !info.IsDir(), nil
+}
+
 func NewPlainFile(path string) PlainFile {
 	return PlainFile{path}
 }
