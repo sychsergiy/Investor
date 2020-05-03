@@ -5,11 +5,11 @@ import (
 )
 
 type JsonFile struct {
-	file File
+	File
 }
 
 func (f JsonFile) Create() error {
-	_, err := f.file.Create()
+	err := f.File.Create()
 	if err != nil {
 		return err
 	}
@@ -23,7 +23,7 @@ func (f JsonFile) WriteJson(data interface{}) (err error) {
 	if err != nil {
 		return
 	}
-	_, err = f.file.Write(jsonData)
+	_, err = f.File.Write(jsonData)
 	return
 }
 

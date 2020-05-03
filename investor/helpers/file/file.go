@@ -1,7 +1,5 @@
 package file
 
-import "os"
-
 type JsonWriter interface {
 	WriteJson(interface{}) error
 }
@@ -15,7 +13,7 @@ type Writer interface {
 }
 
 type Creator interface {
-	Create() (*os.File, error)
+	Create() error
 }
 
 type Exists interface {

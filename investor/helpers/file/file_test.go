@@ -6,7 +6,6 @@ import (
 	"log"
 	"os"
 	"path"
-	"strings"
 	"testing"
 )
 
@@ -181,22 +180,27 @@ func TestPlainFile_Exists(t *testing.T) {
 
 func TestPlainFile_Create(t *testing.T) {
 	filename := "test_create_1.txt"
-	f, err := NewPlainFile(getFullPath(filename)).Create()
+	fullPath := getFullPath(filename)
+	f := NewPlainFile(fullPath)
+	err := f.Create()
 	if err != nil {
 		t.Errorf("Unpexected error during file creation: %s", err)
-	} else {
-		if !strings.HasSuffix(f.Name(), filename) {
-			t.Errorf("Unexpected filename: %s", filename)
-		}
 	}
 
-	filename = "test_create_2.txt"
-	writeFile(t, filename, "initial_text")
-	_, err = NewPlainFile(getFullPath(filename)).Create()
+	t.Cleanup(func() {
+		err := os.Remove(getFullPath(filename))
+		if err != nil {
+			log.Fatalf("Failed to remove file: %s due to err: %s", fullPath, err)
+		}
+	})
+
+	filename2 := "test_create_2.txt"
+	writeFile(t, filename2, "initial_text")
+	err = NewPlainFile(getFullPath(filename2)).Create()
 	if err != nil {
 		t.Errorf("Not expected err: %s", err)
 	} else {
-		content := readFile(filename)
+		content := readFile(filename2)
 		if len(content) != 0 {
 			t.Error("Empty expected to recreated")
 		}
@@ -241,6 +245,33 @@ func TestJsonFile_Write(t *testing.T) {
 		content := readFile(filename)
 		if string(content) != "{\"test\":1}" {
 			t.Errorf("Unexpected content written to json file")
+		}
+	}
+}
+
+func TestCreateIfNotExists(t *testing.T) {
+	filename := "test_create_if_not_exists.json"
+	jf := NewJsonFile(NewPlainFile(getFullPath(filename)))
+	created, err := CreateIfNotExists(jf)
+	if err != nil {
+		t.Errorf("Unexpected err: %s", err)
+	} else {
+		if created != true {
+			t.Errorf("Should return true when new file created")
+		}
+	}
+
+	// setup existent file
+	filename2 := "test_create_if_not_exists_2.json"
+	writeFile(t, filename2, "")
+	// test with existent file
+	jf2 := NewJsonFile(NewPlainFile(getFullPath(filename2)))
+	created, err = CreateIfNotExists(jf2)
+	if err != nil {
+		t.Errorf("Unexpected err: %s", err)
+	} else {
+		if created != false {
+			t.Errorf("Should return false when file already exists")
 		}
 	}
 }
