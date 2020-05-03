@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"path"
+	"strings"
 	"testing"
 )
 
@@ -178,6 +179,26 @@ func TestPlainFile_Exists(t *testing.T) {
 
 }
 
-func TestPlainFile_Delete(t *testing.T) {
+func TestPlainFile_Create(t *testing.T) {
+	filename := "test_create_1.txt"
+	f, err := NewPlainFile(getFullPath(filename)).Create()
+	if err != nil {
+		t.Errorf("Unpexected error during file creation: %s", err)
+	} else {
+		if !strings.HasSuffix(f.Name(), filename) {
+			t.Errorf("Unexpected filename: %s", filename)
+		}
+	}
 
+	filename = "test_create_2.txt"
+	writeFile(t, filename, "initial_text")
+	_, err = NewPlainFile(getFullPath(filename)).Create()
+	if err != nil {
+		t.Errorf("Not expected err: %s", err)
+	} else {
+		content := readFile(filename)
+		if len(content) != 0 {
+			t.Error("Empty expected to recreated")
+		}
+	}
 }

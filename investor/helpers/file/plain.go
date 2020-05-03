@@ -23,8 +23,7 @@ func (f PlainFile) Read() ([]byte, error) {
 }
 
 func (f PlainFile) Create() (*os.File, error) {
-	file, err := os.OpenFile(f.path, os.O_RDWR|os.O_CREATE, os.ModePerm)
-	return file, err
+	return os.Create(f.path)
 }
 
 func (f PlainFile) Exists() (bool, error) {
