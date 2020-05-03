@@ -1,21 +1,22 @@
-package repositories
+package jsonfile
 
 import (
+	"investor/adapters/repositories/in_memory"
 	"investor/helpers/file"
 	"log"
 )
 
 type RecordUnmarshaler interface {
-	Unmarshal([]byte) (map[string]Record, error)
+	Unmarshal([]byte) (map[string]in_memory.Record, error)
 }
 
-type JsonFileRepository struct {
+type Repository struct {
 	unmarshaler RecordUnmarshaler
 	jsonFile    file.IJsonFile
-	repository  InMemoryRepository
+	repository  in_memory.Repository
 }
 
-func (r JsonFileRepository) Create(record Record) (err error) {
+func (r Repository) Create(record in_memory.Record) (err error) {
 	if err = r.repository.Create(record); err != nil {
 		return
 	} else {
@@ -24,7 +25,7 @@ func (r JsonFileRepository) Create(record Record) (err error) {
 	}
 }
 
-func (r JsonFileRepository) CreateBulk(records []Record) (int, error) {
+func (r Repository) CreateBulk(records []in_memory.Record) (int, error) {
 	count, err := r.repository.CreateBulk(records)
 	if err != nil {
 		return count, err
@@ -33,16 +34,16 @@ func (r JsonFileRepository) CreateBulk(records []Record) (int, error) {
 	return count, err
 }
 
-func (r JsonFileRepository) dump() error {
+func (r Repository) dump() error {
 	created, err := file.CreateIfNotExists(r.jsonFile)
 	if created {
 		log.Printf("\nWARNING: file: %s doesn't exists. Create empty.\n", r.jsonFile.Path())
 	}
-	err = r.jsonFile.WriteJson(r.repository.records)
+	err = r.jsonFile.WriteJson(r.repository.Records)
 	return err
 }
 
-func (r JsonFileRepository) restore() error {
+func (r Repository) restore() error {
 	created, err := file.CreateIfNotExists(r.jsonFile)
 	if created {
 		log.Printf("\nWARNING: file: %s doesn't exists. Create empty.\n", r.jsonFile.Path())
@@ -54,7 +55,7 @@ func (r JsonFileRepository) restore() error {
 
 	recordsMap, err := r.unmarshaler.Unmarshal(content)
 
-	var records []Record
+	var records []in_memory.Record
 	for _, value := range recordsMap {
 		records = append(records, value)
 	}
@@ -70,8 +71,8 @@ func (r JsonFileRepository) restore() error {
 	return nil
 }
 
-func NewJsonFileRepository(jsonFile file.IJsonFile, unmarshaler RecordUnmarshaler) JsonFileRepository {
-	repo := JsonFileRepository{unmarshaler, jsonFile, NewInMemoryRepository()}
+func NewRepository(jsonFile file.IJsonFile, unmarshaler RecordUnmarshaler) Repository {
+	repo := Repository{unmarshaler, jsonFile, in_memory.NewRepository()}
 	err := repo.restore()
 	if err != nil {
 		log.Fatal(err)

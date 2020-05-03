@@ -1,4 +1,4 @@
-package repositories
+package in_memory
 
 import (
 	"testing"
@@ -13,7 +13,7 @@ func (e EntityMock) Id() string {
 }
 
 func TestInMemoryRepository_Create(t *testing.T) {
-	repository := NewInMemoryRepository()
+	repository := NewRepository()
 	e1 := EntityMock{"1"}
 
 	// save first payment, no errors expected
@@ -33,7 +33,7 @@ func TestInMemoryRepository_Create(t *testing.T) {
 func TestInMemoryRepository_CreateBulk(t *testing.T) {
 	e1 := EntityMock{"1"}
 	e2 := EntityMock{"2"}
-	repository := NewInMemoryRepository()
+	repository := NewRepository()
 
 	createdQuantity, err := repository.CreateBulk([]Record{e1, e2})
 	if err != nil {
@@ -43,7 +43,7 @@ func TestInMemoryRepository_CreateBulk(t *testing.T) {
 		}
 	}
 
-	repository = NewInMemoryRepository()
+	repository = NewRepository()
 	expectedErr := RecordAlreadyExistsError{"1"}
 	createdQuantity, err = repository.CreateBulk([]Record{e1, e1})
 	if err != expectedErr {

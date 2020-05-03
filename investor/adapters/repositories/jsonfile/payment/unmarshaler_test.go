@@ -1,13 +1,13 @@
-package json
+package payment
 
 import (
 	"testing"
 )
 
-func TestPaymentUnmarshaler_Unmarshal(t *testing.T) {
-	unmarshaler := AssetUnmarshaler{}
+func TestUnmarshaler_Unmarshal(t *testing.T) {
+	unmarshaler := Unmarshaler{}
 	// todo: fix creation_date parsing
-	payload := []byte("{\"1\": {\"category\":1, \"name\": \"test\", \"id\": \"1\"}}")
+	payload := []byte("{\"1\":{\"id\": \"1\", \"asset_amount\": 5, \"absolute_amount\": 10, \"asset_id\": \"2\", \"type\": 0, \"creation_date\": \"2019-10-9 1:2:3\"}}")
 	records, err := unmarshaler.Unmarshal(payload)
 	if err != nil {
 		t.Errorf("Unexpected error during unmarshaling payment")

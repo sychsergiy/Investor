@@ -1,4 +1,4 @@
-package repositories
+package in_memory
 
 import (
 	"fmt"
@@ -8,8 +8,8 @@ type Record interface {
 	Id() string
 }
 
-type InMemoryRepository struct {
-	records map[string]Record
+type Repository struct {
+	Records map[string]Record
 }
 
 type RecordAlreadyExistsError struct {
@@ -21,29 +21,29 @@ func (e RecordAlreadyExistsError) Error() string {
 
 }
 
-func (r InMemoryRepository) Create(record Record) error {
-	_, idExists := r.records[record.Id()]
+func (r Repository) Create(record Record) error {
+	_, idExists := r.Records[record.Id()]
 	if idExists {
 		return RecordAlreadyExistsError{RecordId: record.Id()}
 	} else {
-		r.records[record.Id()] = record
+		r.Records[record.Id()] = record
 		return nil
 	}
 }
 
-func (r InMemoryRepository) CreateBulk(records []Record) (int, error) {
+func (r Repository) CreateBulk(records []Record) (int, error) {
 	var createdCount int
 	for createdCount, record := range records {
-		_, idExists := r.records[record.Id()]
+		_, idExists := r.Records[record.Id()]
 		if idExists {
 			return createdCount, RecordAlreadyExistsError{RecordId: record.Id()}
 		} else {
-			r.records[record.Id()] = record
+			r.Records[record.Id()] = record
 		}
 	}
 	return createdCount, nil
 }
 
-func NewInMemoryRepository() InMemoryRepository {
-	return InMemoryRepository{records: make(map[string]Record)}
+func NewRepository() Repository {
+	return Repository{Records: make(map[string]Record)}
 }
