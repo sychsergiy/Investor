@@ -13,6 +13,7 @@ func (c Category) String() string {
 }
 
 type Asset struct {
+	Id       string
 	Category Category
 	Name     string
 }

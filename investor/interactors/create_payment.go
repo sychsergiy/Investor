@@ -7,9 +7,9 @@ import (
 	"time"
 )
 
-type PaymentCreator struct {
-	PaymentSaver PaymentSaver // todo: add repository here
-	IdGenerator  IdGenerator
+type CreatePayment struct {
+	Repository  PaymentCreator
+	IdGenerator IdGenerator
 }
 
 type CreatePaymentModel struct {
@@ -20,7 +20,7 @@ type CreatePaymentModel struct {
 	CreationDate   time.Time
 }
 
-func (pc PaymentCreator) createPaymentInstance(paymentModel CreatePaymentModel, id string) (p paymentEntity.Payment) {
+func (pc CreatePayment) createPaymentInstance(paymentModel CreatePaymentModel, id string) (p paymentEntity.Payment) {
 	if paymentModel.Type == paymentEntity.Return {
 		p = paymentEntity.NewReturn(
 			id, paymentModel.AssetAmount, paymentModel.AbsoluteAmount,
@@ -37,10 +37,10 @@ func (pc PaymentCreator) createPaymentInstance(paymentModel CreatePaymentModel, 
 	return
 }
 
-func (pc PaymentCreator) Create(paymentModel CreatePaymentModel) (err error) {
+func (pc CreatePayment) Create(paymentModel CreatePaymentModel) (err error) {
 	id := pc.IdGenerator.Generate()
 	p := pc.createPaymentInstance(paymentModel, id)
 	// todo: add validation
-	err = pc.PaymentSaver.Create(p)
+	err = pc.Repository.Create(p)
 	return
 }
