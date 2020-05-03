@@ -3,14 +3,13 @@ package asset
 import (
 	"encoding/json"
 	"investor/adapters/repositories/in_memory"
-	"investor/adapters/repositories/in_memory/asset"
 )
 
 type Unmarshaler struct {
 }
 
 func (pu Unmarshaler) Unmarshal(content []byte) (map[string]in_memory.Record, error) {
-	var paymentsMap map[string]asset.Record
+	var paymentsMap map[string]in_memory.AssetRecord
 	err := json.Unmarshal(content, &paymentsMap)
 	if err != nil {
 		return nil, err
@@ -19,7 +18,7 @@ func (pu Unmarshaler) Unmarshal(content []byte) (map[string]in_memory.Record, er
 	return recordsMap, err
 }
 
-func createRecordsMap(payments map[string]asset.Record) map[string]in_memory.Record {
+func createRecordsMap(payments map[string]in_memory.AssetRecord) map[string]in_memory.Record {
 	recordsMap := make(map[string]in_memory.Record)
 	for key, value := range payments {
 		recordsMap[key] = value

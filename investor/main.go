@@ -25,7 +25,7 @@ func setupDependencies(coinMarketCupApiKey string) payment.ConsolePaymentCreator
 		file.NewJsonFile(file.NewPlainFile("payments.json")),
 		paymentRepo.Unmarshaler{},
 	)
-	repo := paymentRepo.NewRepository(jsonRepo)
+	repo := jsonfile.NewPaymentRepository(jsonRepo)
 	paymentCreateInteractor := interactors.CreatePayment{Repository: repo, IdGenerator: adapters.NewStubIdGenerator()}
 
 	return payment.ConsolePaymentCreator{PaymentCreator: paymentCreateInteractor, RateFetcher: fetcher}
