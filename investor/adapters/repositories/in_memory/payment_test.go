@@ -21,7 +21,7 @@ func TestPaymentRepository_Create(t *testing.T) {
 
 	// try to save payment with the same id
 	err = repository.Create(p)
-	expectedErr := RecordAlreadyExistsError{RecordId: "1"}
+	expectedErr := PaymentAlreadyExistsError{PaymentId: p.Id}
 	if err != expectedErr {
 		t.Error("Payment with id already exists error expected")
 	}

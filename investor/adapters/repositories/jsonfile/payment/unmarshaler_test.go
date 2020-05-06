@@ -16,7 +16,7 @@ func TestUnmarshaler_Unmarshal(t *testing.T) {
 	if !ok {
 		t.Errorf("Expected payment with id 1, but not found in result map")
 	}
-	if record.Id() != "1" {
+	if record.Id != "1" {
 		t.Errorf("Wrong record id")
 	}
 
