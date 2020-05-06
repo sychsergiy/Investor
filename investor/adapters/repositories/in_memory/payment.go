@@ -3,6 +3,7 @@ package in_memory
 import (
 	"fmt"
 	paymentEntity "investor/entities/payment"
+	"sort"
 )
 
 type PaymentAlreadyExistsError struct {
@@ -39,6 +40,17 @@ func (r *PaymentRepository) CreateBulk(payments []paymentEntity.Payment) (int, e
 		}
 	}
 	return createdCount, nil
+}
+
+func (r *PaymentRepository) ListAll() []paymentEntity.Payment {
+	var payments []paymentEntity.Payment
+	for _, payment := range r.records {
+		payments = append(payments, payment)
+	}
+	sort.Slice(payments, func(i, j int) bool {
+		return payments[i].CreationDate.After(payments[j].CreationDate)
+	})
+	return payments
 }
 
 func NewPaymentRepository() *PaymentRepository {
