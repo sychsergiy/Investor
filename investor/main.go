@@ -3,7 +3,6 @@ package main
 import (
 	"investor/adapters"
 	"investor/adapters/repositories/jsonfile"
-	paymentRepo "investor/adapters/repositories/jsonfile/payment"
 	"investor/cli/payment"
 	"investor/cli/payment/rate_fetcher"
 	"investor/helpers/file"
@@ -21,11 +20,8 @@ func setupDependencies(coinMarketCupApiKey string) payment.ConsolePaymentCreator
 		Client: coinMarketCupClient,
 	}
 
-	jsonRepo := jsonfile.NewRepository(
-		file.NewJsonFile(file.NewPlainFile("payments.json")),
-		paymentRepo.Unmarshaler{},
-	)
-	repo := jsonfile.NewPaymentRepository(jsonRepo)
+	storage := jsonfile.NewStorage(file.NewJsonFile(file.NewPlainFile("storage.json")))
+	repo := jsonfile.NewPaymentRepository(*storage)
 	paymentCreateInteractor := interactors.CreatePayment{Repository: repo, IdGenerator: adapters.NewStubIdGenerator()}
 
 	return payment.ConsolePaymentCreator{PaymentCreator: paymentCreateInteractor, RateFetcher: fetcher}

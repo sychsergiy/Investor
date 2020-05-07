@@ -29,7 +29,7 @@ func createStorage(filename string) *Storage {
 func getDataMock() Data {
 	asset := assetEntity.Asset{Id: "1", Category: assetEntity.PreciousMetal, Name: "test"}
 	pMock := payment.CreatePayment("1", 2020)
-	return Data{AssetsMap{"1": asset}, PaymentsMap{"1": pMock}}
+	return Data{[]assetEntity.Asset{asset}, []payment.Payment{pMock}}
 }
 
 func TestStorage_RetrieveAssets(t *testing.T) {
@@ -43,13 +43,8 @@ func TestStorage_RetrieveAssets(t *testing.T) {
 	} else {
 		if len(assets) != 1 {
 			t.Errorf("One asset epxected")
-			a, ok := assets["1"]
-			if !ok {
-				t.Errorf("Expected key 1")
-			} else {
-				if a != data.Assets["1"] {
-					t.Errorf("Asset malformed after unmarhaling")
-				}
+			if assets[0] != data.Assets[0] {
+				t.Errorf("Asset malformed after unmarhaling")
 			}
 		}
 	}
@@ -65,13 +60,9 @@ func TestStorage_RetrievePayments(t *testing.T) {
 	} else {
 		if len(payments) != 1 {
 			t.Errorf("One payment epxected")
-			p, ok := payments["1"]
-			if !ok {
-				t.Errorf("Expected key 1")
-			} else {
-				if p != data.Payments["1"] {
-					t.Errorf("Payment malformed after unmarhaling")
-				}
+		} else {
+			if payments[0] != data.Payments[0] {
+				t.Errorf("Payment malformed after unmarhaling")
 			}
 		}
 	}
@@ -81,7 +72,7 @@ func TestStorage_UpdateAssets(t *testing.T) {
 	filename := "test_updates_assets.json"
 	data := getDataMock()
 	err := createStorage(filename).UpdateAssets(data.Assets)
-	expectedJson := "{\"assets\":{\"1\":{\"Id\":\"1\",\"Category\":0,\"Name\":\"test\"}},\"payments\":{}}"
+	expectedJson := "{\"assets\":[{\"Id\":\"1\",\"Category\":0,\"Name\":\"test\"}],\"payments\":[]}"
 	if err != nil {
 		t.Errorf("Unepxected err: %+v", err)
 	} else {
@@ -96,7 +87,7 @@ func TestStorage_UpdatePayments(t *testing.T) {
 	filename := "test_update_payments.json"
 	data := getDataMock()
 	err := createStorage(filename).UpdatePayments(data.Payments)
-	expectedJson := "{\"assets\":{},\"payments\":{\"1\":{\"Id\":\"1\",\"AssetAmount\":0,\"AbsoluteAmount\":0,\"Asset\":{\"Id\":\"\",\"Category\":1,\"Name\":\"test\"},\"Type\":1,\"CreationDate\":\"2019-11-30T00:00:00Z\"}}}"
+	expectedJson := "{\"assets\":[],\"payments\":[{\"Id\":\"1\",\"AssetAmount\":0,\"AbsoluteAmount\":0,\"Asset\":{\"Id\":\"\",\"Category\":1,\"Name\":\"test\"},\"Type\":1,\"CreationDate\":\"2019-11-30T00:00:00Z\"}]}"
 	if err != nil {
 		t.Errorf("Unepxected err: %+v", err)
 	} else {

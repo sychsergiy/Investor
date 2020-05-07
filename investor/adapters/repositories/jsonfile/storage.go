@@ -9,12 +9,9 @@ import (
 	"log"
 )
 
-type AssetsMap map[string]asset.Asset
-type PaymentsMap map[string]payment.Payment
-
 type Data struct {
-	Assets   AssetsMap   `json:"assets"`
-	Payments PaymentsMap `json:"payments"`
+	Assets   []asset.Asset     `json:"assets"`
+	Payments []payment.Payment `json:"payments"`
 }
 
 type Storage struct {
@@ -22,7 +19,7 @@ type Storage struct {
 	data     Data
 }
 
-func (s Storage) RetrievePayments() (map[string]payment.Payment, error) {
+func (s Storage) RetrievePayments() ([]payment.Payment, error) {
 	err := s.restore()
 	if err != nil {
 		return nil, err
@@ -31,7 +28,7 @@ func (s Storage) RetrievePayments() (map[string]payment.Payment, error) {
 
 }
 
-func (s Storage) RetrieveAssets() (map[string]asset.Asset, error) {
+func (s Storage) RetrieveAssets() ([]asset.Asset, error) {
 	err := s.restore()
 	if err != nil {
 		return nil, err
@@ -40,12 +37,12 @@ func (s Storage) RetrieveAssets() (map[string]asset.Asset, error) {
 
 }
 
-func (s *Storage) UpdatePayments(payments map[string]payment.Payment) error {
+func (s *Storage) UpdatePayments(payments []payment.Payment) error {
 	s.data.Payments = payments
 	return s.dump()
 }
 
-func (s *Storage) UpdateAssets(assets map[string]asset.Asset) error {
+func (s *Storage) UpdateAssets(assets []asset.Asset) error {
 	s.data.Assets = assets
 	return s.dump()
 }
@@ -97,6 +94,6 @@ func (s *Storage) restore() error {
 func NewStorage(jsonFile file.JsonFile) *Storage {
 	return &Storage{
 		jsonFile: jsonFile,
-		data:     Data{make(map[string]asset.Asset), make(map[string]payment.Payment)},
+		data:     Data{[]asset.Asset{}, []payment.Payment{}},
 	}
 }
