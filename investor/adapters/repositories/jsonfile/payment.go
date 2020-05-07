@@ -12,7 +12,7 @@ type PaymentRepository struct {
 	restored   bool
 }
 
-func (r PaymentRepository) CreateBulk(payments []paymentEntity.Payment) (int, error) {
+func (r *PaymentRepository) CreateBulk(payments []paymentEntity.Payment) (int, error) {
 	err := r.restore()
 	if err != nil {
 		return 0, err
@@ -26,7 +26,7 @@ func (r PaymentRepository) CreateBulk(payments []paymentEntity.Payment) (int, er
 	return n, err
 }
 
-func (r PaymentRepository) Create(payment paymentEntity.Payment) error {
+func (r *PaymentRepository) Create(payment paymentEntity.Payment) error {
 	err := r.restore()
 	if err != nil {
 		return err
@@ -39,7 +39,7 @@ func (r PaymentRepository) Create(payment paymentEntity.Payment) error {
 	return r.dump()
 }
 
-func (r PaymentRepository) dump() error {
+func (r *PaymentRepository) dump() error {
 	err := r.storage.UpdatePayments(r.repository.ListAll())
 	if err != nil {
 		err = fmt.Errorf("update payments on json storage failed: %w", err)
@@ -47,7 +47,7 @@ func (r PaymentRepository) dump() error {
 	return err
 }
 
-func (r PaymentRepository) restore() error {
+func (r *PaymentRepository) restore() error {
 	if r.restored {
 		// should be called only once to sync in_memory storage with file
 		return nil
@@ -66,12 +66,12 @@ func (r PaymentRepository) restore() error {
 	return err
 }
 
-func (r PaymentRepository) ListAll() []paymentEntity.Payment {
+func (r *PaymentRepository) ListAll() []paymentEntity.Payment {
 	// todo: add error to  ListAll() interface
 	_ = r.restore()
 	return r.repository.ListAll()
 }
 
-func NewPaymentRepository(storage Storage) PaymentRepository {
-	return PaymentRepository{storage, *in_memory.NewPaymentRepository(), false}
+func NewPaymentRepository(storage Storage) *PaymentRepository {
+	return &PaymentRepository{storage, *in_memory.NewPaymentRepository(), false}
 }

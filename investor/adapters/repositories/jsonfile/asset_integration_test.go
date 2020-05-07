@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestPaymentRepository_ListAll(t *testing.T) {
+func TestAssetRepository_Integration_ListAll(t *testing.T) {
 	jsonFile := file.NewJsonFile(file.NewPlainFile(file.GetFilePath("test_list_all.json")))
 	repo := NewAssetRepository(*NewStorage(jsonFile))
 
