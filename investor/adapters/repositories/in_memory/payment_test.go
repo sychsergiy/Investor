@@ -54,19 +54,25 @@ func TestPaymentRepository_ListAll(t *testing.T) {
 		"1": payment.CreatePayment("1", 2020),
 		"2": payment.CreatePayment("2", 2019),
 	}
-	repository := PaymentRepository{records}
-	payments := repository.ListAll()
-	if len(payments) != 4 {
-		t.Errorf("Four payments expected")
-	}
-
-	var paymentsIds []string
-	for _, p := range payments {
-		paymentsIds = append(paymentsIds, p.Id)
-	}
-
 	expectedIds := []string{"1", "2", "3", "4"}
-	if !reflect.DeepEqual(paymentsIds, expectedIds) {
-		t.Errorf("Payments should sorted by date, from the latest to earlier")
+
+	repository := PaymentRepository{records}
+	payments, err := repository.ListAll()
+	if err != nil {
+		t.Errorf("Unexpected err: %+v", err)
+	} else {
+		if len(payments) != 4 {
+			t.Errorf("Four payments expected")
+		}
+
+		var paymentsIds []string
+		for _, p := range payments {
+			paymentsIds = append(paymentsIds, p.Id)
+		}
+
+		if !reflect.DeepEqual(paymentsIds, expectedIds) {
+			t.Errorf("Payments should sorted by date, from the latest to earlier")
+		}
 	}
+
 }

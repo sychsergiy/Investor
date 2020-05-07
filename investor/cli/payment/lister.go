@@ -11,12 +11,15 @@ type ConsolePaymentsLister struct {
 }
 
 func (l ConsolePaymentsLister) List() {
-	payments := l.lister.ListAll()
+	payments, err := l.lister.ListAll()
+	if err != nil {
+		panic(fmt.Errorf("failed to list payments: %+v", err))
+	}
 
 	fmt.Printf("Total payments count: %d\n", len(payments))
 	for i, p := range payments {
 		str := paymentToString(p)
-		fmt.Printf("\n%d -------------------------\n", i + 1)
+		fmt.Printf("\n%d -------------------------\n", i+1)
 		println(str)
 	}
 }

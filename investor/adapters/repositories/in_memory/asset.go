@@ -62,12 +62,12 @@ func (r *AssetRepository) CreateBulk(assets []assetEntity.Asset) (int, error) {
 	return createdCount, nil
 }
 
-func (r *AssetRepository) ListAll() []assetEntity.Asset {
+func (r *AssetRepository) ListAll() ([]assetEntity.Asset, error) {
 	var payments []assetEntity.Asset
 	for _, a := range r.records {
 		payments = append(payments, a.ToAsset())
 	}
-	return payments
+	return payments, nil
 }
 
 func NewAssetRepository() *AssetRepository {

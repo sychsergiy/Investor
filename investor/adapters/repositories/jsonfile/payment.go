@@ -40,7 +40,12 @@ func (r *PaymentRepository) Create(payment paymentEntity.Payment) error {
 }
 
 func (r *PaymentRepository) dump() error {
-	err := r.storage.UpdatePayments(r.repository.ListAll())
+	// todo: use records method here
+	payments, err := r.repository.ListAll()
+	if err != nil {
+		return fmt.Errorf("list payments failed: %w", err)
+	}
+	err = r.storage.UpdatePayments(payments)
 	if err != nil {
 		err = fmt.Errorf("update payments on json storage failed: %w", err)
 	}
@@ -66,9 +71,11 @@ func (r *PaymentRepository) restore() error {
 	return err
 }
 
-func (r *PaymentRepository) ListAll() []paymentEntity.Payment {
-	// todo: add error to  ListAll() interface
-	_ = r.restore()
+func (r *PaymentRepository) ListAll() ([]paymentEntity.Payment, error) {
+	err := r.restore()
+	if err != nil {
+		return nil, fmt.Errorf("failed to list all payments: %w", err)
+	}
 	return r.repository.ListAll()
 }
 

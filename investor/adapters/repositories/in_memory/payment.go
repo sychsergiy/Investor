@@ -42,7 +42,7 @@ func (r *PaymentRepository) CreateBulk(payments []paymentEntity.Payment) (int, e
 	return createdCount, nil
 }
 
-func (r *PaymentRepository) ListAll() []paymentEntity.Payment {
+func (r *PaymentRepository) ListAll() ([]paymentEntity.Payment, error) {
 	var payments []paymentEntity.Payment
 	for _, payment := range r.records {
 		payments = append(payments, payment)
@@ -50,7 +50,7 @@ func (r *PaymentRepository) ListAll() []paymentEntity.Payment {
 	sort.Slice(payments, func(i, j int) bool {
 		return payments[i].CreationDate.After(payments[j].CreationDate)
 	})
-	return payments
+	return payments, nil
 }
 
 func NewPaymentRepository() *PaymentRepository {

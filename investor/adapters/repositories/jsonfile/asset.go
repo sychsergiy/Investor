@@ -41,7 +41,12 @@ func (r *AssetRepository) Create(a assetEntity.Asset) error {
 }
 
 func (r *AssetRepository) dump() error {
-	err := r.storage.UpdateAssets(r.repository.ListAll())
+	// todo: use records method here
+	assets, err := r.repository.ListAll()
+	if err != nil {
+		return fmt.Errorf("list assets failed: %w", err)
+	}
+	err = r.storage.UpdateAssets(assets)
 	if err != nil {
 		err = fmt.Errorf("update payments on json storage failed: %w", err)
 	}
@@ -67,8 +72,11 @@ func (r *AssetRepository) restore() error {
 	return err
 }
 
-func (r *AssetRepository) ListAll() []assetEntity.Asset {
-	_ = r.restore()
+func (r *AssetRepository) ListAll() ([]assetEntity.Asset, error) {
+	err := r.restore()
+	if err != nil {
+		return nil, fmt.Errorf("failed to list all assets: %w", err)
+	}
 	return r.repository.ListAll()
 }
 
