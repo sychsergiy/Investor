@@ -11,6 +11,10 @@ type AssetRecord struct {
 	Name     string `json:"name"`
 }
 
+func (ar AssetRecord) ToAsset() assetEntity.Asset {
+	return assetEntity.Asset{Id: ar.Id, Category: assetEntity.Category(ar.Category), Name: ar.Name}
+}
+
 type AssetRecordAlreadyExistsError struct {
 	RecordId string
 }
@@ -20,7 +24,7 @@ func (e AssetRecordAlreadyExistsError) Error() string {
 
 }
 
-func newAssetRecord(asset assetEntity.Asset) AssetRecord {
+func NewAssetRecord(asset assetEntity.Asset) AssetRecord {
 	return AssetRecord{asset.Id, int(asset.Category), asset.Name}
 }
 
@@ -29,7 +33,7 @@ type AssetRepository struct {
 }
 
 func (r *AssetRepository) Create(asset assetEntity.Asset) error {
-	record := newAssetRecord(asset)
+	record := NewAssetRecord(asset)
 	_, idExists := r.records[record.Id]
 
 	if idExists {
@@ -43,7 +47,7 @@ func (r *AssetRepository) Create(asset assetEntity.Asset) error {
 func (r *AssetRepository) CreateBulk(assets []assetEntity.Asset) (int, error) {
 	var records []AssetRecord
 	for _, a := range assets {
-		records = append(records, newAssetRecord(a))
+		records = append(records, NewAssetRecord(a))
 	}
 
 	var createdCount int
@@ -56,6 +60,14 @@ func (r *AssetRepository) CreateBulk(assets []assetEntity.Asset) (int, error) {
 		}
 	}
 	return createdCount, nil
+}
+
+func (r *AssetRepository) ListAll() []assetEntity.Asset {
+	var payments []assetEntity.Asset
+	for _, a := range r.records {
+		payments = append(payments, a.ToAsset())
+	}
+	return payments
 }
 
 func NewAssetRepository() *AssetRepository {

@@ -17,3 +17,7 @@ type Asset struct {
 	Category Category
 	Name     string
 }
+
+func NewAsset(id string, category Category, name string) Asset {
+	return Asset{id, category, name}
+}
