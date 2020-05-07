@@ -10,6 +10,23 @@ type PaymentAlreadyExistsError struct {
 	PaymentId string
 }
 
+type PaymentBulkCreateError struct {
+	FailedIndex int
+	Quantity    int
+	Err         error
+}
+
+func (e PaymentBulkCreateError) Error() string {
+	return fmt.Sprintf(
+		"payments bulk create %d items failed on index: %d due to err: %v",
+		e.Quantity, e.FailedIndex, e.Err,
+	)
+}
+
+func (e PaymentBulkCreateError) Unwrap() error {
+	return e.Err
+}
+
 func (e PaymentAlreadyExistsError) Error() string {
 	return fmt.Sprintf("payment with id %s already exists", e.PaymentId)
 
@@ -29,17 +46,20 @@ func (r *PaymentRepository) Create(payment paymentEntity.Payment) error {
 	}
 }
 
-func (r *PaymentRepository) CreateBulk(payments []paymentEntity.Payment) (int, error) {
-	var createdCount int
+func (r *PaymentRepository) CreateBulk(payments []paymentEntity.Payment) error {
 	for createdCount, payment := range payments {
 		_, idExists := r.records[payment.Id]
 		if idExists {
-			return createdCount, RecordAlreadyExistsError{RecordId: payment.Id}
+			return PaymentBulkCreateError{
+				FailedIndex: createdCount,
+				Quantity:    len(payments),
+				Err:         PaymentAlreadyExistsError{PaymentId: payment.Id},
+			}
 		} else {
 			r.records[payment.Id] = payment
 		}
 	}
-	return createdCount, nil
+	return nil
 }
 
 func (r *PaymentRepository) ListAll() ([]paymentEntity.Payment, error) {

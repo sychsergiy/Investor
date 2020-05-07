@@ -12,18 +12,18 @@ type PaymentRepository struct {
 	restored   bool
 }
 
-func (r *PaymentRepository) CreateBulk(payments []paymentEntity.Payment) (int, error) {
+func (r *PaymentRepository) CreateBulk(payments []paymentEntity.Payment) error {
 	err := r.restore()
 	if err != nil {
-		return 0, err
+		return err
 	}
 
-	n, err := r.repository.CreateBulk(payments)
+	err = r.repository.CreateBulk(payments)
 	if err != nil {
-		return n, fmt.Errorf("payments bulk create failed: %w", err)
+		return fmt.Errorf("payments bulk create failed: %w", err)
 	}
 	err = r.dump()
-	return n, err
+	return err
 }
 
 func (r *PaymentRepository) Create(payment paymentEntity.Payment) error {
@@ -62,7 +62,7 @@ func (r *PaymentRepository) restore() error {
 	if err != nil {
 		return err
 	}
-	_, err = r.repository.CreateBulk(payments)
+	err = r.repository.CreateBulk(payments)
 	if err != nil {
 		err = fmt.Errorf("restore payments failed, storage file malformed: %w", err)
 	} else {

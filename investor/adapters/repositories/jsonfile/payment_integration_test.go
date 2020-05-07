@@ -18,7 +18,7 @@ func TestPaymentRepository_Integration_ListAll(t *testing.T) {
 	jsonFile := file.NewJsonFile(file.NewPlainFile(file.GetFilePath("test_list_all.json")))
 	repo := NewPaymentRepository(*NewStorage(jsonFile))
 
-	_, err := repo.CreateBulk([]payment.Payment{
+	err := repo.CreateBulk([]payment.Payment{
 		payment.CreatePayment("1", 2015),
 		payment.CreatePayment("2", 2016),
 		payment.CreatePayment("3", 2017),

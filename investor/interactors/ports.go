@@ -10,7 +10,7 @@ type AssetCreator interface {
 }
 
 type AssetBulkCreator interface {
-	CreateBulk(assets []asset.Asset) (int, error)
+	CreateBulk(assets []asset.Asset) error
 }
 
 type AssetsLister interface {

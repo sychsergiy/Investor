@@ -28,21 +28,24 @@ func TestPaymentRepository_CreateBulk(t *testing.T) {
 	p2 := payment.CreatePayment("2", 2020)
 	repository := NewPaymentRepository()
 
-	createdQuantity, err := repository.CreateBulk([]payment.Payment{p1, p2})
+	err := repository.CreateBulk([]payment.Payment{p1, p2})
 	if err != nil {
 		t.Errorf("Unpected error")
-		if createdQuantity != 2 {
+		if len(repository.records) != 2 {
 			t.Errorf("2 payments expected to be created")
 		}
 	}
 
 	repository = NewPaymentRepository()
-	expectedErr := RecordAlreadyExistsError{RecordId: "1"}
-	createdQuantity, err = repository.CreateBulk([]payment.Payment{p1, p1})
+
+	expectedErr := PaymentBulkCreateError{
+		FailedIndex: 1, Quantity: 2, Err: PaymentAlreadyExistsError{PaymentId: "1"},
+	}
+	err = repository.CreateBulk([]payment.Payment{p1, p1})
 	if err != expectedErr {
 		t.Errorf("Payment alread exists error expected")
 	}
-	if createdQuantity != 1 {
+	if len(repository.records) != 1 {
 		t.Errorf("One payment expected to be created before error")
 	}
 }
