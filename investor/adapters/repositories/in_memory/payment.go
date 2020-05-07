@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"investor/entities/asset"
 	paymentEntity "investor/entities/payment"
+	"investor/interactors"
 	"sort"
 	"time"
 )
@@ -55,7 +56,8 @@ func (e PaymentAlreadyExistsError) Error() string {
 }
 
 type PaymentRepository struct {
-	records map[string]PaymentRecord
+	assetFinder interactors.AssetFinderById
+	records     map[string]PaymentRecord
 }
 
 func (r *PaymentRepository) Create(payment paymentEntity.Payment) error {
@@ -116,9 +118,9 @@ func (r *PaymentRepository) convertRecordToEntity(record PaymentRecord) (p payme
 }
 
 func (r *PaymentRepository) findAssetById(assetId string) (asset.Asset, error) {
-	panic("not implemented")
+	return r.assetFinder.FindById(assetId)
 }
 
-func NewPaymentRepository() *PaymentRepository {
-	return &PaymentRepository{make(map[string]PaymentRecord)}
+func NewPaymentRepository(assetFinder interactors.AssetFinderById) *PaymentRepository {
+	return &PaymentRepository{assetFinder, make(map[string]PaymentRecord)}
 }

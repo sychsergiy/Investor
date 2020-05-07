@@ -17,7 +17,7 @@ func TestInMemoryAssetRepository_Create(t *testing.T) {
 
 	// try to save payment with the same id
 	err = repository.Create(a)
-	expectedErr := AssetRecordAlreadyExistsError{RecordId: "1"}
+	expectedErr := AssetRecordAlreadyExistsError{AssetId: "1"}
 	if err != expectedErr {
 		t.Error("Payment with id already exists error expected")
 	}
@@ -38,7 +38,7 @@ func TestAssetRepository_CreateBulk(t *testing.T) {
 	}
 
 	repository = NewAssetRepository()
-	expectedErr := AssetRecordAlreadyExistsError{RecordId: "1"}
+	expectedErr := AssetRecordAlreadyExistsError{AssetId: "1"}
 	createdQuantity, err = repository.CreateBulk([]asset.Asset{a1, a1})
 	if err != expectedErr {
 		t.Errorf("Payment alread exists error expected")
@@ -47,3 +47,13 @@ func TestAssetRepository_CreateBulk(t *testing.T) {
 		t.Errorf("One payment expected to be created before error")
 	}
 }
+
+//func TestAssetRepository_FindById(t *testing.T) {
+//	repository := NewAssetRepository()
+//
+//	_, err := repository.FindById("test")
+//	expectedErr :=
+//	if err != nil {
+//
+//	}
+//}

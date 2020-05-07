@@ -6,26 +6,33 @@ import (
 )
 
 type AssetRecord struct {
-	Id       string `json:"id"`
-	Category int    `json:"category"`
-	Name     string `json:"name"`
+	Id       string               `json:"id"`
+	Category assetEntity.Category `json:"category"`
+	Name     string               `json:"name"`
 }
 
 func (ar AssetRecord) ToAsset() assetEntity.Asset {
-	return assetEntity.Asset{Id: ar.Id, Category: assetEntity.Category(ar.Category), Name: ar.Name}
+	return assetEntity.Asset{Id: ar.Id, Category: ar.Category, Name: ar.Name}
 }
 
 type AssetRecordAlreadyExistsError struct {
-	RecordId string
+	AssetId string
 }
 
 func (e AssetRecordAlreadyExistsError) Error() string {
-	return fmt.Sprintf("asset with id %s already exists", e.RecordId)
+	return fmt.Sprintf("asset with id %s already exists", e.AssetId)
+}
 
+type AssetDoesntExistsError struct {
+	AssetId string
+}
+
+func (e AssetDoesntExistsError) Error() string {
+	return fmt.Sprintf("asset with id %s doesn't exist", e.AssetId)
 }
 
 func NewAssetRecord(asset assetEntity.Asset) AssetRecord {
-	return AssetRecord{asset.Id, int(asset.Category), asset.Name}
+	return AssetRecord{asset.Id, asset.Category, asset.Name}
 }
 
 type AssetRepository struct {
@@ -37,7 +44,7 @@ func (r *AssetRepository) Create(asset assetEntity.Asset) error {
 	_, idExists := r.records[record.Id]
 
 	if idExists {
-		return AssetRecordAlreadyExistsError{RecordId: record.Id}
+		return AssetRecordAlreadyExistsError{AssetId: record.Id}
 	} else {
 		r.records[record.Id] = record
 		return nil
@@ -54,7 +61,7 @@ func (r *AssetRepository) CreateBulk(assets []assetEntity.Asset) (int, error) {
 	for createdCount, record := range records {
 		_, idExists := r.records[record.Id]
 		if idExists {
-			return createdCount, AssetRecordAlreadyExistsError{RecordId: record.Id}
+			return createdCount, AssetRecordAlreadyExistsError{AssetId: record.Id}
 		} else {
 			r.records[record.Id] = record
 		}
@@ -68,6 +75,15 @@ func (r *AssetRepository) ListAll() ([]assetEntity.Asset, error) {
 		payments = append(payments, a.ToAsset())
 	}
 	return payments, nil
+}
+
+func (r *AssetRepository) FindById(assetId string) (a assetEntity.Asset, err error) {
+	record, ok := r.records[assetId]
+	if !ok {
+		err = AssetDoesntExistsError{AssetId: assetId}
+		return
+	}
+	return record.ToAsset(), nil
 }
 
 func NewAssetRepository() *AssetRepository {
