@@ -15,8 +15,8 @@ func TestMain(m *testing.M) {
 
 func TestPlainFile_Write(t *testing.T) {
 	// test file not exists
-	n, err := NewPlainFile(getFullPath("not_exists_file")).Write([]byte(""))
-	switch _, err := NewPlainFile(getFullPath("not_exists_file")).Write([]byte("")); err.(type) {
+	n, err := NewPlainFile(GetFilePath("not_exists_file")).Write([]byte(""))
+	switch _, err := NewPlainFile(GetFilePath("not_exists_file")).Write([]byte("")); err.(type) {
 	default:
 		t.Errorf("PathError expected got %s", err)
 	case *os.PathError:
@@ -25,9 +25,9 @@ func TestPlainFile_Write(t *testing.T) {
 	// setup
 	filename := "write_test_1.txt"
 	content := []byte("some_text")
-	WriteFile(t, filename, string(content))
+	WriteTextToFile(t, filename, string(content))
 	// test write some content
-	n, err = NewPlainFile(getFullPath(filename)).Write(content)
+	n, err = NewPlainFile(GetFilePath(filename)).Write(content)
 	if err != nil {
 		t.Errorf("Unpected file write err: %s", err)
 	} else {
@@ -44,7 +44,7 @@ func TestPlainFile_Write(t *testing.T) {
 
 func TestPlainFile_Read(t *testing.T) {
 	// file not exists
-	fullPath := getFullPath("read_test_1.txt")
+	fullPath := GetFilePath("read_test_1.txt")
 	switch _, err := NewPlainFile(fullPath).Read(); err.(type) {
 	case *os.PathError:
 	default:
@@ -54,8 +54,8 @@ func TestPlainFile_Read(t *testing.T) {
 	// file exists with content
 	// setup
 	filename := "read_test_2.txt"
-	WriteFile(t, filename, "some_text")
-	content, err := NewPlainFile(getFullPath(filename)).Read()
+	WriteTextToFile(t, filename, "some_text")
+	content, err := NewPlainFile(GetFilePath(filename)).Read()
 	if err != nil {
 		t.Errorf("Unexpected err: %s", err)
 	} else {
@@ -67,7 +67,7 @@ func TestPlainFile_Read(t *testing.T) {
 
 func TestPlainFile_Exists(t *testing.T) {
 	// test false without file
-	exists, err := NewPlainFile(getFullPath("not_existent")).Exists()
+	exists, err := NewPlainFile(GetFilePath("not_existent")).Exists()
 	if err != nil {
 		t.Errorf("Unexpected err: %s", err)
 	} else {
@@ -79,7 +79,7 @@ func TestPlainFile_Exists(t *testing.T) {
 	// setup
 	dirName := "test_exists"
 	CreateDir(t, dirName)
-	exists, err = NewPlainFile(getFullPath(dirName)).Exists()
+	exists, err = NewPlainFile(GetFilePath(dirName)).Exists()
 	if err != nil {
 		t.Errorf("Unexpected err: %s", err)
 	} else {
@@ -91,9 +91,9 @@ func TestPlainFile_Exists(t *testing.T) {
 
 	// setup
 	filename := "test_exists_2.txt"
-	WriteFile(t, filename, "")
+	WriteTextToFile(t, filename, "")
 	// test true
-	exists, err = NewPlainFile(getFullPath(filename)).Exists()
+	exists, err = NewPlainFile(GetFilePath(filename)).Exists()
 	if err != nil {
 		t.Errorf("Unpected err: %s", err)
 	} else {
@@ -106,7 +106,7 @@ func TestPlainFile_Exists(t *testing.T) {
 
 func TestPlainFile_Create(t *testing.T) {
 	filename := "test_create_1.txt"
-	fullPath := getFullPath(filename)
+	fullPath := GetFilePath(filename)
 	f := NewPlainFile(fullPath)
 	err := f.Create()
 	if err != nil {
@@ -114,15 +114,15 @@ func TestPlainFile_Create(t *testing.T) {
 	}
 
 	t.Cleanup(func() {
-		err := os.Remove(getFullPath(filename))
+		err := os.Remove(GetFilePath(filename))
 		if err != nil {
 			log.Fatalf("Failed to remove file: %s due to err: %s", fullPath, err)
 		}
 	})
 
 	filename2 := "test_create_2.txt"
-	WriteFile(t, filename2, "initial_text")
-	err = NewPlainFile(getFullPath(filename2)).Create()
+	WriteTextToFile(t, filename2, "initial_text")
+	err = NewPlainFile(GetFilePath(filename2)).Create()
 	if err != nil {
 		t.Errorf("Not expected err: %s", err)
 	} else {
@@ -135,7 +135,7 @@ func TestPlainFile_Create(t *testing.T) {
 
 func TestJsonFile_Create(t *testing.T) {
 	filename := "test_json_file_create_1.json"
-	jf := NewJsonFile(PlainFile{getFullPath(filename)})
+	jf := NewJsonFile(PlainFile{GetFilePath(filename)})
 	err := jf.Create()
 	if err != nil {
 		t.Errorf("Unepxected err: %s", err)
@@ -150,10 +150,10 @@ func TestJsonFile_Create(t *testing.T) {
 func TestJsonFile_Write(t *testing.T) {
 	// setup
 	filename := "test_json_file_write_1.json"
-	WriteFile(t, filename, "")
+	WriteTextToFile(t, filename, "")
 
 	// test write
-	jf := NewJsonFile(PlainFile{getFullPath(filename)})
+	jf := NewJsonFile(PlainFile{GetFilePath(filename)})
 	err := jf.WriteJson("test")
 	if err != nil {
 		t.Errorf("Unepxected err: %s", err)
@@ -177,7 +177,7 @@ func TestJsonFile_Write(t *testing.T) {
 
 func TestCreateIfNotExists(t *testing.T) {
 	filename := "test_create_if_not_exists.json"
-	jf := NewJsonFile(NewPlainFile(getFullPath(filename)))
+	jf := NewJsonFile(NewPlainFile(GetFilePath(filename)))
 	created, err := CreateIfNotExists(jf)
 	if err != nil {
 		t.Errorf("Unexpected err: %s", err)
@@ -189,9 +189,9 @@ func TestCreateIfNotExists(t *testing.T) {
 
 	// setup existent file
 	filename2 := "test_create_if_not_exists_2.json"
-	WriteFile(t, filename2, "")
+	WriteTextToFile(t, filename2, "")
 	// test with existent file
-	jf2 := NewJsonFile(NewPlainFile(getFullPath(filename2)))
+	jf2 := NewJsonFile(NewPlainFile(GetFilePath(filename2)))
 	created, err = CreateIfNotExists(jf2)
 	if err != nil {
 		t.Errorf("Unexpected err: %s", err)

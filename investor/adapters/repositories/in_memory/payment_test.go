@@ -1,22 +1,14 @@
 package in_memory
 
 import (
-	"investor/entities/asset"
 	"investor/entities/payment"
 	"reflect"
 	"testing"
-	"time"
 )
-
-func createPayment(id string, year int) payment.Payment {
-	testAsset := asset.Asset{Category: asset.CryptoCurrency, Name: "test"}
-	creationTime := time.Date(year, 0, 0, 0, 0, 0, 0, time.UTC)
-	return payment.NewReturn(id, 0, 0, testAsset, creationTime)
-}
 
 func TestPaymentRepository_Create(t *testing.T) {
 	repository := NewPaymentRepository()
-	p := createPayment("1", 2020)
+	p := payment.CreatePayment("1", 2020)
 	// save first payment, no errors expected
 	err := repository.Create(p)
 	if err != nil {
@@ -32,8 +24,8 @@ func TestPaymentRepository_Create(t *testing.T) {
 }
 
 func TestPaymentRepository_CreateBulk(t *testing.T) {
-	p1 := createPayment("1", 2020)
-	p2 := createPayment("2", 2020)
+	p1 := payment.CreatePayment("1", 2020)
+	p2 := payment.CreatePayment("2", 2020)
 	repository := NewPaymentRepository()
 
 	createdQuantity, err := repository.CreateBulk([]payment.Payment{p1, p2})
@@ -57,10 +49,10 @@ func TestPaymentRepository_CreateBulk(t *testing.T) {
 
 func TestPaymentRepository_ListAll(t *testing.T) {
 	records := map[string]payment.Payment{
-		"4": createPayment("4", 2017),
-		"3": createPayment("3", 2018),
-		"1": createPayment("1", 2020),
-		"2": createPayment("2", 2019),
+		"4": payment.CreatePayment("4", 2017),
+		"3": payment.CreatePayment("3", 2018),
+		"1": payment.CreatePayment("1", 2020),
+		"2": payment.CreatePayment("2", 2019),
 	}
 	repository := PaymentRepository{records}
 	payments := repository.ListAll()

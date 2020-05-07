@@ -18,12 +18,12 @@ func CleanupWorkDir() {
 	}
 }
 
-func getFullPath(p string) string {
+func GetFilePath(p string) string {
 	return path.Join(WorkDir, p)
 }
 
 func ReadFile(filename string) []byte {
-	fullPath := getFullPath(filename)
+	fullPath := GetFilePath(filename)
 	content, err := ioutil.ReadFile(fullPath)
 	if err != nil {
 		log.Fatalf("Failed to read file with path: %s due to err: %s", fullPath, err)
@@ -32,7 +32,7 @@ func ReadFile(filename string) []byte {
 }
 
 func CreateDir(t *testing.T, dirName string) {
-	fullPath := getFullPath(dirName)
+	fullPath := GetFilePath(dirName)
 	err := os.Mkdir(fullPath, os.ModeDir)
 	if err != nil {
 		checkErr(err, fmt.Sprintf("Failed to create dir with path %s", fullPath))
@@ -50,9 +50,9 @@ func checkErr(err error, message string) {
 	}
 }
 
-func WriteFile(t *testing.T, filename, text string) {
-	fullPath := getFullPath(filename)
-	err := ioutil.WriteFile(fullPath, []byte(text), 0644)
+func WriteBytesToFile(t *testing.T, filename string, bytes []byte) {
+	fullPath := GetFilePath(filename)
+	err := ioutil.WriteFile(fullPath, bytes, 0644)
 	if err != nil {
 		log.Fatalf("Failed to write file with path: %s due to err: %s", fullPath, err)
 	}
@@ -61,6 +61,10 @@ func WriteFile(t *testing.T, filename, text string) {
 		err := os.Remove(fullPath)
 		checkErr(err, fmt.Sprintf("Failed to remove file with path: %s", fullPath))
 	})
+}
+
+func WriteTextToFile(t *testing.T, filename, text string) {
+	WriteBytesToFile(t, filename, []byte(text))
 }
 
 func CreateWorkDir() {
