@@ -65,7 +65,7 @@ func (r *AssetRepository) restore() error {
 
 	_, err = r.repository.CreateBulk(assets)
 	if err != nil {
-		err = fmt.Errorf("restore payments failed, storage file malformed: %w", err)
+		err = fmt.Errorf("restore payments failed: %w", err)
 	} else {
 		r.restored = true
 	}
@@ -91,7 +91,7 @@ func (r *AssetRepository) ListAll() ([]assetEntity.Asset, error) {
 func (r *AssetRepository) FindById(assetId string) (a assetEntity.Asset, err error) {
 	err = r.restore()
 	if err != nil {
-		err = fmt.Errorf("failed to find asset by Id: %s due to restore error: %w", assetId, err)
+		err = fmt.Errorf("failed to find asset by id: %s due to restore error: %w", assetId, err)
 		return
 	}
 	return r.repository.FindById(assetId)

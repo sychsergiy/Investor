@@ -12,7 +12,7 @@ type AssetRecord struct {
 }
 
 func (ar AssetRecord) ToAsset() assetEntity.Asset {
-	return assetEntity.Asset{Id: ar.Id, Category: ar.Category, Name: ar.Name}
+	return assetEntity.NewPlainAsset(ar.Id, ar.Category, ar.Name)
 }
 
 type AssetRecordAlreadyExistsError struct {
@@ -32,7 +32,7 @@ func (e AssetDoesntExistsError) Error() string {
 }
 
 func NewAssetRecord(asset assetEntity.Asset) AssetRecord {
-	return AssetRecord{asset.Id, asset.Category, asset.Name}
+	return AssetRecord{asset.Id(), asset.Category(), asset.Name()}
 }
 
 type AssetRepository struct {

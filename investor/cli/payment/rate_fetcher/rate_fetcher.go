@@ -11,7 +11,7 @@ type CMCRateFetcher struct {
 }
 
 func (f CMCRateFetcher) Fetch(a asset.Asset) (Rate, error) {
-	rate, err := f.Client.FetchCurrencyRate(crypto_currency.CryptoCurrency(a.Name))
+	rate, err := f.Client.FetchCurrencyRate(crypto_currency.CryptoCurrency(a.Name()))
 	if err != nil {
 		return 0, err
 	}

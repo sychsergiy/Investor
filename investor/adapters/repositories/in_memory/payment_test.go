@@ -8,17 +8,15 @@ import (
 	"testing"
 )
 
+func CreatePaymentWithoutAsset(id string) PaymentProxyMock {
+	return NewPaymentProxyMock(
+		payment.CreatePayment(id, 2020),
+		func() (a asset.Asset, err error) { return a, AssetDoesntExistsError{AssetId: "mocked_id"} },
+	)
+}
 func createRepository() *PaymentRepository {
 	finderMock := AssetFinderMock{findFunc: func(assetId string) (a asset.Asset, err error) {
-		return asset.Asset{Id: "1", Category: asset.PreciousMetal, Name: "test"}, nil
-	}}
-	repository := NewPaymentRepository(finderMock)
-	return repository
-}
-
-func createRepositoryWithBrokenAssetFinder() *PaymentRepository {
-	finderMock := AssetFinderMock{findFunc: func(assetId string) (a asset.Asset, err error) {
-		return a, AssetDoesntExistsError{AssetId: "mocked_id"}
+		return asset.NewPlainAsset("1", asset.PreciousMetal, "test"), nil
 	}}
 	repository := NewPaymentRepository(finderMock)
 	return repository
@@ -35,13 +33,14 @@ func TestPaymentRepository_Create(t *testing.T) {
 
 	// try to save payment with the same id
 	err = repository.Create(p)
-	expectedErr := PaymentAlreadyExistsError{PaymentId: p.Id}
+	expectedErr := PaymentAlreadyExistsError{PaymentId: p.Id()}
 	if err != expectedErr {
 		t.Error("Payment with id already exists error expected")
 	}
 
-	repository2 := createRepositoryWithBrokenAssetFinder()
-	err2 := repository2.Create(p)
+	repository2 := createRepository()
+	p2 := CreatePaymentWithoutAsset("2")
+	err2 := repository2.Create(p2)
 	expectedErr2 := AssetDoesntExistsError{AssetId: "mocked_id"}
 	if !errors.Is(err2, expectedErr2) {
 		t.Errorf("Asset with provided doesn't exist error expected")
@@ -74,8 +73,8 @@ func TestPaymentRepository_CreateBulk(t *testing.T) {
 		t.Errorf("One payment expected to be created before error")
 	}
 
-	repository = createRepositoryWithBrokenAssetFinder()
-	err = repository.CreateBulk([]payment.Payment{p1, p2})
+	repository = createRepository()
+	err = repository.CreateBulk([]payment.Payment{CreatePaymentWithoutAsset("1"), p2})
 	expectedErr = PaymentBulkCreateError{
 		FailedIndex: 0, Quantity: 2, Err: AssetDoesntExistsError{AssetId: "mocked_id"},
 	}
@@ -106,23 +105,11 @@ func TestPaymentRepository_ListAll(t *testing.T) {
 
 		var paymentsIds []string
 		for _, p := range payments {
-			paymentsIds = append(paymentsIds, p.Id)
+			paymentsIds = append(paymentsIds, p.Id())
 		}
 
 		if !reflect.DeepEqual(paymentsIds, expectedIds) {
 			t.Errorf("Payments should sorted by date, from the latest to earlier")
 		}
 	}
-
-	// test when Asset doesnt exists
-	repository = createRepositoryWithBrokenAssetFinder()
-	repository.records = records
-
-	_, err = repository.ListAll()
-	expectedErr := AssetDoesntExistsError{AssetId: "mocked_id"}
-	if errors.Is(errors.Unwrap(errors.Unwrap(err)), expectedErr) {
-	} else {
-		t.Errorf("asset with mocked id doesnt exists error expected")
-	}
-
 }
