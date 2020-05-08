@@ -22,43 +22,39 @@ type PaymentRecord struct {
 }
 
 type PaymentProxy struct {
-	p           PaymentRecord
+	record      PaymentRecord
 	assetFinder AssetFinderById
 }
 
 func (p PaymentProxy) Id() string {
-	return p.p.Id
+	return p.record.Id
 }
 
 func (p PaymentProxy) AssetAmount() float32 {
-	return p.p.AssetAmount
+	return p.record.AssetAmount
 }
 
 func (p PaymentProxy) AbsoluteAmount() float32 {
-	return p.p.AbsoluteAmount
+	return p.record.AbsoluteAmount
 }
 
 func (p PaymentProxy) Asset() (*asset.Asset, error) {
-	return p.assetFinder.FindById(p.p.AssetId)
+	return p.assetFinder.FindById(p.record.AssetId)
 }
 
 func (p PaymentProxy) CreationDate() time.Time {
-	return p.p.CreationDate
+	return p.record.CreationDate
 }
 
 func (p PaymentProxy) Type() paymentEntity.Type {
-	return p.p.Type
+	return p.record.Type
 }
 func NewPaymentProxy(record PaymentRecord, assetFinder AssetFinderById) PaymentProxy {
 	return PaymentProxy{record, assetFinder}
 }
 
-type PaymentProxyFactory struct {
-	assetFinder AssetFinderById
-}
-
-func (f PaymentProxyFactory) Create(record PaymentRecord) PaymentProxy {
-	return NewPaymentProxy(record, f.assetFinder)
+func (r PaymentRepository) createPaymentProxy(record PaymentRecord) PaymentProxy {
+	return NewPaymentProxy(record, r.assetFinder)
 }
 
 func NewPaymentRecord(payment paymentEntity.Payment) (pr PaymentRecord, err error) {
@@ -104,9 +100,8 @@ func (e PaymentAlreadyExistsError) Error() string {
 }
 
 type PaymentRepository struct {
-	factory PaymentProxyFactory
-	//assetFinder AssetFinderById
-	records map[string]PaymentRecord
+	assetFinder AssetFinderById
+	records     map[string]PaymentRecord
 }
 
 func (r *PaymentRepository) Create(payment paymentEntity.Payment) error {
@@ -125,24 +120,13 @@ func (r *PaymentRepository) Create(payment paymentEntity.Payment) error {
 
 func (r *PaymentRepository) CreateBulk(payments []paymentEntity.Payment) error {
 	for createdCount, payment := range payments {
-		record, err := NewPaymentRecord(payment)
+		err := r.Create(payment)
 		if err != nil {
 			return PaymentBulkCreateError{
 				FailedIndex: createdCount,
 				Quantity:    len(payments),
 				Err:         err,
 			}
-		}
-
-		_, idExists := r.records[payment.Id()]
-		if idExists {
-			return PaymentBulkCreateError{
-				FailedIndex: createdCount,
-				Quantity:    len(payments),
-				Err:         PaymentAlreadyExistsError{PaymentId: payment.Id()},
-			}
-		} else {
-			r.records[payment.Id()] = record
 		}
 	}
 	return nil
@@ -151,7 +135,7 @@ func (r *PaymentRepository) CreateBulk(payments []paymentEntity.Payment) error {
 func (r *PaymentRepository) ListAll() ([]paymentEntity.Payment, error) {
 	var payments []paymentEntity.Payment
 	for _, record := range r.records {
-		paymentProxy := r.factory.Create(record)
+		paymentProxy := r.createPaymentProxy(record)
 		payments = append(payments, paymentProxy)
 	}
 	sort.Slice(payments, func(i, j int) bool {
@@ -168,12 +152,12 @@ func (r *PaymentRepository) Records() (records []PaymentRecord) {
 }
 
 func (r *PaymentRepository) ConvertRecordToEntity(record PaymentRecord) (p paymentEntity.Payment) {
-	return r.factory.Create(record)
+	return r.createPaymentProxy(record)
 }
 
 func NewPaymentRepository(assetFinder AssetFinderById) *PaymentRepository {
 	return &PaymentRepository{
-		PaymentProxyFactory{assetFinder: assetFinder},
+		assetFinder,
 		make(map[string]PaymentRecord),
 	}
 }

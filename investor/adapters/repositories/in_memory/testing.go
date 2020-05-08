@@ -2,6 +2,7 @@ package in_memory
 
 import (
 	"investor/entities/asset"
+	paymentEntity "investor/entities/payment"
 	"time"
 )
 
@@ -27,4 +28,13 @@ type AssetFinderMock struct {
 
 func (asm AssetFinderMock) FindById(assetId string) (*asset.Asset, error) {
 	return asm.findFunc(assetId)
+}
+
+type PaymentProxyMock struct {
+	paymentEntity.Payment
+	assetFunc func() (*asset.Asset, error)
+}
+
+func (ppm PaymentProxyMock) Asset() (*asset.Asset, error) {
+	return ppm.assetFunc()
 }

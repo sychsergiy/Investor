@@ -8,23 +8,15 @@ import (
 	"testing"
 )
 
-func CreatePaymentWithoutAsset(id string) PaymentProxy {
-	finderMock := AssetFinderMock{findFunc: func(assetId string) (a *asset.Asset, err error) {
-		return a, AssetDoesntExistsError{AssetId: "mocked_id"}
-	}}
-	return PaymentProxy{CreatePaymentRecord(id, 2020), finderMock}
+func CreatePaymentWithoutAsset(id string) PaymentProxyMock {
+	return PaymentProxyMock{payment.CreatePayment(id, 2020),
+		func() (a *asset.Asset, err error) {
+			return a, AssetDoesntExistsError{AssetId: "mocked_id"}
+		}}
 }
 func createRepository() *PaymentRepository {
 	finderMock := AssetFinderMock{findFunc: func(assetId string) (a *asset.Asset, err error) {
 		return &asset.Asset{Id: "1", Category: asset.PreciousMetal, Name: "test"}, nil
-	}}
-	repository := NewPaymentRepository(finderMock)
-	return repository
-}
-
-func createRepositoryWithBrokenAssetFinder() *PaymentRepository {
-	finderMock := AssetFinderMock{findFunc: func(assetId string) (a *asset.Asset, err error) {
-		return a, AssetDoesntExistsError{AssetId: "mocked_id"}
 	}}
 	repository := NewPaymentRepository(finderMock)
 	return repository
@@ -47,8 +39,8 @@ func TestPaymentRepository_Create(t *testing.T) {
 	}
 
 	repository2 := createRepository()
-	p = CreatePaymentWithoutAsset("2")
-	err2 := repository2.Create(p)
+	p2 := CreatePaymentWithoutAsset("2")
+	err2 := repository2.Create(p2)
 	expectedErr2 := AssetDoesntExistsError{AssetId: "mocked_id"}
 	if !errors.Is(err2, expectedErr2) {
 		t.Errorf("Asset with provided doesn't exist error expected")
@@ -120,16 +112,4 @@ func TestPaymentRepository_ListAll(t *testing.T) {
 			t.Errorf("Payments should sorted by date, from the latest to earlier")
 		}
 	}
-
-	// test when Asset doesnt exists
-	repository = createRepositoryWithBrokenAssetFinder()
-	repository.records = records
-
-	_, err = repository.ListAll()
-	expectedErr := AssetDoesntExistsError{AssetId: "mocked_id"}
-	if errors.Is(errors.Unwrap(errors.Unwrap(err)), expectedErr) {
-	} else {
-		t.Errorf("asset with mocked id doesnt exists error expected")
-	}
-
 }
