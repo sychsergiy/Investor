@@ -21,8 +21,10 @@ func setupDependencies(coinMarketCupApiKey string) payment.ConsolePaymentCreator
 	}
 
 	storage := jsonfile.NewStorage(file.NewJsonFile(file.NewPlainFile("storage.json")))
-	repo := jsonfile.NewPaymentRepository(*storage)
-	paymentCreateInteractor := interactors.CreatePayment{Repository: repo, IdGenerator: adapters.NewStubIdGenerator()}
+
+	assetRepo := jsonfile.NewAssetRepository(storage)
+	paymentRepo := jsonfile.NewPaymentRepository(storage, assetRepo)
+	paymentCreateInteractor := interactors.CreatePayment{Repository: paymentRepo, IdGenerator: adapters.NewStubIdGenerator()}
 
 	return payment.ConsolePaymentCreator{PaymentCreator: paymentCreateInteractor, RateFetcher: fetcher}
 }

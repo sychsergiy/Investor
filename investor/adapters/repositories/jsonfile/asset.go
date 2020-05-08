@@ -7,12 +7,13 @@ import (
 )
 
 type AssetRepository struct {
-	repository in_memory.AssetRepository
-	storage    Storage
+	repository *in_memory.AssetRepository
+	storage    *Storage
 
 	restored bool
 }
 
+// todo: change (int, error) to error
 func (r *AssetRepository) CreateBulk(assets []assetEntity.Asset) (int, error) {
 	err := r.restore()
 	if err != nil {
@@ -41,7 +42,8 @@ func (r *AssetRepository) Create(a assetEntity.Asset) error {
 }
 
 func (r *AssetRepository) dump() error {
-	err := r.storage.UpdateAssets(r.repository.ListAll())
+	assets := r.repository.Records()
+	err := r.storage.UpdateAssets(assets)
 	if err != nil {
 		err = fmt.Errorf("update payments on json storage failed: %w", err)
 	}
@@ -54,10 +56,13 @@ func (r *AssetRepository) restore() error {
 		return nil
 	}
 	// read payments from storage file and save in memory
-	assets, err := r.storage.RetrieveAssets()
+	records, err := r.storage.RetrieveAssets()
 	if err != nil {
 		return err
 	}
+
+	assets := convertRecordsToEntities(records)
+
 	_, err = r.repository.CreateBulk(assets)
 	if err != nil {
 		err = fmt.Errorf("restore payments failed, storage file malformed: %w", err)
@@ -67,11 +72,31 @@ func (r *AssetRepository) restore() error {
 	return err
 }
 
-func (r *AssetRepository) ListAll() []assetEntity.Asset {
-	_ = r.restore()
+func convertRecordsToEntities(records []in_memory.AssetRecord) []assetEntity.Asset {
+	var assets []assetEntity.Asset
+	for _, record := range records {
+		assets = append(assets, record.ToAsset())
+	}
+	return assets
+}
+
+func (r *AssetRepository) ListAll() ([]assetEntity.Asset, error) {
+	err := r.restore()
+	if err != nil {
+		return nil, fmt.Errorf("failed to list all assets: %w", err)
+	}
 	return r.repository.ListAll()
 }
 
-func NewAssetRepository(s Storage) *AssetRepository {
-	return &AssetRepository{*in_memory.NewAssetRepository(), s, false}
+func (r *AssetRepository) FindById(assetId string) (a assetEntity.Asset, err error) {
+	err = r.restore()
+	if err != nil {
+		err = fmt.Errorf("failed to find asset by Id: %s due to restore error: %w", assetId, err)
+		return
+	}
+	return r.repository.FindById(assetId)
+}
+
+func NewAssetRepository(s *Storage) *AssetRepository {
+	return &AssetRepository{in_memory.NewAssetRepository(), s, false}
 }

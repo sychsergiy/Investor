@@ -7,23 +7,23 @@ import (
 )
 
 type PaymentRepository struct {
-	storage    Storage
-	repository in_memory.PaymentRepository
+	storage    *Storage
+	repository *in_memory.PaymentRepository
 	restored   bool
 }
 
-func (r *PaymentRepository) CreateBulk(payments []paymentEntity.Payment) (int, error) {
+func (r *PaymentRepository) CreateBulk(payments []paymentEntity.Payment) error {
 	err := r.restore()
 	if err != nil {
-		return 0, err
+		return err
 	}
 
-	n, err := r.repository.CreateBulk(payments)
+	err = r.repository.CreateBulk(payments)
 	if err != nil {
-		return n, fmt.Errorf("payments bulk create failed: %w", err)
+		return fmt.Errorf("payments bulk create failed: %w", err)
 	}
 	err = r.dump()
-	return n, err
+	return err
 }
 
 func (r *PaymentRepository) Create(payment paymentEntity.Payment) error {
@@ -40,7 +40,8 @@ func (r *PaymentRepository) Create(payment paymentEntity.Payment) error {
 }
 
 func (r *PaymentRepository) dump() error {
-	err := r.storage.UpdatePayments(r.repository.ListAll())
+	records := r.repository.Records()
+	err := r.storage.UpdatePayments(records)
 	if err != nil {
 		err = fmt.Errorf("update payments on json storage failed: %w", err)
 	}
@@ -53,11 +54,17 @@ func (r *PaymentRepository) restore() error {
 		return nil
 	}
 	// read payments from storage file and save in memory
-	payments, err := r.storage.RetrievePayments()
+	records, err := r.storage.RetrievePayments()
 	if err != nil {
 		return err
 	}
-	_, err = r.repository.CreateBulk(payments)
+
+	payments, err := r.convertRecordsToEntities(records)
+	if err != nil {
+		return fmt.Errorf("failed convert reocrds to entities: %w", err)
+	}
+
+	err = r.repository.CreateBulk(payments)
 	if err != nil {
 		err = fmt.Errorf("restore payments failed, storage file malformed: %w", err)
 	} else {
@@ -66,12 +73,28 @@ func (r *PaymentRepository) restore() error {
 	return err
 }
 
-func (r *PaymentRepository) ListAll() []paymentEntity.Payment {
-	// todo: add error to  ListAll() interface
-	_ = r.restore()
+func (r *PaymentRepository) convertRecordsToEntities(records []in_memory.PaymentRecord) (
+	payments []paymentEntity.Payment, err error,
+) {
+	for _, record := range records {
+		payment, err := r.repository.ConvertRecordToEntity(record)
+		if err != nil {
+			return payments, err
+		} else {
+			payments = append(payments, payment)
+		}
+	}
+	return payments, err
+}
+
+func (r *PaymentRepository) ListAll() ([]paymentEntity.Payment, error) {
+	err := r.restore()
+	if err != nil {
+		return nil, fmt.Errorf("failed to list all payments: %w", err)
+	}
 	return r.repository.ListAll()
 }
 
-func NewPaymentRepository(storage Storage) *PaymentRepository {
-	return &PaymentRepository{storage, *in_memory.NewPaymentRepository(), false}
+func NewPaymentRepository(storage *Storage, assetFinder in_memory.AssetFinderById) *PaymentRepository {
+	return &PaymentRepository{storage, in_memory.NewPaymentRepository(assetFinder), false}
 }

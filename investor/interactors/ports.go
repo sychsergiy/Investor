@@ -10,12 +10,17 @@ type AssetCreator interface {
 }
 
 type AssetBulkCreator interface {
-	CreateBulk(assets []asset.Asset) (int, error)
+	CreateBulk(assets []asset.Asset) error
+}
+
+type AssetsLister interface {
+	ListAll() ([]asset.Asset, error)
 }
 
 type AssetRepository interface {
 	AssetCreator
 	AssetBulkCreator
+	AssetsLister
 }
 
 type PaymentBulkCreator interface {
@@ -27,7 +32,7 @@ type PaymentCreator interface {
 }
 
 type PaymentsLister interface {
-	ListAll() []paymentEntity.Payment
+	ListAll() ([]paymentEntity.Payment, error)
 }
 
 type PaymentRepository interface {
