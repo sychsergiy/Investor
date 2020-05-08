@@ -20,7 +20,7 @@ type Payment interface {
 	Id() string
 	AssetAmount() float32
 	AbsoluteAmount() float32
-	Asset() asset.Asset
+	Asset() (*asset.Asset, error)
 	Type() Type
 	CreationDate() time.Time
 }

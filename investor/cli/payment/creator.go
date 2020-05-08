@@ -38,7 +38,7 @@ func (cpc ConsolePaymentCreator) Create() error {
 
 	model := interactors.CreatePaymentModel{
 		AssetAmount: assetAmount, AbsoluteAmount: absoluteAmount,
-		Asset: asset_, Type: paymentType, CreationDate: date,
+		Asset: &asset_, Type: paymentType, CreationDate: date,
 	}
 	saveRecord := readCompleteOrAbort(model)
 	if saveRecord {

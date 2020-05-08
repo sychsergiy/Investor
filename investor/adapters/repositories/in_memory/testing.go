@@ -38,3 +38,7 @@ type PaymentProxyMock struct {
 func (ppm PaymentProxyMock) Asset() (*asset.Asset, error) {
 	return ppm.assetFunc()
 }
+
+func NewPaymentProxyMock(p paymentEntity.Payment, assetFunc func() (*asset.Asset, error)) PaymentProxyMock {
+	return PaymentProxyMock{p, assetFunc}
+}

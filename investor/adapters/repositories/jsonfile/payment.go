@@ -59,10 +59,7 @@ func (r *PaymentRepository) restore() error {
 		return err
 	}
 
-	payments, err := r.convertRecordsToEntities(records)
-	if err != nil {
-		return fmt.Errorf("failed convert reocrds to entities: %w", err)
-	}
+	payments := r.convertRecordsToEntities(records)
 
 	err = r.repository.CreateBulk(payments)
 	if err != nil {
@@ -74,17 +71,13 @@ func (r *PaymentRepository) restore() error {
 }
 
 func (r *PaymentRepository) convertRecordsToEntities(records []in_memory.PaymentRecord) (
-	payments []paymentEntity.Payment, err error,
+	payments []paymentEntity.Payment,
 ) {
 	for _, record := range records {
-		payment, err := r.repository.ConvertRecordToEntity(record)
-		if err != nil {
-			return payments, err
-		} else {
-			payments = append(payments, payment)
-		}
+		payment := r.repository.ConvertRecordToEntity(record)
+		payments = append(payments, payment)
 	}
-	return payments, err
+	return payments
 }
 
 func (r *PaymentRepository) ListAll() ([]paymentEntity.Payment, error) {

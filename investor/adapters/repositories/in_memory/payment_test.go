@@ -9,10 +9,10 @@ import (
 )
 
 func CreatePaymentWithoutAsset(id string) PaymentProxyMock {
-	return PaymentProxyMock{payment.CreatePayment(id, 2020),
-		func() (a *asset.Asset, err error) {
-			return a, AssetDoesntExistsError{AssetId: "mocked_id"}
-		}}
+	return NewPaymentProxyMock(
+		payment.CreatePayment(id, 2020),
+		func() (a *asset.Asset, err error) { return a, AssetDoesntExistsError{AssetId: "mocked_id"} },
+	)
 }
 func createRepository() *PaymentRepository {
 	finderMock := AssetFinderMock{findFunc: func(assetId string) (a *asset.Asset, err error) {

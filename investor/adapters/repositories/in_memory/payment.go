@@ -60,7 +60,7 @@ func (r PaymentRepository) createPaymentProxy(record PaymentRecord) PaymentProxy
 func NewPaymentRecord(payment paymentEntity.Payment) (pr PaymentRecord, err error) {
 	a, err := payment.Asset()
 	if err != nil {
-		return
+		return pr, err
 	}
 	pr = PaymentRecord{
 		Id:             payment.Id(),
@@ -106,6 +106,10 @@ type PaymentRepository struct {
 
 func (r *PaymentRepository) Create(payment paymentEntity.Payment) error {
 	record, err := NewPaymentRecord(payment)
+	if err != nil {
+		return err
+	}
+	_, err = r.assetFinder.FindById(record.AssetId)
 	if err != nil {
 		return err
 	}
