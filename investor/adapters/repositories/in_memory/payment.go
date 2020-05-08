@@ -9,7 +9,7 @@ import (
 )
 
 type AssetFinderById interface {
-	FindById(id string) (*asset.Asset, error)
+	FindById(id string) (asset.Asset, error)
 }
 
 type PaymentRecord struct {
@@ -38,7 +38,7 @@ func (p PaymentProxy) AbsoluteAmount() float32 {
 	return p.record.AbsoluteAmount
 }
 
-func (p PaymentProxy) Asset() (*asset.Asset, error) {
+func (p PaymentProxy) Asset() (asset.Asset, error) {
 	return p.assetFinder.FindById(p.record.AssetId)
 }
 
@@ -66,7 +66,7 @@ func NewPaymentRecord(payment paymentEntity.Payment) (pr PaymentRecord, err erro
 		Id:             payment.Id(),
 		AssetAmount:    payment.AssetAmount(),
 		AbsoluteAmount: payment.AbsoluteAmount(),
-		AssetId:        a.Id,
+		AssetId:        a.Id(),
 		Type:           payment.Type(),
 		CreationDate:   payment.CreationDate(),
 	}

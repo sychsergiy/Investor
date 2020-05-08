@@ -38,7 +38,7 @@ func (cpc ConsolePaymentCreator) Create() error {
 
 	model := interactors.CreatePaymentModel{
 		AssetAmount: assetAmount, AbsoluteAmount: absoluteAmount,
-		Asset: &asset_, Type: paymentType, CreationDate: date,
+		Asset: asset_, Type: paymentType, CreationDate: date,
 	}
 	saveRecord := readCompleteOrAbort(model)
 	if saveRecord {
@@ -118,5 +118,5 @@ func chooseAsset() asset.Asset {
 	default:
 		panic("Unexpected input")
 	}
-	return crypto_currency.NewAsset("test", currency)
+	return asset.NewPlainAsset("test", asset.CryptoCurrency, string(currency))
 }

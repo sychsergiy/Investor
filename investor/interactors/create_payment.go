@@ -14,7 +14,7 @@ type CreatePayment struct {
 type CreatePaymentModel struct {
 	AssetAmount    float32
 	AbsoluteAmount float32
-	Asset          *assetEntity.Asset
+	Asset          assetEntity.Asset
 	Type           paymentEntity.Type
 	CreationDate   time.Time
 }

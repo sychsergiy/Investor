@@ -11,12 +11,12 @@ import (
 func CreatePaymentWithoutAsset(id string) PaymentProxyMock {
 	return NewPaymentProxyMock(
 		payment.CreatePayment(id, 2020),
-		func() (a *asset.Asset, err error) { return a, AssetDoesntExistsError{AssetId: "mocked_id"} },
+		func() (a asset.Asset, err error) { return a, AssetDoesntExistsError{AssetId: "mocked_id"} },
 	)
 }
 func createRepository() *PaymentRepository {
-	finderMock := AssetFinderMock{findFunc: func(assetId string) (a *asset.Asset, err error) {
-		return &asset.Asset{Id: "1", Category: asset.PreciousMetal, Name: "test"}, nil
+	finderMock := AssetFinderMock{findFunc: func(assetId string) (a asset.Asset, err error) {
+		return asset.NewPlainAsset("1", asset.PreciousMetal, "test"), nil
 	}}
 	repository := NewPaymentRepository(finderMock)
 	return repository

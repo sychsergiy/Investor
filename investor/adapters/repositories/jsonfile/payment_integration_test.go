@@ -23,7 +23,7 @@ func TestPaymentRepository_Integration_ListAll(t *testing.T) {
 	assetRepo := NewAssetRepository(storage)
 	repo := NewPaymentRepository(storage, assetRepo)
 
-	err := assetRepo.Create(asset.NewAsset("assetId", asset.PreciousMetal, "name"))
+	err := assetRepo.Create(asset.NewPlainAsset("assetId", asset.PreciousMetal, "name"))
 	checkErr(t, err, "asset creation")
 
 	err = repo.CreateBulk([]payment.Payment{
@@ -71,7 +71,7 @@ func TestPaymentRepository_Integration_ListAll(t *testing.T) {
 	// test create returns error on none existent asset id
 	p := in_memory.NewPaymentProxyMock(
 		payment.CreatePayment("1", 2020),
-		func() (a *asset.Asset, err error) {
+		func() (a asset.Asset, err error) {
 			return a, in_memory.AssetDoesntExistsError{AssetId: "not_exists"}
 		},
 	)

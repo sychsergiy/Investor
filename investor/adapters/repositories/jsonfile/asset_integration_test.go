@@ -11,9 +11,9 @@ func TestAssetRepository_Integration_ListAll(t *testing.T) {
 	repo := NewAssetRepository(NewStorage(jsonFile))
 
 	_, err := repo.CreateBulk([]assetEntity.Asset{
-		assetEntity.NewAsset("1", assetEntity.PreciousMetal, "gold"),
-		assetEntity.NewAsset("2", assetEntity.PreciousMetal, "silver"),
-		assetEntity.NewAsset("3", assetEntity.PreciousMetal, "diamond"),
+		assetEntity.NewPlainAsset("1", assetEntity.PreciousMetal, "gold"),
+		assetEntity.NewPlainAsset("2", assetEntity.PreciousMetal, "silver"),
+		assetEntity.NewPlainAsset("3", assetEntity.PreciousMetal, "diamond"),
 	})
 	checkErr(t, err, "asset bulk creation")
 
@@ -33,7 +33,7 @@ func TestAssetRepository_Integration_ListAll(t *testing.T) {
 	}
 
 	// test create works after restore (restored with first ListAll() call)
-	err = repo2.Create(assetEntity.NewAsset("4", assetEntity.PreciousMetal, "rubin"))
+	err = repo2.Create(assetEntity.NewPlainAsset("4", assetEntity.PreciousMetal, "rubin"))
 	checkErr(t, err, "asset creation")
 	assets2, err = repo2.ListAll()
 	checkErr(t, err, "assets list")
@@ -43,7 +43,7 @@ func TestAssetRepository_Integration_ListAll(t *testing.T) {
 
 	// test create work before first restoring
 	repo3 := NewAssetRepository(NewStorage(jsonFile))
-	err = repo3.Create(assetEntity.NewAsset("5", assetEntity.PreciousMetal, "rubin"))
+	err = repo3.Create(assetEntity.NewPlainAsset("5", assetEntity.PreciousMetal, "rubin"))
 	checkErr(t, err, "asset creation")
 	assets3, err := repo3.ListAll()
 	checkErr(t, err, "assets list")
