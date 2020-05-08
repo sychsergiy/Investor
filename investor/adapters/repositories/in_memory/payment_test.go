@@ -8,16 +8,22 @@ import (
 	"testing"
 )
 
+func CreatePaymentWithoutAsset(id string) PaymentProxy {
+	finderMock := AssetFinderMock{findFunc: func(assetId string) (a *asset.Asset, err error) {
+		return a, AssetDoesntExistsError{AssetId: "mocked_id"}
+	}}
+	return PaymentProxy{CreatePaymentRecord(id, 2020), finderMock}
+}
 func createRepository() *PaymentRepository {
-	finderMock := AssetFinderMock{findFunc: func(assetId string) (a asset.Asset, err error) {
-		return asset.Asset{Id: "1", Category: asset.PreciousMetal, Name: "test"}, nil
+	finderMock := AssetFinderMock{findFunc: func(assetId string) (a *asset.Asset, err error) {
+		return &asset.Asset{Id: "1", Category: asset.PreciousMetal, Name: "test"}, nil
 	}}
 	repository := NewPaymentRepository(finderMock)
 	return repository
 }
 
 func createRepositoryWithBrokenAssetFinder() *PaymentRepository {
-	finderMock := AssetFinderMock{findFunc: func(assetId string) (a asset.Asset, err error) {
+	finderMock := AssetFinderMock{findFunc: func(assetId string) (a *asset.Asset, err error) {
 		return a, AssetDoesntExistsError{AssetId: "mocked_id"}
 	}}
 	repository := NewPaymentRepository(finderMock)
@@ -40,7 +46,8 @@ func TestPaymentRepository_Create(t *testing.T) {
 		t.Error("Payment with id already exists error expected")
 	}
 
-	repository2 := createRepositoryWithBrokenAssetFinder()
+	repository2 := createRepository()
+	p = CreatePaymentWithoutAsset("2")
 	err2 := repository2.Create(p)
 	expectedErr2 := AssetDoesntExistsError{AssetId: "mocked_id"}
 	if !errors.Is(err2, expectedErr2) {
@@ -74,8 +81,8 @@ func TestPaymentRepository_CreateBulk(t *testing.T) {
 		t.Errorf("One payment expected to be created before error")
 	}
 
-	repository = createRepositoryWithBrokenAssetFinder()
-	err = repository.CreateBulk([]payment.Payment{p1, p2})
+	repository = createRepository()
+	err = repository.CreateBulk([]payment.Payment{CreatePaymentWithoutAsset("1"), p2})
 	expectedErr = PaymentBulkCreateError{
 		FailedIndex: 0, Quantity: 2, Err: AssetDoesntExistsError{AssetId: "mocked_id"},
 	}

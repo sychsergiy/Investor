@@ -11,8 +11,8 @@ type AssetRecord struct {
 	Name     string               `json:"name"`
 }
 
-func (ar AssetRecord) ToAsset() assetEntity.Asset {
-	return assetEntity.Asset{Id: ar.Id, Category: ar.Category, Name: ar.Name}
+func (ar AssetRecord) ToAsset() *assetEntity.Asset {
+	return &assetEntity.Asset{Id: ar.Id, Category: ar.Category, Name: ar.Name}
 }
 
 type AssetRecordAlreadyExistsError struct {
@@ -73,12 +73,12 @@ func (r *AssetRepository) CreateBulk(assets []assetEntity.Asset) (int, error) {
 func (r *AssetRepository) ListAll() ([]assetEntity.Asset, error) {
 	var assets []assetEntity.Asset
 	for _, a := range r.records {
-		assets = append(assets, a.ToAsset())
+		assets = append(assets, *a.ToAsset())
 	}
 	return assets, nil
 }
 
-func (r *AssetRepository) FindById(assetId string) (a assetEntity.Asset, err error) {
+func (r *AssetRepository) FindById(assetId string) (a *assetEntity.Asset, err error) {
 	record, ok := r.records[assetId]
 	if !ok {
 		err = AssetDoesntExistsError{AssetId: assetId}

@@ -9,7 +9,7 @@ import (
 )
 
 type AssetFinderById interface {
-	FindById(id string) (asset.Asset, error)
+	FindById(id string) (*asset.Asset, error)
 }
 
 type PaymentRecord struct {
@@ -21,15 +21,60 @@ type PaymentRecord struct {
 	CreationDate   time.Time          `json:"creation_date"`
 }
 
-func NewPaymentRecord(payment paymentEntity.Payment) PaymentRecord {
-	return PaymentRecord{
+type PaymentProxy struct {
+	p           PaymentRecord
+	assetFinder AssetFinderById
+}
+
+func (p PaymentProxy) Id() string {
+	return p.p.Id
+}
+
+func (p PaymentProxy) AssetAmount() float32 {
+	return p.p.AssetAmount
+}
+
+func (p PaymentProxy) AbsoluteAmount() float32 {
+	return p.p.AbsoluteAmount
+}
+
+func (p PaymentProxy) Asset() (*asset.Asset, error) {
+	return p.assetFinder.FindById(p.p.AssetId)
+}
+
+func (p PaymentProxy) CreationDate() time.Time {
+	return p.p.CreationDate
+}
+
+func (p PaymentProxy) Type() paymentEntity.Type {
+	return p.p.Type
+}
+func NewPaymentProxy(record PaymentRecord, assetFinder AssetFinderById) PaymentProxy {
+	return PaymentProxy{record, assetFinder}
+}
+
+type PaymentProxyFactory struct {
+	assetFinder AssetFinderById
+}
+
+func (f PaymentProxyFactory) Create(record PaymentRecord) PaymentProxy {
+	return NewPaymentProxy(record, f.assetFinder)
+}
+
+func NewPaymentRecord(payment paymentEntity.Payment) (pr PaymentRecord, err error) {
+	a, err := payment.Asset()
+	if err != nil {
+		return
+	}
+	pr = PaymentRecord{
 		Id:             payment.Id(),
 		AssetAmount:    payment.AssetAmount(),
 		AbsoluteAmount: payment.AbsoluteAmount(),
-		AssetId:        payment.Asset().Id,
+		AssetId:        a.Id,
 		Type:           payment.Type(),
 		CreationDate:   payment.CreationDate(),
 	}
+	return pr, nil
 }
 
 type PaymentAlreadyExistsError struct {
@@ -59,12 +104,13 @@ func (e PaymentAlreadyExistsError) Error() string {
 }
 
 type PaymentRepository struct {
-	assetFinder AssetFinderById
-	records     map[string]PaymentRecord
+	factory PaymentProxyFactory
+	//assetFinder AssetFinderById
+	records map[string]PaymentRecord
 }
 
 func (r *PaymentRepository) Create(payment paymentEntity.Payment) error {
-	_, err := r.assetFinder.FindById(payment.Asset().Id)
+	record, err := NewPaymentRecord(payment)
 	if err != nil {
 		return err
 	}
@@ -72,14 +118,14 @@ func (r *PaymentRepository) Create(payment paymentEntity.Payment) error {
 	if idExists {
 		return PaymentAlreadyExistsError{PaymentId: payment.Id()}
 	} else {
-		r.records[payment.Id()] = NewPaymentRecord(payment)
+		r.records[payment.Id()] = record
 		return nil
 	}
 }
 
 func (r *PaymentRepository) CreateBulk(payments []paymentEntity.Payment) error {
 	for createdCount, payment := range payments {
-		_, err := r.assetFinder.FindById(payment.Asset().Id)
+		record, err := NewPaymentRecord(payment)
 		if err != nil {
 			return PaymentBulkCreateError{
 				FailedIndex: createdCount,
@@ -96,7 +142,7 @@ func (r *PaymentRepository) CreateBulk(payments []paymentEntity.Payment) error {
 				Err:         PaymentAlreadyExistsError{PaymentId: payment.Id()},
 			}
 		} else {
-			r.records[payment.Id()] = NewPaymentRecord(payment)
+			r.records[payment.Id()] = record
 		}
 	}
 	return nil
@@ -105,11 +151,8 @@ func (r *PaymentRepository) CreateBulk(payments []paymentEntity.Payment) error {
 func (r *PaymentRepository) ListAll() ([]paymentEntity.Payment, error) {
 	var payments []paymentEntity.Payment
 	for _, record := range r.records {
-		p, err := r.ConvertRecordToEntity(record)
-		if err != nil {
-			return nil, fmt.Errorf("failed to list payments: %w", err)
-		}
-		payments = append(payments, p)
+		paymentProxy := r.factory.Create(record)
+		payments = append(payments, paymentProxy)
 	}
 	sort.Slice(payments, func(i, j int) bool {
 		return payments[i].CreationDate().After(payments[j].CreationDate())
@@ -124,22 +167,13 @@ func (r *PaymentRepository) Records() (records []PaymentRecord) {
 	return
 }
 
-func (r *PaymentRepository) ConvertRecordToEntity(record PaymentRecord) (p paymentEntity.Payment, err error) {
-	a, err := r.findAssetById(record.AssetId)
-	if err != nil {
-		err = fmt.Errorf("join asset to payment failed: %w", err)
-		return
-	}
-	p = paymentEntity.NewPlainPayment(
-		record.Id, record.AssetAmount, record.AbsoluteAmount, a, record.CreationDate, record.Type,
-	)
-	return
-}
-
-func (r *PaymentRepository) findAssetById(assetId string) (asset.Asset, error) {
-	return r.assetFinder.FindById(assetId)
+func (r *PaymentRepository) ConvertRecordToEntity(record PaymentRecord) (p paymentEntity.Payment) {
+	return r.factory.Create(record)
 }
 
 func NewPaymentRepository(assetFinder AssetFinderById) *PaymentRepository {
-	return &PaymentRepository{assetFinder, make(map[string]PaymentRecord)}
+	return &PaymentRepository{
+		PaymentProxyFactory{assetFinder: assetFinder},
+		make(map[string]PaymentRecord),
+	}
 }

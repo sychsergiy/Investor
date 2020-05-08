@@ -22,9 +22,9 @@ func CreatePaymentRecord(id string, year int) PaymentRecord {
 }
 
 type AssetFinderMock struct {
-	findFunc func(assetId string) (asset.Asset, error)
+	findFunc func(assetId string) (*asset.Asset, error)
 }
 
-func (asm AssetFinderMock) FindById(assetId string) (asset.Asset, error) {
+func (asm AssetFinderMock) FindById(assetId string) (*asset.Asset, error) {
 	return asm.findFunc(assetId)
 }
