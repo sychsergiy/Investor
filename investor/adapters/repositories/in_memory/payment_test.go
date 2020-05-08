@@ -39,6 +39,13 @@ func TestPaymentRepository_Create(t *testing.T) {
 	if err != expectedErr {
 		t.Error("Payment with id already exists error expected")
 	}
+
+	repository2 := createRepositoryWithBrokenAssetFinder()
+	err2 := repository2.Create(p)
+	expectedErr2 := AssetDoesntExistsError{AssetId: "mocked_id"}
+	if !errors.Is(err2, expectedErr2) {
+		t.Errorf("Asset with provided doesn't exist error expected")
+	}
 }
 
 func TestPaymentRepository_CreateBulk(t *testing.T) {
@@ -65,6 +72,15 @@ func TestPaymentRepository_CreateBulk(t *testing.T) {
 	}
 	if len(repository.records) != 1 {
 		t.Errorf("One payment expected to be created before error")
+	}
+
+	repository = createRepositoryWithBrokenAssetFinder()
+	err = repository.CreateBulk([]payment.Payment{p1, p2})
+	expectedErr = PaymentBulkCreateError{
+		FailedIndex: 0, Quantity: 2, Err: AssetDoesntExistsError{AssetId: "mocked_id"},
+	}
+	if !errors.Is(err, expectedErr) {
+		t.Errorf("payment bulk create error with asset doesn exists root cause error expected")
 	}
 }
 
