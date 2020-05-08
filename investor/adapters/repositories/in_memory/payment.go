@@ -101,6 +101,10 @@ func (r *PaymentRepository) ListAll() ([]paymentEntity.Payment, error) {
 	return payments, nil
 }
 
+func (r *PaymentRepository) Records() map[string]PaymentRecord {
+	return r.records
+}
+
 func (r *PaymentRepository) convertRecordToEntity(record PaymentRecord) (p paymentEntity.Payment, err error) {
 	a, err := r.findAssetById(record.AssetId)
 	if err != nil {

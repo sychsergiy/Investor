@@ -47,13 +47,3 @@ func TestAssetRepository_CreateBulk(t *testing.T) {
 		t.Errorf("One payment expected to be created before error")
 	}
 }
-
-//func TestAssetRepository_FindById(t *testing.T) {
-//	repository := NewAssetRepository()
-//
-//	_, err := repository.FindById("test")
-//	expectedErr :=
-//	if err != nil {
-//
-//	}
-//}

@@ -42,12 +42,8 @@ func (r *AssetRepository) Create(a assetEntity.Asset) error {
 }
 
 func (r *AssetRepository) dump() error {
-	// todo: use records method here
-	assets, err := r.repository.ListAll()
-	if err != nil {
-		return fmt.Errorf("list assets failed: %w", err)
-	}
-	err = r.storage.UpdateAssets(assets)
+	assets := r.repository.Records()
+	err := r.storage.UpdateAssets(assets)
 	if err != nil {
 		err = fmt.Errorf("update payments on json storage failed: %w", err)
 	}
@@ -60,10 +56,13 @@ func (r *AssetRepository) restore() error {
 		return nil
 	}
 	// read payments from storage file and save in memory
-	assets, err := r.storage.RetrieveAssets()
+	records, err := r.storage.RetrieveAssets()
 	if err != nil {
 		return err
 	}
+
+	assets := convertRecordsToEntities(records)
+
 	_, err = r.repository.CreateBulk(assets)
 	if err != nil {
 		err = fmt.Errorf("restore payments failed, storage file malformed: %w", err)
@@ -71,6 +70,14 @@ func (r *AssetRepository) restore() error {
 		r.restored = true
 	}
 	return err
+}
+
+func convertRecordsToEntities(records []in_memory.AssetRecord) []assetEntity.Asset {
+	var assets []assetEntity.Asset
+	for _, record := range records {
+		assets = append(assets, record.ToAsset())
+	}
+	return assets
 }
 
 func (r *AssetRepository) ListAll() ([]assetEntity.Asset, error) {

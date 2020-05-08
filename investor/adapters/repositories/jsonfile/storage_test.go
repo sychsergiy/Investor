@@ -2,7 +2,7 @@ package jsonfile
 
 import (
 	"encoding/json"
-	assetEntity "investor/entities/asset"
+	"investor/adapters/repositories/in_memory"
 	"investor/entities/payment"
 	"investor/helpers/file"
 	"os"
@@ -27,9 +27,9 @@ func createStorage(filename string) *Storage {
 }
 
 func getDataMock() Data {
-	asset := assetEntity.Asset{Id: "1", Category: assetEntity.PreciousMetal, Name: "test"}
+	asset := in_memory.CreateAssetRecord("1", "test")
 	pMock := payment.CreatePayment("1", 2020)
-	return Data{[]assetEntity.Asset{asset}, []payment.Payment{pMock}}
+	return Data{[]in_memory.AssetRecord{asset}, []payment.Payment{pMock}}
 }
 
 func TestStorage_RetrieveAssets(t *testing.T) {
@@ -72,7 +72,7 @@ func TestStorage_UpdateAssets(t *testing.T) {
 	filename := "test_updates_assets.json"
 	data := getDataMock()
 	err := createStorage(filename).UpdateAssets(data.Assets)
-	expectedJson := "{\"assets\":[{\"Id\":\"1\",\"Category\":0,\"Name\":\"test\"}],\"payments\":[]}"
+	expectedJson := "{\"assets\":[{\"id\":\"1\",\"category\":0,\"name\":\"test\"}],\"payments\":[]}"
 	if err != nil {
 		t.Errorf("Unepxected err: %+v", err)
 	} else {

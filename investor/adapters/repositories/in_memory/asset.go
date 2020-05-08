@@ -71,11 +71,11 @@ func (r *AssetRepository) CreateBulk(assets []assetEntity.Asset) (int, error) {
 }
 
 func (r *AssetRepository) ListAll() ([]assetEntity.Asset, error) {
-	var payments []assetEntity.Asset
+	var assets []assetEntity.Asset
 	for _, a := range r.records {
-		payments = append(payments, a.ToAsset())
+		assets = append(assets, a.ToAsset())
 	}
-	return payments, nil
+	return assets, nil
 }
 
 func (r *AssetRepository) FindById(assetId string) (a assetEntity.Asset, err error) {
@@ -85,6 +85,14 @@ func (r *AssetRepository) FindById(assetId string) (a assetEntity.Asset, err err
 		return
 	}
 	return record.ToAsset(), nil
+}
+
+func (r *AssetRepository) Records() []AssetRecord {
+	var records []AssetRecord
+	for _, record := range r.records {
+		records = append(records, record)
+	}
+	return records
 }
 
 func NewAssetRepository() *AssetRepository {
