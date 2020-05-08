@@ -23,12 +23,12 @@ type PaymentRecord struct {
 
 func NewPaymentRecord(payment paymentEntity.Payment) PaymentRecord {
 	return PaymentRecord{
-		Id:             payment.Id,
-		AssetAmount:    payment.AssetAmount,
-		AbsoluteAmount: payment.AbsoluteAmount,
-		AssetId:        payment.Asset.Id,
-		Type:           payment.Type,
-		CreationDate:   payment.CreationDate,
+		Id:             payment.Id(),
+		AssetAmount:    payment.AssetAmount(),
+		AbsoluteAmount: payment.AbsoluteAmount(),
+		AssetId:        payment.Asset().Id,
+		Type:           payment.Type(),
+		CreationDate:   payment.CreationDate(),
 	}
 }
 
@@ -64,22 +64,22 @@ type PaymentRepository struct {
 }
 
 func (r *PaymentRepository) Create(payment paymentEntity.Payment) error {
-	_, err := r.assetFinder.FindById(payment.Asset.Id)
+	_, err := r.assetFinder.FindById(payment.Asset().Id)
 	if err != nil {
 		return err
 	}
-	_, idExists := r.records[payment.Id]
+	_, idExists := r.records[payment.Id()]
 	if idExists {
-		return PaymentAlreadyExistsError{PaymentId: payment.Id}
+		return PaymentAlreadyExistsError{PaymentId: payment.Id()}
 	} else {
-		r.records[payment.Id] = NewPaymentRecord(payment)
+		r.records[payment.Id()] = NewPaymentRecord(payment)
 		return nil
 	}
 }
 
 func (r *PaymentRepository) CreateBulk(payments []paymentEntity.Payment) error {
 	for createdCount, payment := range payments {
-		_, err := r.assetFinder.FindById(payment.Asset.Id)
+		_, err := r.assetFinder.FindById(payment.Asset().Id)
 		if err != nil {
 			return PaymentBulkCreateError{
 				FailedIndex: createdCount,
@@ -88,15 +88,15 @@ func (r *PaymentRepository) CreateBulk(payments []paymentEntity.Payment) error {
 			}
 		}
 
-		_, idExists := r.records[payment.Id]
+		_, idExists := r.records[payment.Id()]
 		if idExists {
 			return PaymentBulkCreateError{
 				FailedIndex: createdCount,
 				Quantity:    len(payments),
-				Err:         PaymentAlreadyExistsError{PaymentId: payment.Id},
+				Err:         PaymentAlreadyExistsError{PaymentId: payment.Id()},
 			}
 		} else {
-			r.records[payment.Id] = NewPaymentRecord(payment)
+			r.records[payment.Id()] = NewPaymentRecord(payment)
 		}
 	}
 	return nil
@@ -112,7 +112,7 @@ func (r *PaymentRepository) ListAll() ([]paymentEntity.Payment, error) {
 		payments = append(payments, p)
 	}
 	sort.Slice(payments, func(i, j int) bool {
-		return payments[i].CreationDate.After(payments[j].CreationDate)
+		return payments[i].CreationDate().After(payments[j].CreationDate())
 	})
 	return payments, nil
 }
@@ -130,14 +130,10 @@ func (r *PaymentRepository) ConvertRecordToEntity(record PaymentRecord) (p payme
 		err = fmt.Errorf("join asset to payment failed: %w", err)
 		return
 	}
-	return paymentEntity.Payment{
-		Id:             record.Id,
-		AssetAmount:    record.AssetAmount,
-		AbsoluteAmount: record.AbsoluteAmount,
-		Asset:          a,
-		Type:           record.Type,
-		CreationDate:   record.CreationDate,
-	}, nil
+	p = paymentEntity.NewPlainPayment(
+		record.Id, record.AssetAmount, record.AbsoluteAmount, a, record.CreationDate, record.Type,
+	)
+	return
 }
 
 func (r *PaymentRepository) findAssetById(assetId string) (asset.Asset, error) {

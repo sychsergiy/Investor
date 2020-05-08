@@ -27,8 +27,8 @@ func (l ConsolePaymentsLister) List() {
 func paymentToString(p payment.Payment) string {
 	return fmt.Sprintf(
 		"ID: %s\nAsset: %s\nAsset category: %s\nType: %s\nUSD amount: %f\nAsset amount: %f\nCreation date: %s",
-		p.Id, p.Asset.Name, p.Asset.Category.String(), p.Type.String(), p.AbsoluteAmount,
-		p.AssetAmount, p.CreationDate.Format("2006-01-02 15:04"),
+		p.Id(), p.Asset().Name, p.Asset().Category.String(), p.Type().String(), p.AbsoluteAmount(),
+		p.AssetAmount(), p.CreationDate().Format("2006-01-02 15:04"),
 	)
 
 }

@@ -35,7 +35,7 @@ func TestPaymentRepository_Create(t *testing.T) {
 
 	// try to save payment with the same id
 	err = repository.Create(p)
-	expectedErr := PaymentAlreadyExistsError{PaymentId: p.Id}
+	expectedErr := PaymentAlreadyExistsError{PaymentId: p.Id()}
 	if err != expectedErr {
 		t.Error("Payment with id already exists error expected")
 	}
@@ -106,7 +106,7 @@ func TestPaymentRepository_ListAll(t *testing.T) {
 
 		var paymentsIds []string
 		for _, p := range payments {
-			paymentsIds = append(paymentsIds, p.Id)
+			paymentsIds = append(paymentsIds, p.Id())
 		}
 
 		if !reflect.DeepEqual(paymentsIds, expectedIds) {
