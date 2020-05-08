@@ -4,10 +4,13 @@ import (
 	"fmt"
 	"investor/entities/asset"
 	paymentEntity "investor/entities/payment"
-	"investor/interactors"
 	"sort"
 	"time"
 )
+
+type AssetFinderById interface {
+	FindById(id string) (asset.Asset, error)
+}
 
 type PaymentRecord struct {
 	Id             string             `json:"id"`
@@ -56,7 +59,7 @@ func (e PaymentAlreadyExistsError) Error() string {
 }
 
 type PaymentRepository struct {
-	assetFinder interactors.AssetFinderById
+	assetFinder AssetFinderById
 	records     map[string]PaymentRecord
 }
 
@@ -141,6 +144,6 @@ func (r *PaymentRepository) findAssetById(assetId string) (asset.Asset, error) {
 	return r.assetFinder.FindById(assetId)
 }
 
-func NewPaymentRepository(assetFinder interactors.AssetFinderById) *PaymentRepository {
+func NewPaymentRepository(assetFinder AssetFinderById) *PaymentRepository {
 	return &PaymentRepository{assetFinder, make(map[string]PaymentRecord)}
 }

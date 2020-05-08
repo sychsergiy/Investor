@@ -16,7 +16,7 @@ func (l ConsolePaymentsLister) List() {
 		panic(fmt.Errorf("failed to list payments: %+v", err))
 	}
 
-	fmt.Printf("Quantity payments count: %d\n", len(payments))
+	fmt.Printf("Total payments count: %d\n", len(payments))
 	for i, p := range payments {
 		str := paymentToString(p)
 		fmt.Printf("\n%d -------------------------\n", i+1)

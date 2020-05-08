@@ -68,7 +68,7 @@ func readCompleteOrAbort(model interactors.CreatePaymentModel) bool {
 }
 
 func readCreationDate() time.Time {
-	fmt.Println("Enter creation date in the following format: yyyy-dd-mm hh:mm:ss")
+	fmt.Println("Enter creation date in the following format: yyyy-mm-dd hh:mm")
 	input := readFromConsole()
 	creationDate, err := ParseTime(input)
 	if err != nil {
@@ -78,7 +78,7 @@ func readCreationDate() time.Time {
 }
 
 func ParseTime(str string) (time.Time, error) {
-	return time.Parse("2006-01-02 15:04:05", str)
+	return time.Parse("2006-01-02 15:04", str)
 }
 
 func choosePaymentType() payment.Type {
