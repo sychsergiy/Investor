@@ -7,12 +7,13 @@ import (
 )
 
 type AssetRepository struct {
-	repository in_memory.AssetRepository
-	storage    Storage
+	repository *in_memory.AssetRepository
+	storage    *Storage
 
 	restored bool
 }
 
+// todo: change (int, error) to error
 func (r *AssetRepository) CreateBulk(assets []assetEntity.Asset) (int, error) {
 	err := r.restore()
 	if err != nil {
@@ -80,6 +81,15 @@ func (r *AssetRepository) ListAll() ([]assetEntity.Asset, error) {
 	return r.repository.ListAll()
 }
 
-func NewAssetRepository(s Storage) *AssetRepository {
-	return &AssetRepository{*in_memory.NewAssetRepository(), s, false}
+func (r *AssetRepository) FindById(assetId string) (a assetEntity.Asset, err error) {
+	err = r.restore()
+	if err != nil {
+		err = fmt.Errorf("failed to find asset by Id: %s due to restore error: %w", assetId, err)
+		return
+	}
+	return r.repository.FindById(assetId)
+}
+
+func NewAssetRepository(s *Storage) *AssetRepository {
+	return &AssetRepository{in_memory.NewAssetRepository(), s, false}
 }

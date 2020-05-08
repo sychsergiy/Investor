@@ -17,10 +17,15 @@ type AssetsLister interface {
 	ListAll() ([]asset.Asset, error)
 }
 
+type AssetFinderById interface {
+	FindById(id string) (asset.Asset, error)
+}
+
 type AssetRepository interface {
 	AssetCreator
 	AssetBulkCreator
 	AssetsLister
+	AssetFinderById
 }
 
 type PaymentBulkCreator interface {

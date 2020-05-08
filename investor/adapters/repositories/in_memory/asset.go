@@ -51,6 +51,7 @@ func (r *AssetRepository) Create(asset assetEntity.Asset) error {
 	}
 }
 
+// todo: change (int, error) to error
 func (r *AssetRepository) CreateBulk(assets []assetEntity.Asset) (int, error) {
 	var records []AssetRecord
 	for _, a := range assets {

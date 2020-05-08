@@ -4,11 +4,12 @@ import (
 	"fmt"
 	"investor/adapters/repositories/in_memory"
 	paymentEntity "investor/entities/payment"
+	"investor/interactors"
 )
 
 type PaymentRepository struct {
-	storage    Storage
-	repository in_memory.PaymentRepository
+	storage    *Storage
+	repository *in_memory.PaymentRepository
 	restored   bool
 }
 
@@ -79,6 +80,6 @@ func (r *PaymentRepository) ListAll() ([]paymentEntity.Payment, error) {
 	return r.repository.ListAll()
 }
 
-func NewPaymentRepository(storage Storage) *PaymentRepository {
-	return &PaymentRepository{storage, *in_memory.NewPaymentRepository(), false}
+func NewPaymentRepository(storage *Storage, assetFinder interactors.AssetFinderById) *PaymentRepository {
+	return &PaymentRepository{storage, in_memory.NewPaymentRepository(assetFinder), false}
 }

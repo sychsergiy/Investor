@@ -7,8 +7,8 @@ import (
 )
 
 func TestAssetRepository_Integration_ListAll(t *testing.T) {
-	jsonFile := file.NewJsonFile(file.NewPlainFile(file.GetFilePath("test_list_all.json")))
-	repo := NewAssetRepository(*NewStorage(jsonFile))
+	jsonFile := file.NewJsonFile(file.NewPlainFile(file.GetFilePath("test_list_all_assets.json")))
+	repo := NewAssetRepository(NewStorage(jsonFile))
 
 	_, err := repo.CreateBulk([]assetEntity.Asset{
 		assetEntity.NewAsset("1", assetEntity.PreciousMetal, "gold"),
@@ -25,7 +25,7 @@ func TestAssetRepository_Integration_ListAll(t *testing.T) {
 	}
 
 	// test restore from existent storage
-	repo2 := NewAssetRepository(*NewStorage(jsonFile))
+	repo2 := NewAssetRepository(NewStorage(jsonFile))
 	assets2, err := repo2.ListAll()
 	checkErr(t, err, "assets list")
 	if len(assets2) != 3 {
@@ -42,7 +42,7 @@ func TestAssetRepository_Integration_ListAll(t *testing.T) {
 	}
 
 	// test create work before first restoring
-	repo3 := NewAssetRepository(*NewStorage(jsonFile))
+	repo3 := NewAssetRepository(NewStorage(jsonFile))
 	err = repo3.Create(assetEntity.NewAsset("5", assetEntity.PreciousMetal, "rubin"))
 	checkErr(t, err, "asset creation")
 	assets3, err := repo3.ListAll()
