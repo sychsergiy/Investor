@@ -41,12 +41,8 @@ func (r *PaymentRepository) Create(payment paymentEntity.Payment) error {
 }
 
 func (r *PaymentRepository) dump() error {
-	// todo: use records method here
-	payments, err := r.repository.ListAll()
-	if err != nil {
-		return fmt.Errorf("list payments failed: %w", err)
-	}
-	err = r.storage.UpdatePayments(payments)
+	records := r.repository.Records()
+	err := r.storage.UpdatePayments(records)
 	if err != nil {
 		err = fmt.Errorf("update payments on json storage failed: %w", err)
 	}
@@ -59,10 +55,16 @@ func (r *PaymentRepository) restore() error {
 		return nil
 	}
 	// read payments from storage file and save in memory
-	payments, err := r.storage.RetrievePayments()
+	records, err := r.storage.RetrievePayments()
 	if err != nil {
 		return err
 	}
+
+	payments, err := r.convertRecordsToEntities(records)
+	if err != nil {
+		return fmt.Errorf("failed convert reocrds to entities: %w", err)
+	}
+
 	err = r.repository.CreateBulk(payments)
 	if err != nil {
 		err = fmt.Errorf("restore payments failed, storage file malformed: %w", err)
@@ -70,6 +72,20 @@ func (r *PaymentRepository) restore() error {
 		r.restored = true
 	}
 	return err
+}
+
+func (r *PaymentRepository) convertRecordsToEntities(records []in_memory.PaymentRecord) (
+	payments []paymentEntity.Payment, err error,
+) {
+	for _, record := range records {
+		payment, err := r.repository.ConvertRecordToEntity(record)
+		if err != nil {
+			return payments, err
+		} else {
+			payments = append(payments, payment)
+		}
+	}
+	return payments, err
 }
 
 func (r *PaymentRepository) ListAll() ([]paymentEntity.Payment, error) {

@@ -61,6 +61,10 @@ type PaymentRepository struct {
 }
 
 func (r *PaymentRepository) Create(payment paymentEntity.Payment) error {
+	_, err := r.assetFinder.FindById(payment.Asset.Id)
+	if err != nil {
+		return err
+	}
 	_, idExists := r.records[payment.Id]
 	if idExists {
 		return PaymentAlreadyExistsError{PaymentId: payment.Id}
@@ -72,6 +76,15 @@ func (r *PaymentRepository) Create(payment paymentEntity.Payment) error {
 
 func (r *PaymentRepository) CreateBulk(payments []paymentEntity.Payment) error {
 	for createdCount, payment := range payments {
+		_, err := r.assetFinder.FindById(payment.Asset.Id)
+		if err != nil {
+			return PaymentBulkCreateError{
+				FailedIndex: createdCount,
+				Quantity:    len(payments),
+				Err:         err,
+			}
+		}
+
 		_, idExists := r.records[payment.Id]
 		if idExists {
 			return PaymentBulkCreateError{
@@ -89,7 +102,7 @@ func (r *PaymentRepository) CreateBulk(payments []paymentEntity.Payment) error {
 func (r *PaymentRepository) ListAll() ([]paymentEntity.Payment, error) {
 	var payments []paymentEntity.Payment
 	for _, record := range r.records {
-		p, err := r.convertRecordToEntity(record)
+		p, err := r.ConvertRecordToEntity(record)
 		if err != nil {
 			return nil, fmt.Errorf("failed to list payments: %w", err)
 		}
@@ -101,11 +114,14 @@ func (r *PaymentRepository) ListAll() ([]paymentEntity.Payment, error) {
 	return payments, nil
 }
 
-func (r *PaymentRepository) Records() map[string]PaymentRecord {
-	return r.records
+func (r *PaymentRepository) Records() (records []PaymentRecord) {
+	for _, record := range r.records {
+		records = append(records, record)
+	}
+	return
 }
 
-func (r *PaymentRepository) convertRecordToEntity(record PaymentRecord) (p paymentEntity.Payment, err error) {
+func (r *PaymentRepository) ConvertRecordToEntity(record PaymentRecord) (p paymentEntity.Payment, err error) {
 	a, err := r.findAssetById(record.AssetId)
 	if err != nil {
 		err = fmt.Errorf("join asset to payment failed: %w", err)

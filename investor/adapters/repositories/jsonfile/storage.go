@@ -4,14 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"investor/adapters/repositories/in_memory"
-	"investor/entities/payment"
 	"investor/helpers/file"
 	"log"
 )
 
 type Data struct {
-	Assets   []in_memory.AssetRecord `json:"assets"`
-	Payments []payment.Payment       `json:"payments"`
+	Assets   []in_memory.AssetRecord   `json:"assets"`
+	Payments []in_memory.PaymentRecord `json:"payments"`
 }
 
 type Storage struct {
@@ -19,7 +18,7 @@ type Storage struct {
 	data     Data
 }
 
-func (s Storage) RetrievePayments() ([]payment.Payment, error) {
+func (s Storage) RetrievePayments() ([]in_memory.PaymentRecord, error) {
 	err := s.restore()
 	if err != nil {
 		return nil, err
@@ -37,7 +36,7 @@ func (s Storage) RetrieveAssets() ([]in_memory.AssetRecord, error) {
 
 }
 
-func (s *Storage) UpdatePayments(payments []payment.Payment) error {
+func (s *Storage) UpdatePayments(payments []in_memory.PaymentRecord) error {
 	s.data.Payments = payments
 	return s.dump()
 }
@@ -94,6 +93,6 @@ func (s *Storage) restore() error {
 func NewStorage(jsonFile file.JsonFile) *Storage {
 	return &Storage{
 		jsonFile: jsonFile,
-		data:     Data{[]in_memory.AssetRecord{}, []payment.Payment{}},
+		data:     Data{[]in_memory.AssetRecord{}, []in_memory.PaymentRecord{}},
 	}
 }
