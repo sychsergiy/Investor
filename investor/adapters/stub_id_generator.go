@@ -1,21 +1,17 @@
 package adapters
 
-import "strconv"
+import (
+	uuid "github.com/satori/go.uuid"
+)
 
-
-type StubIdGenerator struct {
-	counter int
+type UUIDGenerator struct {
 }
 
-func (sig StubIdGenerator) incrementCounter() {
-	sig.counter += 1
+func (g UUIDGenerator) Generate() string {
+	id := uuid.NewV4()
+	return id.String()
 }
 
-func (sig StubIdGenerator) Generate() string {
-	sig.incrementCounter()
-	return strconv.Itoa(sig.counter)
-}
-
-func NewStubIdGenerator() StubIdGenerator {
-	return StubIdGenerator{0}
+func NewUUIDGenerator() UUIDGenerator {
+	return UUIDGenerator{}
 }
