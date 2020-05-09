@@ -10,6 +10,10 @@ type ConsolePaymentsLister struct {
 	lister interactors.ListPayments
 }
 
+func (l ConsolePaymentsLister) Execute() {
+	l.List()
+}
+
 func (l ConsolePaymentsLister) List() {
 	payments, err := l.lister.ListAll()
 	if err != nil {
