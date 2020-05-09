@@ -18,6 +18,12 @@ type ConsolePaymentCreator struct {
 	RateFetcher    rate_fetcher.RateFetcher
 }
 
+func (cpc ConsolePaymentCreator) Execute() {
+	err := cpc.Create()
+	if err != nil {
+		panic(err)
+	}
+}
 func (cpc ConsolePaymentCreator) Create() error {
 	paymentType := choosePaymentType()
 	asset_ := chooseAsset()
