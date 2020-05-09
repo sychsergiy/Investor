@@ -15,7 +15,7 @@ type Data struct {
 
 type Storage struct {
 	jsonFile file.IJsonFile
-	data     Data
+	data     *Data
 }
 
 func (s Storage) RetrievePayments() ([]in_memory.PaymentRecord, error) {
@@ -37,11 +37,19 @@ func (s Storage) RetrieveAssets() ([]in_memory.AssetRecord, error) {
 }
 
 func (s *Storage) UpdatePayments(payments []in_memory.PaymentRecord) error {
+	err := s.restore()
+	if err != nil {
+		return err
+	}
 	s.data.Payments = payments
 	return s.dump()
 }
 
 func (s *Storage) UpdateAssets(assets []in_memory.AssetRecord) error {
+	err := s.restore()
+	if err != nil {
+		return err
+	}
 	s.data.Assets = assets
 	return s.dump()
 }
@@ -63,6 +71,7 @@ func (s Storage) ensureFileExists() error {
 	created, err := file.CreateIfNotExists(s.jsonFile)
 	if created {
 		log.Printf("\nWARNING: file: %s doesn't exists. Create empty.\n", s.jsonFile.Path())
+		return s.jsonFile.WriteJson(s.data)
 	}
 	if err != nil {
 		return fmt.Errorf("ensure file exists: %w", err)
@@ -86,13 +95,14 @@ func (s *Storage) restore() error {
 	if err != nil {
 		return fmt.Errorf("unmarshaling json storage file content: %w", err)
 	}
-	s.data = data
+	s.data.Payments = data.Payments
+	s.data.Assets = data.Assets
 	return nil
 }
 
 func NewStorage(jsonFile file.JsonFile) *Storage {
 	return &Storage{
 		jsonFile: jsonFile,
-		data:     Data{[]in_memory.AssetRecord{}, []in_memory.PaymentRecord{}},
+		data:     &Data{[]in_memory.AssetRecord{}, []in_memory.PaymentRecord{}},
 	}
 }
