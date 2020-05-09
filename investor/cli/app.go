@@ -12,6 +12,7 @@ type App struct {
 	ListAssetsCommand    asset.ConsoleAssetsLister
 	CreatePaymentCommand payment.ConsolePaymentCreator
 	ListPaymentsCommand  payment.ConsolePaymentsLister
+	CalcProfitCommand    payment.ConsoleProfitCalculator
 }
 
 func (app App) setup() CLI {
@@ -20,6 +21,7 @@ func (app App) setup() CLI {
 	cli.AddCommand("create_payment", app.CreatePaymentCommand)
 	cli.AddCommand("list_payments", app.ListPaymentsCommand)
 	cli.AddCommand("list_assets", app.ListAssetsCommand)
+	cli.AddCommand("calc_profit", app.CalcProfitCommand)
 
 	return cli
 }
@@ -27,7 +29,7 @@ func (app App) setup() CLI {
 func (app App) Run() {
 	cli := app.setup()
 
-	commands := "create_asset, list_assets, create_payment, list_payments"
+	commands := "create_asset, list_assets, create_payment, list_payments, calc_profit"
 	argsLen := len(os.Args)
 	if argsLen == 2 {
 		command := os.Args[1]

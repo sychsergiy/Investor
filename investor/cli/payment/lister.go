@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"investor/entities/payment"
 	"investor/interactors"
+	"log"
 )
 
 type ConsolePaymentsLister struct {
@@ -17,18 +18,22 @@ func (l ConsolePaymentsLister) Execute() {
 func (l ConsolePaymentsLister) List() {
 	payments, err := l.lister.ListAll()
 	if err != nil {
-		panic(fmt.Errorf("failed to list payments: %+v", err))
+		log.Fatalf("failed to list payments: %+v", err)
 	}
+	printPayments(payments)
+}
 
-	fmt.Printf("Total payments count: %d\n", len(payments))
+func printPayments(payments []payment.Payment) {
+	fmt.Printf("----------Total payments count: %d----------", len(payments))
 	for i, p := range payments {
 		str, err := paymentToString(p)
 		if err != nil {
-			panic(err)
+			log.Fatal(err)
 		}
 		fmt.Printf("\n%d -------------------------\n", i+1)
 		println(str)
 	}
+	fmt.Printf("-------------------END---------------------\n\n")
 }
 
 func paymentToString(p payment.Payment) (str string, err error) {
