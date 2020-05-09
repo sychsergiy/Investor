@@ -86,6 +86,19 @@ func TestCalcProfit(t *testing.T) {
 			t.Error("-50% profit value expected")
 		}
 	}
+
+	profit, err = CalcProfit(Sums{
+		Invested:      400,
+		Returned:      100,
+		InvestedAsset: 1,
+		ReturnedAsset: 2,
+	})
+	if !errors.Is(err, ReturnedAssetSumMoreThanInvested{}) {
+		t.Errorf("ReturnedAssetSumMoreThanInvested err excpected but got: %+v", err)
+	}
+	if profit != nil {
+		t.Errorf("Profit nil value expected")
+	}
 }
 
 func TestNewProfitFromPercentage(t *testing.T) {

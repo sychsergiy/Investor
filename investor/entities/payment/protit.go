@@ -21,7 +21,7 @@ func NewProfitFromCoefficient(coefficient float32) FloatProfit {
 }
 
 func NewProfitFromPercentage(percentage float32) FloatProfit {
-	return FloatProfit{percentage / 100 + 1}
+	return FloatProfit{percentage/100 + 1}
 }
 
 type Sums struct {
@@ -43,6 +43,12 @@ func (e ZeroAssetReturnedError) Error() string {
 	return "unable to calculate profit de to zero returned sum"
 }
 
+type ReturnedAssetSumMoreThanInvested struct{}
+
+func (e ReturnedAssetSumMoreThanInvested) Error() string {
+	return "unable to calculate profit de returned Asset sum more than invested"
+}
+
 func CalcProfit(sums Sums) (Profit, error) {
 	// calculate asset profit coefficient
 	// find invested capital in absolute amount (USD) and in asset
@@ -53,6 +59,10 @@ func CalcProfit(sums Sums) (Profit, error) {
 
 	if sums.Invested == 0 {
 		return nil, ZeroInvestedSumError{}
+	}
+
+	if sums.ReturnedAsset > sums.InvestedAsset {
+		return nil, ReturnedAssetSumMoreThanInvested{}
 	}
 
 	assetRestPart := (sums.InvestedAsset - sums.ReturnedAsset) / sums.InvestedAsset
