@@ -3,12 +3,13 @@ package interactors
 import (
 	assetEntity "investor/entities/asset"
 	paymentEntity "investor/entities/payment"
+	"investor/interactors/ports"
 	"time"
 )
 
 type CreatePayment struct {
-	Repository  PaymentCreator
-	IdGenerator IdGenerator
+	Repository  ports.PaymentCreator
+	IdGenerator ports.IdGenerator
 }
 
 type CreatePaymentModel struct {

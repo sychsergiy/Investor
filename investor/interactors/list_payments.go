@@ -1,11 +1,14 @@
 package interactors
 
-import paymentEntity "investor/entities/payment"
+import (
+	"investor/entities/payment"
+	"investor/interactors/ports"
+)
 
 type ListPayments struct {
-	Repository PaymentsLister
+	Repository ports.PaymentsLister
 }
 
-func (lp ListPayments) ListAll() ([]paymentEntity.Payment, error) {
+func (lp ListPayments) ListAll() ([]payment.Payment, error) {
 	return lp.Repository.ListAll()
 }
