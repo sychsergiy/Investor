@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"investor/entities/asset"
 	"investor/interactors"
+	"log"
 	"os"
 	"strconv"
 )
@@ -48,7 +49,8 @@ func readCompleteOrAbort(model interactors.CreateAssetRequest) bool {
 	} else if input == "2" {
 		return false
 	} else {
-		panic(fmt.Sprintf("Unexpected input: %s", input))
+		log.Fatal(fmt.Sprintf("Unexpected input: %s", input))
+		return false
 	}
 }
 
@@ -67,7 +69,7 @@ func chooseCategory() asset.Category {
 
 	number, err := strconv.Atoi(input)
 	if err != nil {
-		panic(fmt.Sprintf("Unexpected input, failed due to error: %s\n", err))
+		log.Fatalf("Unexpected input, failed due to error: %s\n", err)
 	}
 
 	category := asset.Category(number)

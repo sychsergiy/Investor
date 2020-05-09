@@ -22,21 +22,17 @@ func (l ConsoleAssetsLister) List() {
 
 	fmt.Printf("Total assets count: %d\n", len(assets))
 	for i, p := range assets {
-		str, err := assetToString(p)
-		if err != nil {
-			panic(err)
-		}
+		str := AssetToString(p)
 		fmt.Printf("%d -------------------------\n", i+1)
 		println(str)
 	}
 }
 
-func assetToString(a asset.Asset) (str string, err error) {
-	str = fmt.Sprintf(
+func AssetToString(a asset.Asset) string {
+	return fmt.Sprintf(
 		"ID: %s\nName: %s\nCategory: %s\n",
 		a.Id(), a.Name(), a.Category(),
 	)
-	return
 
 }
 
