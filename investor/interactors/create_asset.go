@@ -2,11 +2,12 @@ package interactors
 
 import (
 	assetEntity "investor/entities/asset"
+	"investor/interactors/ports"
 )
 
 type CreateAsset struct {
-	repository  AssetCreator
-	idGenerator IdGenerator
+	repository  ports.AssetCreator
+	idGenerator ports.IdGenerator
 }
 
 type CreateAssetRequest struct {
@@ -42,6 +43,6 @@ func (ca CreateAsset) Create(assetModel CreateAssetRequest) CreateAssetResponse 
 	}
 }
 
-func NewCreateAsset(repository AssetCreator, idGenerator IdGenerator) CreateAsset {
+func NewCreateAsset(repository ports.AssetCreator, idGenerator ports.IdGenerator) CreateAsset {
 	return CreateAsset{repository: repository, idGenerator: idGenerator}
 }
