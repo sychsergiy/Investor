@@ -22,12 +22,33 @@ func (c ConsoleAssetCreator) Execute() {
 	name := readName()
 
 	request := interactors.CreateAssetRequest{Name: name, Category: category}
-	response := c.creator.Create(request)
 
-	if response.Created {
-		fmt.Println("OK. Asset created")
+	complete := readCompleteOrAbort(request)
+	if complete {
+		response := c.creator.Create(request)
+		if response.Created {
+			fmt.Println("OK. Asset created")
+		} else {
+			fmt.Printf("Failed to created asset due to err %s\n", response.Err)
+		}
 	} else {
-		fmt.Printf("Failed to created asset due to err %s\n", response.Err)
+		fmt.Println("Aborted.")
+	}
+
+}
+
+func readCompleteOrAbort(model interactors.CreateAssetRequest) bool {
+	fmt.Printf(
+		"Verify asset. Enter:  1 - to save, 2 - to abort: \n------------\nName: %s\nCategory: %s\n------------\n",
+		model.Name, model.Category.String(),
+	)
+	input := readFromConsole()
+	if input == "1" {
+		return true
+	} else if input == "2" {
+		return false
+	} else {
+		panic(fmt.Sprintf("Unexpected input: %s", input))
 	}
 }
 
@@ -49,7 +70,9 @@ func chooseCategory() asset.Category {
 		panic(fmt.Sprintf("Unexpected input, failed due to error: %s\n", err))
 	}
 
-	return asset.Category(number)
+	category := asset.Category(number)
+	fmt.Printf("%s selected\n", category.String())
+	return category
 }
 
 func readName() string {
