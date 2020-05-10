@@ -113,3 +113,35 @@ func TestPaymentRepository_ListAll(t *testing.T) {
 		}
 	}
 }
+
+func TestPaymentRepository_FindByIds(t *testing.T) {
+	repository := createRepository()
+	repository.records = map[string]PaymentRecord{
+		"4": CreatePaymentRecord("4", 2017),
+		"3": CreatePaymentRecord("3", 2018),
+		"1": CreatePaymentRecord("1", 2020),
+		"2": CreatePaymentRecord("2", 2019),
+	}
+	ids := []string{"4", "2", "3"}
+	expectedIds := []string{"2", "3", "4"}
+	payments, err := repository.FindByIds(ids)
+	if err != nil {
+		t.Errorf("Unexpected err: %+v", err)
+	} else {
+		var paymentsIds []string
+		for _, p := range payments {
+			paymentsIds = append(paymentsIds, p.Id())
+		}
+		if !reflect.DeepEqual(expectedIds, paymentsIds) {
+			t.Errorf("Unexpected payments, slice with 3 listered ids epxected")
+		}
+	}
+
+	payments, err = repository.FindByIds([]string{"not_existent"})
+	if !errors.Is(err, PaymentDoesntExistsError{"not_existent"}) {
+		t.Errorf("PaymentsDoesntExistsError expected, but got: %+v", err)
+	}
+	if payments != nil {
+		t.Errorf("Payments nil value expected")
+	}
+}

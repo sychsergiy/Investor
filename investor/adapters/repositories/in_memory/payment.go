@@ -83,6 +83,14 @@ type PaymentBulkCreateError struct {
 	Err         error
 }
 
+type PaymentDoesntExistsError struct {
+	PaymentId string
+}
+
+func (e PaymentDoesntExistsError) Error() string {
+	return fmt.Sprintf("payment with id %s not found", e.PaymentId)
+}
+
 func (e PaymentBulkCreateError) Error() string {
 	return fmt.Sprintf(
 		"payments bulk create %d items failed on index: %d due to err: %v",
@@ -142,9 +150,30 @@ func (r *PaymentRepository) ListAll() ([]paymentEntity.Payment, error) {
 		paymentProxy := r.createPaymentProxy(record)
 		payments = append(payments, paymentProxy)
 	}
+
+	sortByCreationDate(payments)
+	return payments, nil
+}
+
+func sortByCreationDate(payments []paymentEntity.Payment) []paymentEntity.Payment {
 	sort.Slice(payments, func(i, j int) bool {
+		payments[i].CreationDate()
 		return payments[i].CreationDate().After(payments[j].CreationDate())
 	})
+	return payments
+}
+
+func (r *PaymentRepository) FindByIds(ids []string) ([]paymentEntity.Payment, error) {
+	var payments []paymentEntity.Payment
+
+	for _, id := range ids {
+		p, ok := r.records[id]
+		if !ok {
+			return nil, PaymentDoesntExistsError{PaymentId: id}
+		}
+		payments = append(payments, NewPaymentProxy(p, r.assetFinder))
+	}
+	sortByCreationDate(payments)
 	return payments, nil
 }
 
