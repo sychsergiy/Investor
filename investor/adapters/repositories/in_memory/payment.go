@@ -163,6 +163,33 @@ func sortByCreationDate(payments []paymentEntity.Payment) []paymentEntity.Paymen
 	return payments
 }
 
+func (r *PaymentRepository) FindByAssetName(
+	assetName string, period paymentEntity.Period,
+) ([]paymentEntity.Payment, error) {
+	payments := make([]paymentEntity.Payment, 0)
+	for _, record := range r.records {
+		if periodContains(period, record.CreationDate) {
+			payment := r.createPaymentProxy(record)
+			a, err := payment.Asset()
+			if err != nil {
+				return nil, err
+			}
+			if a.Name() == assetName {
+				payments = append(payments, payment)
+			}
+		}
+	}
+	sortByCreationDate(payments)
+	return payments, nil
+}
+
+func periodContains(p paymentEntity.Period, date time.Time) bool {
+	if date.After(p.From()) && date.Before(p.Until()) {
+		return true
+	}
+	return false
+}
+
 func (r *PaymentRepository) FindByIds(ids []string) ([]paymentEntity.Payment, error) {
 	var payments []paymentEntity.Payment
 
