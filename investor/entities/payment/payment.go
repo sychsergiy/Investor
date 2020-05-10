@@ -24,3 +24,10 @@ type Payment interface {
 	Type() Type
 	CreationDate() time.Time
 }
+
+func PaymentsToIds(payments []Payment) (ids []string) {
+	for _, p := range payments {
+		ids = append(ids, p.Id())
+	}
+	return
+}

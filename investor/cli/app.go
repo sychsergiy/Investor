@@ -8,32 +8,35 @@ import (
 )
 
 type App struct {
-	CreateAssetCommand   asset.ConsoleAssetCreator
-	ListAssetsCommand    asset.ConsoleAssetsLister
-	CreatePaymentCommand payment.ConsolePaymentCreator
-	ListPaymentsCommand  payment.ConsolePaymentsLister
-	CalcProfitCommand    payment.ConsoleProfitCalculator
+	CreateAssetCommand       asset.CreateAssetCommand
+	ListAssetsCommand        asset.ListAssetsCommand
+	CreatePaymentCommand     payment.CreatePaymentCommand
+	ListPaymentsCommand      payment.ListPaymentsCommand
+	CalcProfitCommand        payment.CalcProfitCommand
+	FilterByAssetNameCommand payment.FilterByAssetNameCommand
+
+	cli *CLI
 }
 
-func (app App) setup() CLI {
-	cli := NewCLI()
-	cli.AddCommand("create_asset", app.CreateAssetCommand)
-	cli.AddCommand("create_payment", app.CreatePaymentCommand)
-	cli.AddCommand("list_payments", app.ListPaymentsCommand)
-	cli.AddCommand("list_assets", app.ListAssetsCommand)
-	cli.AddCommand("calc_profit", app.CalcProfitCommand)
+func (app *App) setup() {
+	app.cli = NewCLI()
+	app.cli.AddCommand("create_asset", app.CreateAssetCommand)
+	app.cli.AddCommand("create_payment", app.CreatePaymentCommand)
+	app.cli.AddCommand("list_payments", app.ListPaymentsCommand)
+	app.cli.AddCommand("list_assets", app.ListAssetsCommand)
+	app.cli.AddCommand("calc_profit", app.CalcProfitCommand)
 
-	return cli
+	app.cli.AddCommand("filter_by_asset_name", app.FilterByAssetNameCommand)
 }
 
 func (app App) Run() {
-	cli := app.setup()
+	app.setup()
 
-	commands := "create_asset, list_assets, create_payment, list_payments, calc_profit"
+	commands := app.cli.AvailableCommands()
 	argsLen := len(os.Args)
 	if argsLen == 2 {
 		command := os.Args[1]
-		cli.Run(command)
+		app.cli.Run(command)
 	} else if argsLen > 2 {
 		log.Fatalf(
 			"unexpected args, only one param expected - command with value: %s", commands,

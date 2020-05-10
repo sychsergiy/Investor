@@ -6,16 +6,16 @@ import (
 	"log"
 )
 
-type ConsoleProfitCalculator struct {
+type CalcProfitCommand struct {
 	lister           interactors.ListPayments
 	profitCalculator interactors.CalcProfit
 }
 
-func (l ConsoleProfitCalculator) Execute() {
+func (l CalcProfitCommand) Execute() {
 	l.CalculateProfit()
 }
 
-func (l ConsoleProfitCalculator) CalculateProfit() {
+func (l CalcProfitCommand) CalculateProfit() {
 	payments, err := l.lister.ListAll()
 	if err != nil {
 		log.Fatal(err)
@@ -29,9 +29,9 @@ func (l ConsoleProfitCalculator) CalculateProfit() {
 	fmt.Printf("Profit coeficient: %f\nProfit percentage: %f", profit.Coefficient(), profit.Percentage())
 }
 
-func NewConsoleProfitCalculator(
+func NewCalcProfitCommand(
 	paymentsLister interactors.ListPayments,
 	profitCalculator interactors.CalcProfit,
-) ConsoleProfitCalculator {
-	return ConsoleProfitCalculator{paymentsLister, profitCalculator}
+) CalcProfitCommand {
+	return CalcProfitCommand{paymentsLister, profitCalculator}
 }

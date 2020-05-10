@@ -5,7 +5,7 @@ import (
 	"investor/adapters/repositories/in_memory"
 	"investor/entities/asset"
 	"investor/entities/payment"
-	"investor/helpers/file"
+	"reflect"
 	"testing"
 )
 
@@ -17,21 +17,25 @@ func checkErr(t *testing.T, err error, message string) bool {
 	return false
 }
 
+func FillPaymentsRepo(t *testing.T, paymentRepo *PaymentRepository, assetRepo *AssetRepository) {
+	assetId := "assetId"
+	err := assetRepo.Create(asset.NewPlainAsset(assetId, asset.PreciousMetal, "name"))
+	checkErr(t, err, "asset creation")
+
+	err = paymentRepo.CreateBulk([]payment.Payment{
+		payment.CreatePaymentWithAsset("1", assetId, 2015),
+		payment.CreatePaymentWithAsset("2", assetId, 2016),
+		payment.CreatePaymentWithAsset("3", assetId, 2017),
+	})
+	checkErr(t, err, "payment bulk creation")
+}
+
 func TestPaymentRepository_Integration_ListAll(t *testing.T) {
-	jsonFile := file.NewJsonFile(file.NewPlainFile(file.GetFilePath("test_list_all_payments.json")))
-	storage := NewStorage(jsonFile)
+	storage := createStorage("test_list_all_payments.json")
 	assetRepo := NewAssetRepository(storage)
 	repo := NewPaymentRepository(storage, assetRepo)
 
-	err := assetRepo.Create(asset.NewPlainAsset("assetId", asset.PreciousMetal, "name"))
-	checkErr(t, err, "asset creation")
-
-	err = repo.CreateBulk([]payment.Payment{
-		payment.CreatePaymentWithAsset("1", "assetId", 2015),
-		payment.CreatePaymentWithAsset("2", "assetId", 2016),
-		payment.CreatePaymentWithAsset("3", "assetId", 2017),
-	})
-	checkErr(t, err, "payment bulk creation")
+	FillPaymentsRepo(t, repo, assetRepo)
 
 	// test list in the same session works
 	payments, err := repo.ListAll()
@@ -84,4 +88,32 @@ func TestPaymentRepository_Integration_ListAll(t *testing.T) {
 	} else {
 		t.Errorf("Asset with provided id doesnt exists error expected")
 	}
+}
+
+func TestPaymentRepository_Integration_FindByIds(t *testing.T) {
+	storage := createStorage("test_payments_by_ids.json")
+	assetRepo := NewAssetRepository(storage)
+	repo := NewPaymentRepository(storage, assetRepo)
+
+	FillPaymentsRepo(t, repo, assetRepo)
+
+	payments, err := repo.FindByIds([]string{"1", "3"})
+	if err != nil {
+		t.Errorf("Unexpected err %+v", err)
+	} else {
+		expectedIds := []string{"3", "1"}
+		ids := payment.PaymentsToIds(payments)
+		if !reflect.DeepEqual(ids, expectedIds) {
+			t.Errorf("Unexpected payment ids")
+		}
+	}
+
+	payments, err = repo.FindByIds([]string{"not_existent"})
+	if !errors.Is(err, in_memory.PaymentDoesntExistsError{PaymentId: "not_existent"}) {
+		t.Errorf("Unexpected err %+v", err)
+	}
+	if payments != nil {
+		t.Errorf("Payments nil value expected")
+	}
+
 }
