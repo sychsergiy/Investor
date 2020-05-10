@@ -18,9 +18,14 @@ type PaymentFinderByIds interface {
 	FindByIds(ids []string) ([]payment.Payment, error)
 }
 
+type PaymentFinderByAssetName interface {
+	FindByAssetName(name string, period payment.Period) ([]payment.Payment, error)
+}
+
 type PaymentRepository interface {
 	PaymentCreator
 	PaymentBulkCreator
 	PaymentsLister
 	PaymentFinderByIds
+	PaymentFinderByAssetName
 }

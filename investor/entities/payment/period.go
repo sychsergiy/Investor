@@ -37,9 +37,26 @@ func (p YearPeriod) From() time.Time {
 }
 
 func (p YearPeriod) Until() time.Time {
-	return createDate(p.year + 1, time.January)
+	return createDate(p.year+1, time.January)
 }
 
 func NewYearPeriod(year int) YearPeriod {
 	return YearPeriod{year}
+}
+
+type DurationPeriod struct {
+	from  time.Time
+	until time.Time
+}
+
+func (p DurationPeriod) From() time.Time {
+	return p.from
+}
+
+func (p DurationPeriod) Until() time.Time {
+	return p.until
+}
+
+func NewDurationPeriod(from time.Time, until time.Time) DurationPeriod {
+	return DurationPeriod{from: from, until: until}
 }

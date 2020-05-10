@@ -18,11 +18,21 @@ type IdGeneratorMock struct {
 }
 
 type PaymentFinderByIdsMock struct {
-	FindByIdsFunc func(ids []string) ([]payment.Payment, error)
+	FindFunc func(ids []string) ([]payment.Payment, error)
+}
+
+type PaymentFinderByAssetNameMock struct {
+	FindFunc func(assetName string, period payment.Period) ([]payment.Payment, error)
+}
+
+func (m PaymentFinderByAssetNameMock) FindByAssetName(
+	assetName string, period payment.Period,
+) ([]payment.Payment, error) {
+	return m.FindFunc(assetName, period)
 }
 
 func (m PaymentFinderByIdsMock) FindByIds(ids []string) ([]payment.Payment, error) {
-	return m.FindByIdsFunc(ids)
+	return m.FindFunc(ids)
 }
 
 func (igm IdGeneratorMock) Generate() string {
