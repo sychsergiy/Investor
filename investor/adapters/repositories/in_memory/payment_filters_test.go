@@ -16,7 +16,7 @@ func createPaymentWithType(paymentType payment.Type) payment.Payment {
 func TestFilterPaymentsByType(t *testing.T) {
 	type unit struct {
 		payments          []payment.Payment
-		paymentType       payment.Type
+		paymentTypes      []payment.Type
 		expectedResultLen int
 	}
 	invests := []payment.Payment{
@@ -33,16 +33,24 @@ func TestFilterPaymentsByType(t *testing.T) {
 	}
 
 	units := []unit{
-		{invests, payment.Invest, 2},
-		{invests, payment.Return, 0},
-		{returns, payment.Return, 2},
-		{returns, payment.Invest, 0},
-		{mixed, payment.Return, 1},
-		{mixed, payment.Invest, 1},
+		{invests, []payment.Type{payment.Invest}, 2},
+		{invests, []payment.Type{payment.Return}, 0},
+		{returns, []payment.Type{payment.Return}, 2},
+		{returns, []payment.Type{payment.Invest}, 0},
+		{mixed, []payment.Type{payment.Return}, 1},
+		{mixed, []payment.Type{payment.Invest}, 1},
+		// return all payments when both payment Types passed
+		{invests, []payment.Type{payment.Invest, payment.Return}, 2},
+		{mixed, []payment.Type{payment.Invest, payment.Return}, 2},
+		{returns, []payment.Type{payment.Invest, payment.Return}, 2},
+		// return all payments on empty payments List
+		{invests, []payment.Type{}, 2},
+		{mixed, []payment.Type{}, 2},
+		{returns, []payment.Type{}, 2},
 	}
 
 	for _, unit := range units {
-		res := FilterPaymentsByType(unit.payments, unit.paymentType)
+		res := FilterPaymentsByType(unit.payments, unit.paymentTypes)
 		if len(res) != unit.expectedResultLen {
 			t.Errorf("Expected result len %d but got %d", unit.expectedResultLen, len(res))
 		}

@@ -2,9 +2,21 @@ package in_memory
 
 import "investor/entities/payment"
 
-func FilterPaymentsByType(payments []payment.Payment, paymentType payment.Type) (filtered []payment.Payment) {
+func paymentTypesContains(paymentTypes []payment.Type, paymentType payment.Type) bool {
+	for _, pt := range paymentTypes {
+		if pt == paymentType {
+			return true
+		}
+	}
+	return false
+}
+
+func FilterPaymentsByType(payments []payment.Payment, paymentTypes []payment.Type) (filtered []payment.Payment) {
+	if len(paymentTypes) == 0 {
+		return payments
+	}
 	for _, p := range payments {
-		if p.Type() == paymentType {
+		if paymentTypesContains(paymentTypes, p.Type()) {
 			filtered = append(filtered, p)
 		}
 	}
