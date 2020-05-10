@@ -14,27 +14,27 @@ import (
 	"time"
 )
 
-type ConsolePaymentCreator struct {
+type CreatePaymentCommand struct {
 	paymentCreator interactors.CreatePayment
 	assetsLister   interactors.ListAssets
 	rateFetcher    rate_fetcher.RateFetcher
 }
 
-func NewConsolePaymentCreator(
+func NewCreatePaymentCommand(
 	paymentCreator interactors.CreatePayment,
 	assetsLister interactors.ListAssets,
 	rateFetcher rate_fetcher.RateFetcher,
-) ConsolePaymentCreator {
-	return ConsolePaymentCreator{paymentCreator, assetsLister, rateFetcher}
+) CreatePaymentCommand {
+	return CreatePaymentCommand{paymentCreator, assetsLister, rateFetcher}
 }
 
-func (cpc ConsolePaymentCreator) Execute() {
+func (cpc CreatePaymentCommand) Execute() {
 	err := cpc.Create()
 	if err != nil {
 		log.Fatal(err)
 	}
 }
-func (cpc ConsolePaymentCreator) Create() error {
+func (cpc CreatePaymentCommand) Create() error {
 	paymentType := choosePaymentType()
 	//asset_ := chooseAsset()
 	asset_ := cpc.selectAsset()
@@ -133,7 +133,7 @@ func readAmount() float32 {
 	return float
 }
 
-func (cpc ConsolePaymentCreator) selectAsset() asset.Asset {
+func (cpc CreatePaymentCommand) selectAsset() asset.Asset {
 
 	assets, err := cpc.assetsLister.ListAll()
 
@@ -150,7 +150,7 @@ func (cpc ConsolePaymentCreator) selectAsset() asset.Asset {
 			fmt.Println("-------------------------------", )
 
 		}
-		str := assetCLI.AssetToString(p)
+		str := assetCLI.ConvertAssetToString(p)
 		fmt.Printf("Number: %d\n", i+1)
 		fmt.Println(str)
 	}
@@ -170,7 +170,7 @@ func (cpc ConsolePaymentCreator) selectAsset() asset.Asset {
 
 	a := assets[number-1]
 
-	str := assetCLI.AssetToString(a)
+	str := assetCLI.ConvertAssetToString(a)
 	fmt.Printf("Selected asset:\n%s\n", str)
 
 	return a
