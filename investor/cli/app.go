@@ -8,11 +8,12 @@ import (
 )
 
 type App struct {
-	CreateAssetCommand   asset.ConsoleAssetCreator
-	ListAssetsCommand    asset.ConsoleAssetsLister
-	CreatePaymentCommand payment.ConsolePaymentCreator
-	ListPaymentsCommand  payment.ConsolePaymentsLister
-	CalcProfitCommand    payment.ConsoleProfitCalculator
+	CreateAssetCommand       asset.ConsoleAssetCreator
+	ListAssetsCommand        asset.ConsoleAssetsLister
+	CreatePaymentCommand     payment.ConsolePaymentCreator
+	ListPaymentsCommand      payment.ConsolePaymentsLister
+	CalcProfitCommand        payment.ConsoleProfitCalculator
+	FilterByAssetNameCommand payment.FilterByAssetNameCommand
 }
 
 func (app App) setup() CLI {
@@ -23,6 +24,7 @@ func (app App) setup() CLI {
 	cli.AddCommand("list_assets", app.ListAssetsCommand)
 	cli.AddCommand("calc_profit", app.CalcProfitCommand)
 
+	cli.AddCommand("filter_by_asset_name", app.FilterByAssetNameCommand)
 	return cli
 }
 

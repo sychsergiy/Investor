@@ -24,7 +24,7 @@ func (l ConsolePaymentsLister) List() {
 }
 
 func printPayments(payments []payment.Payment) {
-	fmt.Printf("----------Total payments count: %d----------", len(payments))
+	fmt.Printf("----------Total payments count: %d----------\n", len(payments))
 	for i, p := range payments {
 		str, err := paymentToString(p)
 		if err != nil {

@@ -20,7 +20,7 @@ func TestFilterPayments_Filter(t *testing.T) {
 
 	interactor := NewFilterPayments(mock)
 
-	req := FilterPaymentsRequest{
+	req := AssetNameFilterRequest{
 		TimeFrom:  payment.CreateYearDate(2019),
 		TimeUntil: payment.CreateYearDate(2021),
 		AssetName: "test",

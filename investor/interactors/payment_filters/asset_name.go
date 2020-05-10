@@ -10,25 +10,25 @@ type AssetNameFilter struct {
 	paymentFinder ports.PaymentFinderByAssetName
 }
 
-func NewFilterPayments(finder ports.PaymentFinderByAssetName) AssetNameFilter {
+func NewAssetNameFilter(finder ports.PaymentFinderByAssetName) AssetNameFilter {
 	return AssetNameFilter{paymentFinder: finder}
 }
 
-type FilterPaymentsRequest struct {
+type AssetNameFilterRequest struct {
 	TimeFrom  time.Time
 	TimeUntil time.Time
 	AssetName string
 }
 
-type FilterPaymentsResponse struct {
+type AssetNameFilterResponse struct {
 	Payments []payment.Payment
 }
 
-func (f AssetNameFilter) Filter(model FilterPaymentsRequest) (FilterPaymentsResponse, error) {
+func (f AssetNameFilter) Filter(model AssetNameFilterRequest) (AssetNameFilterResponse, error) {
 	period := payment.NewDurationPeriod(model.TimeFrom, model.TimeUntil)
 	payments, err := f.paymentFinder.FindByAssetName(model.AssetName, period)
 	if err != nil {
-		return FilterPaymentsResponse{}, err
+		return AssetNameFilterResponse{}, err
 	}
-	return FilterPaymentsResponse{Payments: payments}, nil
+	return AssetNameFilterResponse{Payments: payments}, nil
 }
