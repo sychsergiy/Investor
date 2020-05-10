@@ -88,6 +88,14 @@ func (r *PaymentRepository) ListAll() ([]paymentEntity.Payment, error) {
 	return r.repository.ListAll()
 }
 
+func (r *PaymentRepository) FindByIds(ids []string) ([]paymentEntity.Payment, error) {
+	err := r.restore()
+	if err != nil {
+		return nil, fmt.Errorf("failed to find payments by ids: %v", err)
+	}
+	return r.repository.FindByIds(ids)
+}
+
 func NewPaymentRepository(storage *Storage, assetFinder in_memory.AssetFinderById) *PaymentRepository {
 	return &PaymentRepository{storage, in_memory.NewPaymentRepository(assetFinder), false}
 }

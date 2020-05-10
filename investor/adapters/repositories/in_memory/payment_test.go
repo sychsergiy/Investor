@@ -102,12 +102,7 @@ func TestPaymentRepository_ListAll(t *testing.T) {
 		if len(payments) != 4 {
 			t.Errorf("Four payments expected")
 		}
-
-		var paymentsIds []string
-		for _, p := range payments {
-			paymentsIds = append(paymentsIds, p.Id())
-		}
-
+		paymentsIds := payment.PaymentsToIds(payments)
 		if !reflect.DeepEqual(paymentsIds, expectedIds) {
 			t.Errorf("Payments should sorted by date, from the latest to earlier")
 		}
@@ -128,10 +123,7 @@ func TestPaymentRepository_FindByIds(t *testing.T) {
 	if err != nil {
 		t.Errorf("Unexpected err: %+v", err)
 	} else {
-		var paymentsIds []string
-		for _, p := range payments {
-			paymentsIds = append(paymentsIds, p.Id())
-		}
+		paymentsIds := payment.PaymentsToIds(payments)
 		if !reflect.DeepEqual(expectedIds, paymentsIds) {
 			t.Errorf("Unexpected payments, slice with 3 listered ids epxected")
 		}
