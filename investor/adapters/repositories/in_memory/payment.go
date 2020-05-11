@@ -201,26 +201,6 @@ func (r *PaymentRepository) FindByAssetNames(
 	return payments, nil
 }
 
-func (r *PaymentRepository) FindByAssetName(
-	assetName string, period paymentEntity.Period,
-) ([]paymentEntity.Payment, error) {
-	payments := make([]paymentEntity.Payment, 0)
-	for _, record := range r.records {
-		if periodContains(period, record.CreationDate) {
-			payment := r.createPaymentProxy(record)
-			a, err := payment.Asset()
-			if err != nil {
-				return nil, err
-			}
-			if a.Name() == assetName {
-				payments = append(payments, payment)
-			}
-		}
-	}
-	sortByCreationDate(payments)
-	return payments, nil
-}
-
 func (r *PaymentRepository) FindByIds(ids []string) ([]paymentEntity.Payment, error) {
 	var payments []paymentEntity.Payment
 

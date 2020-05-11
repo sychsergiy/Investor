@@ -38,7 +38,7 @@ func setupDependencies(coinMarketCupApiKey string) cli.App {
 
 	paymentCreateCommand := payment.NewCreatePaymentCommand(paymentCreateInteractor, assetsListInteractor, fetcher)
 	paymentsListCommand := payment.NewConsolePaymentsLister(paymentListInteractor)
-	filterByAssetNameCommand := payment.NewFilterByAssetNameCommand(assetNameFilterInteractor)
+	filterByAssetNamesCommand := payment.NewFilterByAssetNamesCommand(assetNameFilterInteractor)
 	filterByCategoriesCommand := payment.NewFilterByCategoriesCommand(categoriesFilterInteractor)
 	calcProfitCommand := payment.NewCalcProfitCommand(paymentListInteractor, calcProfitInteractor)
 
@@ -51,7 +51,7 @@ func setupDependencies(coinMarketCupApiKey string) cli.App {
 
 		CreatePaymentCommand:      paymentCreateCommand,
 		ListPaymentsCommand:       paymentsListCommand,
-		FilterByAssetNameCommand:  filterByAssetNameCommand,
+		FilterByAssetNamesCommand: filterByAssetNamesCommand,
 		CalcProfitCommand:         calcProfitCommand,
 		FilterByCategoriesCommand: filterByCategoriesCommand,
 	}

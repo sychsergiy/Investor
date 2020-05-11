@@ -8,11 +8,11 @@ import (
 	"strings"
 )
 
-type FilterByAssetNameCommand struct {
+type FilterByAssetNamesCommand struct {
 	interactor payment_filters.AssetNamesFilter
 }
 
-func (c FilterByAssetNameCommand) Execute() {
+func (c FilterByAssetNamesCommand) Execute() {
 	assetNames := readAssetNames()
 	paymentTypes := choosePaymentTypes()
 
@@ -28,8 +28,8 @@ func (c FilterByAssetNameCommand) Execute() {
 	printPayments(resp.Payments)
 }
 
-func NewFilterByAssetNameCommand(interactor payment_filters.AssetNamesFilter) FilterByAssetNameCommand {
-	return FilterByAssetNameCommand{interactor: interactor}
+func NewFilterByAssetNamesCommand(interactor payment_filters.AssetNamesFilter) FilterByAssetNamesCommand {
+	return FilterByAssetNamesCommand{interactor: interactor}
 }
 
 func readAssetNames() []string {

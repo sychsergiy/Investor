@@ -138,66 +138,6 @@ func TestPaymentRepository_FindByIds(t *testing.T) {
 	}
 }
 
-func TestPaymentRepository_FindByAssetName(t *testing.T) {
-	repository := NewPaymentRepository(
-		AssetFinderMock{
-			findFunc: func(assetId string) (asset.Asset, error) {
-				return asset.NewPlainAsset("1", asset.PreciousMetal, "test"), nil
-			},
-		},
-	)
-	repository.records = map[string]PaymentRecord{
-		"2": CreatePaymentRecord("2", 2019),
-		"1": CreatePaymentRecord("1", 2020),
-		"3": CreatePaymentRecord("3", 2016),
-	}
-
-	period := payment.PeriodMock{
-		TimeFrom:  payment.CreateYearDate(2017),
-		TimeUntil: payment.CreateYearDate(2021),
-	}
-
-	payments, err := repository.FindByAssetName("test", period)
-	if err != nil {
-		t.Errorf("Unexpected err: %+v", err)
-	}
-	ids := payment.PaymentsToIds(payments)
-	expectedIds := []string{"1", "2"}
-	if !reflect.DeepEqual(ids, expectedIds) {
-		t.Errorf("Unepxected payments ids")
-	}
-
-	// test all records has another asset name
-	repository = NewPaymentRepository(AssetFinderMock{findFunc: func(assetId string) (a asset.Asset, err error) {
-		return asset.NewPlainAsset("1", asset.PreciousMetal, "test2"), nil
-	}})
-	repository.records = map[string]PaymentRecord{
-		"1": CreatePaymentRecord("1", 2020),
-		"2": CreatePaymentRecord("2", 2020),
-	}
-	payments, err = repository.FindByAssetName("test", payment.NewYearPeriod(2020))
-	if err != nil {
-		t.Errorf("Unexpected err: %+v", err)
-	} else {
-		if len(payments) != 0 {
-			t.Errorf("Empty payments list expected")
-		}
-	}
-
-	// test asset doesn't exists error
-	repository = NewPaymentRepository(AssetFinderMock{findFunc: func(assetId string) (a asset.Asset, err error) {
-		return a, AssetDoesntExistsError{assetId}
-	}})
-
-	repository.records = map[string]PaymentRecord{
-		"1": CreatePaymentRecord("1", 2020),
-	}
-	_, err = repository.FindByAssetName("test", period)
-	if !errors.Is(err, AssetDoesntExistsError{AssetId: "testAssetId"}) {
-		t.Errorf("AssetDoesntExistsError expected")
-	}
-}
-
 func createPaymentRecord(paymentType payment.Type, year int, assetId string) PaymentRecord {
 	return PaymentRecord{
 		Id:             "test",
