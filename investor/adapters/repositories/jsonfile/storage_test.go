@@ -2,7 +2,7 @@ package jsonfile
 
 import (
 	"encoding/json"
-	"investor/adapters/repositories/in_memory"
+	"investor/adapters/repositories/memory"
 	"investor/helpers/file"
 	"os"
 	"testing"
@@ -26,9 +26,9 @@ func createStorage(filename string) *Storage {
 }
 
 func getDataMock() Data {
-	asset := in_memory.CreateAssetRecord("1", "test")
-	pMock := in_memory.CreatePaymentRecord("1", 2020)
-	return Data{[]in_memory.AssetRecord{asset}, []in_memory.PaymentRecord{pMock}}
+	asset := memory.CreateAssetRecord("1", "test")
+	pMock := memory.CreatePaymentRecord("1", 2020)
+	return Data{[]memory.AssetRecord{asset}, []memory.PaymentRecord{pMock}}
 }
 
 func TestStorage_RetrieveAssets(t *testing.T) {

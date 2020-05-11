@@ -2,14 +2,14 @@ package jsonfile
 
 import (
 	"fmt"
-	"investor/adapters/repositories/in_memory"
+	"investor/adapters/repositories/memory"
 	"investor/entities/asset"
 	paymentEntity "investor/entities/payment"
 )
 
 type PaymentRepository struct {
 	storage    *Storage
-	repository *in_memory.PaymentRepository
+	repository *memory.PaymentRepository
 	restored   bool
 }
 
@@ -51,7 +51,7 @@ func (r *PaymentRepository) dump() error {
 
 func (r *PaymentRepository) restore() error {
 	if r.restored {
-		// should be called only once to sync in_memory storage with file
+		// should be called only once to sync memory storage with file
 		return nil
 	}
 	// read payments from storage file and save in memory
@@ -71,7 +71,7 @@ func (r *PaymentRepository) restore() error {
 	return err
 }
 
-func (r *PaymentRepository) convertRecordsToEntities(records []in_memory.PaymentRecord) (
+func (r *PaymentRepository) convertRecordsToEntities(records []memory.PaymentRecord) (
 	payments []paymentEntity.Payment,
 ) {
 	for _, record := range records {
@@ -123,6 +123,6 @@ func (r *PaymentRepository) FindByAssetCategories(
 	)
 }
 
-func NewPaymentRepository(storage *Storage, assetFinder in_memory.AssetFinderByID) *PaymentRepository {
-	return &PaymentRepository{storage, in_memory.NewPaymentRepository(assetFinder), false}
+func NewPaymentRepository(storage *Storage, assetFinder memory.AssetFinderByID) *PaymentRepository {
+	return &PaymentRepository{storage, memory.NewPaymentRepository(assetFinder), false}
 }

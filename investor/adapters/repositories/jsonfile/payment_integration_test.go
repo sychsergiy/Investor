@@ -2,7 +2,7 @@ package jsonfile
 
 import (
 	"errors"
-	"investor/adapters/repositories/in_memory"
+	"investor/adapters/repositories/memory"
 	"investor/entities/asset"
 	"investor/entities/payment"
 	"reflect"
@@ -73,7 +73,7 @@ func TestPaymentRepository_Integration_ListAll(t *testing.T) {
 	}
 
 	// test create returns error on none existent asset id
-	p := payment.NewPaymentProxyMock(
+	p := payment.NewProxyMock(
 		payment.CreatePayment("1", 2020),
 		func() (a asset.Asset, err error) {
 			return a, asset.NotFoundError{AssetID: "not_exists"}
@@ -109,7 +109,7 @@ func TestPaymentRepository_Integration_FindByIDs(t *testing.T) {
 	}
 
 	payments, err = repo.FindByIDs([]string{"not_existent"})
-	if !errors.Is(err, in_memory.PaymentDoesntExistsError{PaymentID: "not_existent"}) {
+	if !errors.Is(err, memory.PaymentDoesntExistsError{PaymentID: "not_existent"}) {
 		t.Errorf("Unexpected err %+v", err)
 	}
 	if payments != nil {

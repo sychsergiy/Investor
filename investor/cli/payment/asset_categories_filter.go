@@ -4,17 +4,17 @@ import (
 	"fmt"
 	"investor/entities/asset"
 	"investor/entities/payment"
-	"investor/interactors/payment_filters"
+	"investor/interactors"
 	"log"
 	"strconv"
 	"strings"
 )
 
 type FilterByCategoriesCommand struct {
-	interactor payment_filters.AssetCategoriesFilter
+	interactor interactors.PaymentAssetCategoriesFilter
 }
 
-func NewFilterByCategoriesCommand(interactor payment_filters.AssetCategoriesFilter) FilterByCategoriesCommand {
+func NewFilterByCategoriesCommand(interactor interactors.PaymentAssetCategoriesFilter) FilterByCategoriesCommand {
 	return FilterByCategoriesCommand{interactor: interactor}
 }
 
@@ -22,7 +22,7 @@ func (c FilterByCategoriesCommand) Execute() {
 	categories := chooseCategories()
 	paymentTypes := choosePaymentTypes()
 
-	req := payment_filters.AssetCategoriesFilterRequest{
+	req := interactors.AssetCategoriesFilterRequest{
 		Periods:         []payment.Period{},
 		PaymentTypes:    paymentTypes,
 		AssetCategories: categories,

@@ -34,12 +34,11 @@ func (ca CreateAsset) Create(assetModel CreateAssetRequest) CreateAssetResponse 
 			GeneratedID: id,
 			Err:         err,
 		}
-	} else {
-		return CreateAssetResponse{
-			Created:     true,
-			GeneratedID: id,
-			Err:         nil,
-		}
+	}
+	return CreateAssetResponse{
+		Created:     true,
+		GeneratedID: id,
+		Err:         nil,
 	}
 }
 

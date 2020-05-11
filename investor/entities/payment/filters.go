@@ -30,10 +30,10 @@ func FilterByPeriods(payments []Payment, periods []Period) (filtered []Payment) 
 	if len(periods) == 0 {
 		return payments
 	}
-	for _, payment_ := range payments {
+	for _, p := range payments {
 		for _, period := range periods {
-			if periodContains(period, payment_.CreationDate()) {
-				filtered = append(filtered, payment_)
+			if periodContains(period, p.CreationDate()) {
+				filtered = append(filtered, p)
 				break
 			}
 		}
@@ -48,15 +48,15 @@ func FilterByAssetCategories(
 	if len(categories) == 0 {
 		return payments, nil
 	}
-	for _, payment_ := range payments {
-		a, err := payment_.Asset()
+	for _, p := range payments {
+		a, err := p.Asset()
 		if err != nil {
 			return nil, err
 		}
 		assetCategory := a.Category()
 		for _, category := range categories {
 			if assetCategory == category {
-				filtered = append(filtered, payment_)
+				filtered = append(filtered, p)
 				break
 			}
 		}
@@ -71,15 +71,15 @@ func FilterByAssetNames(
 	if len(assetNames) == 0 {
 		return payments, nil
 	}
-	for _, payment_ := range payments {
-		a, err := payment_.Asset()
+	for _, p := range payments {
+		a, err := p.Asset()
 		if err != nil {
 			return nil, err
 		}
 		name := a.Name()
 		for _, assetName := range assetNames {
 			if name == assetName {
-				filtered = append(filtered, payment_)
+				filtered = append(filtered, p)
 				break
 			}
 		}

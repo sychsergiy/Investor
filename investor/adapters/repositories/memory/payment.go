@@ -1,4 +1,4 @@
-package in_memory
+package memory
 
 import (
 	"fmt"
@@ -124,10 +124,9 @@ func (r *PaymentRepository) Create(payment payment.Payment) error {
 	_, idExists := r.records[payment.ID()]
 	if idExists {
 		return PaymentAlreadyExistsError{PaymentID: payment.ID()}
-	} else {
-		r.records[payment.ID()] = record
-		return nil
 	}
+	r.records[payment.ID()] = record
+	return nil
 }
 
 func (r *PaymentRepository) CreateBulk(payments []payment.Payment) error {

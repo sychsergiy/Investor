@@ -150,7 +150,7 @@ func TestFilterByAssetCategories(t *testing.T) {
 		}
 	}
 
-	p := NewPaymentProxyMock(
+	p := NewProxyMock(
 		createPaymentWithAssetCategory(asset.PreciousMetal),
 		func() (a asset.Asset, err error) {
 			return a, asset.NotFoundError{AssetID: "test"}
@@ -193,7 +193,7 @@ func TestFilterByAssetNames(t *testing.T) {
 		}
 	}
 
-	p := NewPaymentProxyMock(
+	p := NewProxyMock(
 		createPaymentWithAssetCategory(asset.PreciousMetal),
 		func() (a asset.Asset, err error) {
 			return a, asset.NotFoundError{AssetID: "test"}

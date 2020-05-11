@@ -1,4 +1,4 @@
-package in_memory
+package memory
 
 import (
 	"errors"
@@ -8,8 +8,8 @@ import (
 	"testing"
 )
 
-func CreatePaymentWithoutAsset(id string) payment.PaymentProxyMock {
-	return payment.NewPaymentProxyMock(
+func CreatePaymentWithoutAsset(id string) payment.ProxyMock {
+	return payment.NewProxyMock(
 		payment.CreatePayment(id, 2020),
 		func() (a asset.Asset, err error) { return a, asset.NotFoundError{AssetID: "mocked_id"} },
 	)

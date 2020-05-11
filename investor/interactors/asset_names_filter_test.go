@@ -1,22 +1,21 @@
-package payment_filters
+package interactors
 
 import (
 	"fmt"
 	"investor/entities/payment"
-	"investor/interactors"
 	"reflect"
 	"testing"
 )
 
-func TestFilterPayments_Filter(t *testing.T) {
+func TestPaymentAssetNamesFilter_Filter(t *testing.T) {
 	payments := []payment.Payment{
 		payment.CreatePayment("1", 2018),
 		payment.CreatePayment("2", 2020),
 	}
-	mock := interactors.PaymentFinderByAssetNamesMock{
+	mock := PaymentFinderByAssetNamesMock{
 		ReturnPayments: payments,
 	}
-	interactor := NewAssetNamesFilter(mock)
+	interactor := NewPaymentAssetNamesFilter(mock)
 
 	req := AssetNamesFilterRequest{
 		Periods:    []payment.Period{payment.NewYearPeriod(2020)},
@@ -31,10 +30,10 @@ func TestFilterPayments_Filter(t *testing.T) {
 		}
 	}
 
-	mock = interactors.PaymentFinderByAssetNamesMock{
+	mock = PaymentFinderByAssetNamesMock{
 		ReturnErr: fmt.Errorf("mocked error"),
 	}
-	interactor = NewAssetNamesFilter(mock)
+	interactor = NewPaymentAssetNamesFilter(mock)
 	_, err = interactor.Filter(req)
 	if err == nil {
 		t.Errorf("error expected")

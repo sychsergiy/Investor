@@ -9,15 +9,14 @@ import (
 	"investor/cli/payment/rate"
 	"investor/helpers/file"
 	"investor/interactors"
-	"investor/interactors/payment_filters"
 	"log"
 	"os"
 )
 
-func setupDependencies(coinMarketCupApiKey string) cli.App {
+func setupDependencies(coinMarketCupAPIKey string) cli.App {
 
 	coinMarketCupClient := rate.NewCoinMarketCupClient(
-		"https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest", coinMarketCupApiKey,
+		"https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest", coinMarketCupAPIKey,
 	)
 	fetcher := rate.CMCFetcher{
 		Client: coinMarketCupClient,
@@ -30,8 +29,8 @@ func setupDependencies(coinMarketCupApiKey string) cli.App {
 
 	paymentCreateInteractor := interactors.CreatePayment{Repository: paymentRepo, IDGenerator: adapters.NewUUIDGenerator()}
 	paymentListInteractor := interactors.ListPayments{Repository: paymentRepo}
-	assetNamesFilterInteractor := payment_filters.NewAssetNamesFilter(paymentRepo)
-	categoriesFilterInteractor := payment_filters.NewAssetCategoriesFilter(paymentRepo)
+	assetNamesFilterInteractor := interactors.NewPaymentAssetNamesFilter(paymentRepo)
+	categoriesFilterInteractor := interactors.NewPaymentAssetCategoriesFilter(paymentRepo)
 	assetCreateInteractor := interactors.NewCreateAsset(assetRepo, adapters.NewUUIDGenerator())
 	assetsListInteractor := interactors.NewListAssets(assetRepo)
 	calcProfitInteractor := interactors.NewCalcProfit(paymentRepo)

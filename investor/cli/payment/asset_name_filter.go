@@ -3,20 +3,20 @@ package payment
 import (
 	"fmt"
 	"investor/entities/payment"
-	"investor/interactors/payment_filters"
+	"investor/interactors"
 	"log"
 	"strings"
 )
 
 type FilterByAssetNamesCommand struct {
-	interactor payment_filters.AssetNamesFilter
+	interactor interactors.PaymentAssetNamesFilter
 }
 
 func (c FilterByAssetNamesCommand) Execute() {
 	assetNames := readAssetNames()
 	paymentTypes := choosePaymentTypes()
 
-	req := payment_filters.AssetNamesFilterRequest{
+	req := interactors.AssetNamesFilterRequest{
 		Periods:      []payment.Period{},
 		PaymentTypes: paymentTypes,
 		AssetNames:   assetNames,
@@ -28,7 +28,7 @@ func (c FilterByAssetNamesCommand) Execute() {
 	printPayments(resp.Payments)
 }
 
-func NewFilterByAssetNamesCommand(interactor payment_filters.AssetNamesFilter) FilterByAssetNamesCommand {
+func NewFilterByAssetNamesCommand(interactor interactors.PaymentAssetNamesFilter) FilterByAssetNamesCommand {
 	return FilterByAssetNamesCommand{interactor: interactor}
 }
 

@@ -1,4 +1,4 @@
-package in_memory
+package memory
 
 import (
 	"investor/entities/asset"

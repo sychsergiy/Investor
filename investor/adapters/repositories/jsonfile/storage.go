@@ -3,14 +3,14 @@ package jsonfile
 import (
 	"encoding/json"
 	"fmt"
-	"investor/adapters/repositories/in_memory"
+	"investor/adapters/repositories/memory"
 	"investor/helpers/file"
 	"log"
 )
 
 type Data struct {
-	Assets   []in_memory.AssetRecord   `json:"assets"`
-	Payments []in_memory.PaymentRecord `json:"payments"`
+	Assets   []memory.AssetRecord   `json:"assets"`
+	Payments []memory.PaymentRecord `json:"payments"`
 }
 
 type Storage struct {
@@ -18,7 +18,7 @@ type Storage struct {
 	data     *Data
 }
 
-func (s Storage) RetrievePayments() ([]in_memory.PaymentRecord, error) {
+func (s Storage) RetrievePayments() ([]memory.PaymentRecord, error) {
 	err := s.restore()
 	if err != nil {
 		return nil, err
@@ -27,7 +27,7 @@ func (s Storage) RetrievePayments() ([]in_memory.PaymentRecord, error) {
 
 }
 
-func (s Storage) RetrieveAssets() ([]in_memory.AssetRecord, error) {
+func (s Storage) RetrieveAssets() ([]memory.AssetRecord, error) {
 	err := s.restore()
 	if err != nil {
 		return nil, err
@@ -36,7 +36,7 @@ func (s Storage) RetrieveAssets() ([]in_memory.AssetRecord, error) {
 
 }
 
-func (s *Storage) UpdatePayments(payments []in_memory.PaymentRecord) error {
+func (s *Storage) UpdatePayments(payments []memory.PaymentRecord) error {
 	err := s.restore()
 	if err != nil {
 		return err
@@ -45,7 +45,7 @@ func (s *Storage) UpdatePayments(payments []in_memory.PaymentRecord) error {
 	return s.dump()
 }
 
-func (s *Storage) UpdateAssets(assets []in_memory.AssetRecord) error {
+func (s *Storage) UpdateAssets(assets []memory.AssetRecord) error {
 	err := s.restore()
 	if err != nil {
 		return err
@@ -103,6 +103,6 @@ func (s *Storage) restore() error {
 func NewStorage(jsonFile file.JSONFile) *Storage {
 	return &Storage{
 		jsonFile: jsonFile,
-		data:     &Data{[]in_memory.AssetRecord{}, []in_memory.PaymentRecord{}},
+		data:     &Data{[]memory.AssetRecord{}, []memory.PaymentRecord{}},
 	}
 }
