@@ -7,11 +7,12 @@ import (
 	"testing"
 )
 
+
 func createPaymentWithType(paymentType payment.Type) payment.Payment {
 	assetRecord := CreateAssetRecord("1", "test")
 	return payment.NewPlainPayment(
 		"1", 0, 0, assetRecord.ToAsset(),
-		payment.CreateYearDate(2020), paymentType,
+		payment.CreateYearDate(1), paymentType,
 	)
 }
 
@@ -111,7 +112,7 @@ func createPaymentWithAssetCategory(category asset.Category) payment.Payment {
 	return payment.NewPlainPayment(
 		"1", 0, 0,
 		asset.NewPlainAsset("1", category, "test"),
-		payment.CreateYearDate(2020), payment.Invest,
+		payment.CreateYearDate(1), payment.Invest,
 	)
 }
 

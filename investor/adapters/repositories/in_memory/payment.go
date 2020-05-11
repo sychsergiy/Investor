@@ -163,6 +163,24 @@ func sortByCreationDate(payments []paymentEntity.Payment) []paymentEntity.Paymen
 	return payments
 }
 
+func (r *PaymentRepository) FindByAssetCategories(
+	categories []asset.Category,
+	periods []paymentEntity.Period,
+	paymentTypes []paymentEntity.Type,
+) (filtered []paymentEntity.Payment, err error) {
+	payments, err := r.ListAll()
+	if err != nil {
+		return nil, err
+	}
+	filtered, err = FilterByAssetCategory(payments, categories)
+	if err != nil {
+		return nil, err
+	}
+	filtered = FilterByPeriod(filtered, periods)
+	filtered = FilterByType(filtered, paymentTypes)
+	return
+}
+
 func (r *PaymentRepository) FindByAssetName(
 	assetName string, period paymentEntity.Period,
 ) ([]paymentEntity.Payment, error) {
@@ -181,13 +199,6 @@ func (r *PaymentRepository) FindByAssetName(
 	}
 	sortByCreationDate(payments)
 	return payments, nil
-}
-
-func periodContains(p paymentEntity.Period, date time.Time) bool {
-	if date.After(p.From()) && date.Before(p.Until()) {
-		return true
-	}
-	return false
 }
 
 func (r *PaymentRepository) FindByIds(ids []string) ([]paymentEntity.Payment, error) {

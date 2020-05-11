@@ -197,3 +197,61 @@ func TestPaymentRepository_FindByAssetName(t *testing.T) {
 		t.Errorf("AssetDoesntExistsError expected")
 	}
 }
+
+func createPaymentRecord(paymentType payment.Type, year int, assetId string) PaymentRecord {
+	return PaymentRecord{
+		Id:             "test",
+		AssetAmount:    0,
+		AbsoluteAmount: 0,
+		AssetId:        assetId,
+		Type:           paymentType,
+		CreationDate:   payment.CreateYearDate(year),
+	}
+}
+
+func TestPaymentRepository_FindByAssetCategories(t *testing.T) {
+	assetRepo := NewAssetRepository()
+	_, err := assetRepo.CreateBulk([]asset.Asset{
+		asset.NewPlainAsset("1", asset.PreciousMetal, "gold"),
+		asset.NewPlainAsset("2", asset.CryptoCurrency, "BTC"),
+	})
+	if err != nil {
+		t.Errorf("Unexpted err during preparation: %+v", err)
+		return
+	}
+
+	repository := NewPaymentRepository(assetRepo)
+	repository.records = map[string]PaymentRecord{
+		"1": createPaymentRecord(payment.Invest, 2000, "1"),
+		"2": createPaymentRecord(payment.Return, 2019, "1"),
+		"3": createPaymentRecord(payment.Invest, 2019, "2"),
+		"4": createPaymentRecord(payment.Invest, 2019, "1"),
+	}
+
+	res, err := repository.FindByAssetCategories(
+		[]asset.Category{asset.PreciousMetal},
+		[]payment.Period{payment.PeriodMock{
+			TimeFrom:  payment.CreateYearDate(2018),
+			TimeUntil: payment.CreateYearDate(2020),
+		}},
+		[]payment.Type{payment.Invest},
+	)
+	if err != nil {
+		t.Errorf("Unexpeted err: %+v", err)
+	}
+	if len(res) != 1 {
+		t.Errorf("Unepxted result, 1 item expected but got %d", len(res))
+	}
+
+	res, err = repository.FindByAssetCategories(
+		[]asset.Category{},
+		[]payment.Period{},
+		[]payment.Type{},
+	)
+	if err != nil {
+		t.Errorf("Unexpeted err: %+v", err)
+	}
+	if len(res) != 4 {
+		t.Errorf("All 4 items exected to be returned when no filters passed")
+	}
+}
