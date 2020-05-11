@@ -15,7 +15,7 @@ func paymentTypesContains(paymentTypes []payment.Type, paymentType payment.Type)
 	return false
 }
 
-func FilterByType(payments []payment.Payment, paymentTypes []payment.Type) (filtered []payment.Payment) {
+func FilterByTypes(payments []payment.Payment, paymentTypes []payment.Type) (filtered []payment.Payment) {
 	if len(paymentTypes) == 0 {
 		return payments
 	}
@@ -27,7 +27,7 @@ func FilterByType(payments []payment.Payment, paymentTypes []payment.Type) (filt
 	return filtered
 }
 
-func FilterByPeriod(payments []payment.Payment, periods []payment.Period) (filtered []payment.Payment) {
+func FilterByPeriods(payments []payment.Payment, periods []payment.Period) (filtered []payment.Payment) {
 	if len(periods) == 0 {
 		return payments
 	}
@@ -42,7 +42,7 @@ func FilterByPeriod(payments []payment.Payment, periods []payment.Period) (filte
 	return filtered
 }
 
-func FilterByAssetCategory(
+func FilterByAssetCategories(
 	payments []payment.Payment,
 	categories []asset.Category,
 ) (filtered []payment.Payment, err error) {

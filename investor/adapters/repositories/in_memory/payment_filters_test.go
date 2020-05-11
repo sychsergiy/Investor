@@ -23,7 +23,7 @@ func createPaymentWithCreationDate(year int) payment.Payment {
 	)
 }
 
-func TestFilterByType(t *testing.T) {
+func TestFilterByTypes(t *testing.T) {
 	type unit struct {
 		payments          []payment.Payment
 		paymentTypes      []payment.Type
@@ -60,14 +60,14 @@ func TestFilterByType(t *testing.T) {
 	}
 
 	for _, unit := range units {
-		res := FilterByType(unit.payments, unit.paymentTypes)
+		res := FilterByTypes(unit.payments, unit.paymentTypes)
 		if len(res) != unit.expectedResultLen {
 			t.Errorf("Expected result len %d but got %d", unit.expectedResultLen, len(res))
 		}
 	}
 }
 
-func TestFilterByPeriod(t *testing.T) {
+func TestFilterByPeriods(t *testing.T) {
 	type unit struct {
 		payments          []payment.Payment
 		periods           []payment.Period
@@ -100,7 +100,7 @@ func TestFilterByPeriod(t *testing.T) {
 		{payments, []payment.Period{}, 5},
 	}
 	for _, u := range units {
-		res := FilterByPeriod(u.payments, u.periods)
+		res := FilterByPeriods(u.payments, u.periods)
 		if len(res) != u.expectedResultLen {
 			t.Errorf("Expected res len %d but got %d", u.expectedResultLen, len(res))
 		}
@@ -123,7 +123,7 @@ func createPaymentWithAssetName(assetName string) payment.Payment {
 	)
 }
 
-func TestFilterByAssetCategory(t *testing.T) {
+func TestFilterByAssetCategories(t *testing.T) {
 	type unit struct {
 		payments          []payment.Payment
 		categories        []asset.Category
@@ -141,7 +141,7 @@ func TestFilterByAssetCategory(t *testing.T) {
 		{payments, []asset.Category{}, 2},
 	}
 	for _, u := range units {
-		res, err := FilterByAssetCategory(u.payments, u.categories)
+		res, err := FilterByAssetCategories(u.payments, u.categories)
 		if err != nil {
 			t.Errorf("Unepxected err: %+v", err)
 		} else {
@@ -157,7 +157,7 @@ func TestFilterByAssetCategory(t *testing.T) {
 			return a, AssetDoesntExistsError{"test"}
 		},
 	)
-	_, err := FilterByAssetCategory([]payment.Payment{p}, []asset.Category{asset.CryptoCurrency})
+	_, err := FilterByAssetCategories([]payment.Payment{p}, []asset.Category{asset.CryptoCurrency})
 	if !errors.Is(err, AssetDoesntExistsError{"test"}) {
 		t.Errorf("Asset doesnt exist error expected¬")
 	}

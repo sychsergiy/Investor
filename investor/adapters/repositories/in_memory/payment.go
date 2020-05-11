@@ -172,12 +172,12 @@ func (r *PaymentRepository) FindByAssetCategories(
 	if err != nil {
 		return nil, err
 	}
-	filtered, err = FilterByAssetCategory(payments, categories)
+	filtered, err = FilterByAssetCategories(payments, categories)
 	if err != nil {
 		return nil, err
 	}
-	filtered = FilterByPeriod(filtered, periods)
-	filtered = FilterByType(filtered, paymentTypes)
+	filtered = FilterByPeriods(filtered, periods)
+	filtered = FilterByTypes(filtered, paymentTypes)
 	sortByCreationDate(filtered)
 	return
 }
@@ -195,8 +195,8 @@ func (r *PaymentRepository) FindByAssetNames(
 	if err != nil {
 		return nil, err
 	}
-	payments = FilterByPeriod(payments, periods)
-	payments = FilterByType(payments, paymentTypes)
+	payments = FilterByPeriods(payments, periods)
+	payments = FilterByTypes(payments, paymentTypes)
 	sortByCreationDate(payments)
 	return payments, nil
 }
