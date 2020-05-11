@@ -255,3 +255,52 @@ func TestPaymentRepository_FindByAssetCategories(t *testing.T) {
 		t.Errorf("All 4 items exected to be returned when no filters passed")
 	}
 }
+
+func TestPaymentRepository_FindByAssetNames(t *testing.T) {
+	assetRepo := NewAssetRepository()
+	gold := "gold"
+	bitcoin := "BTC"
+	_, err := assetRepo.CreateBulk([]asset.Asset{
+		asset.NewPlainAsset("1", asset.PreciousMetal, gold),
+		asset.NewPlainAsset("2", asset.CryptoCurrency, bitcoin),
+	})
+	if err != nil {
+		t.Errorf("Unexpted err during preparation: %+v", err)
+		return
+	}
+
+	repository := NewPaymentRepository(assetRepo)
+	repository.records = map[string]PaymentRecord{
+		"1": createPaymentRecord(payment.Invest, 2000, "1"),
+		"2": createPaymentRecord(payment.Return, 2019, "1"),
+		"3": createPaymentRecord(payment.Invest, 2019, "2"),
+		"4": createPaymentRecord(payment.Invest, 2019, "1"),
+	}
+
+	res, err := repository.FindByAssetNames(
+		[]string{gold},
+		[]payment.Period{payment.PeriodMock{
+			TimeFrom:  payment.CreateYearDate(2018),
+			TimeUntil: payment.CreateYearDate(2020),
+		}},
+		[]payment.Type{payment.Invest},
+	)
+	if err != nil {
+		t.Errorf("Unexpeted err: %+v", err)
+	}
+	if len(res) != 1 {
+		t.Errorf("Unepxted result, 1 item expected but got %d", len(res))
+	}
+
+	res, err = repository.FindByAssetNames(
+		[]string{},
+		[]payment.Period{},
+		[]payment.Type{},
+	)
+	if err != nil {
+		t.Errorf("Unexpeted err: %+v", err)
+	}
+	if len(res) != 4 {
+		t.Errorf("All 4 items exected to be returned when no filters passed")
+	}
+}

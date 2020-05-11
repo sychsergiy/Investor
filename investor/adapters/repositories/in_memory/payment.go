@@ -178,7 +178,27 @@ func (r *PaymentRepository) FindByAssetCategories(
 	}
 	filtered = FilterByPeriod(filtered, periods)
 	filtered = FilterByType(filtered, paymentTypes)
+	sortByCreationDate(filtered)
 	return
+}
+
+func (r *PaymentRepository) FindByAssetNames(
+	assetNames []string,
+	periods []paymentEntity.Period,
+	paymentTypes []paymentEntity.Type,
+) ([]paymentEntity.Payment, error) {
+	payments, err := r.ListAll()
+	if err != nil {
+		return nil, err
+	}
+	payments, err = FilterByAssetNames(payments, assetNames)
+	if err != nil {
+		return nil, err
+	}
+	payments = FilterByPeriod(payments, periods)
+	payments = FilterByType(payments, paymentTypes)
+	sortByCreationDate(payments)
+	return payments, nil
 }
 
 func (r *PaymentRepository) FindByAssetName(
