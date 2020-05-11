@@ -35,6 +35,17 @@ func (m PaymentFinderByIdsMock) FindByIds(ids []string) ([]payment.Payment, erro
 	return m.FindFunc(ids)
 }
 
+type PaymentFinderByAssetCategoriesMock struct {
+	ReturnPayments []payment.Payment
+	ReturnErr      error
+}
+
+func (m PaymentFinderByAssetCategoriesMock) FindByAssetCategories(
+	[]asset.Category, []payment.Period, []payment.Type,
+) (filtered []payment.Payment, err error) {
+	return m.ReturnPayments, m.ReturnErr
+}
+
 func (igm IdGeneratorMock) Generate() string {
 	return igm.GenerateFunc()
 }
