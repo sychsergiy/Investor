@@ -9,7 +9,7 @@ type AssetNamesFilter struct {
 	paymentFinder ports.PaymentFinderByAssetNames
 }
 
-func NewAssetNameFilter(finder ports.PaymentFinderByAssetNames) AssetNamesFilter {
+func NewAssetNamesFilter(finder ports.PaymentFinderByAssetNames) AssetNamesFilter {
 	return AssetNamesFilter{paymentFinder: finder}
 }
 

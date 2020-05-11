@@ -16,7 +16,7 @@ func TestFilterPayments_Filter(t *testing.T) {
 	mock := interactors.PaymentFinderByAssetNamesMock{
 		ReturnPayments: payments,
 	}
-	interactor := NewAssetNameFilter(mock)
+	interactor := NewAssetNamesFilter(mock)
 
 	req := AssetNameFilterRequest{
 		Periods:    []payment.Period{payment.NewYearPeriod(2020)},
@@ -34,7 +34,7 @@ func TestFilterPayments_Filter(t *testing.T) {
 	mock = interactors.PaymentFinderByAssetNamesMock{
 		ReturnErr: fmt.Errorf("mocked error"),
 	}
-	interactor = NewAssetNameFilter(mock)
+	interactor = NewAssetNamesFilter(mock)
 	_, err = interactor.Filter(req)
 	if err == nil {
 		t.Errorf("error expected")

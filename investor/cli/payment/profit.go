@@ -2,12 +2,14 @@ package payment
 
 import (
 	"fmt"
+	"investor/entities/payment"
 	"investor/interactors"
+	"investor/interactors/payment_filters"
 	"log"
 )
 
 type CalcProfitCommand struct {
-	lister           interactors.ListPayments
+	filter           payment_filters.AssetNamesFilter
 	profitCalculator interactors.CalcProfit
 }
 
@@ -16,13 +18,20 @@ func (l CalcProfitCommand) Execute() {
 }
 
 func (l CalcProfitCommand) CalculateProfit() {
-	payments, err := l.lister.ListAll()
+	assetNames := readAssetNames()
+
+	var model = payment_filters.AssetNameFilterRequest{
+		Periods:      []payment.Period{},
+		PaymentTypes: []payment.Type{},
+		AssetNames:   assetNames,
+	}
+	resp, err := l.filter.Filter(model)
 	if err != nil {
 		log.Fatal(err)
 	}
 	fmt.Println("Calculate profit for the following payments:")
-	printPayments(payments)
-	profit, err := l.profitCalculator.Calc(payments)
+	printPayments(resp.Payments)
+	profit, err := l.profitCalculator.Calc(resp.Payments)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -30,8 +39,8 @@ func (l CalcProfitCommand) CalculateProfit() {
 }
 
 func NewCalcProfitCommand(
-	paymentsLister interactors.ListPayments,
+	paymentsFilter payment_filters.AssetNamesFilter,
 	profitCalculator interactors.CalcProfit,
 ) CalcProfitCommand {
-	return CalcProfitCommand{paymentsLister, profitCalculator}
+	return CalcProfitCommand{paymentsFilter, profitCalculator}
 }
