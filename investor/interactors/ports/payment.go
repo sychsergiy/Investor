@@ -21,8 +21,12 @@ type PaymentFinderByIds interface {
 	FindByIds(ids []string) ([]payment.Payment, error)
 }
 
-type PaymentFinderByAssetName interface {
-	FindByAssetName(name string, period payment.Period) ([]payment.Payment, error)
+type PaymentFinderByAssetNames interface {
+	FindByAssetNames(
+		assetNames []string,
+		periods []payment.Period,
+		paymentTypes []payment.Type,
+	) ([]payment.Payment, error)
 }
 
 type PaymentFinderByAssetCategories interface {
@@ -30,7 +34,7 @@ type PaymentFinderByAssetCategories interface {
 		categories []asset.Category,
 		periods []payment.Period,
 		paymentTypes []payment.Type,
-	) (filtered []payment.Payment, err error)
+	) ([]payment.Payment, error)
 }
 
 type PaymentRepository interface {
@@ -38,6 +42,6 @@ type PaymentRepository interface {
 	PaymentBulkCreator
 	PaymentsLister
 	PaymentFinderByIds
-	PaymentFinderByAssetName
+	PaymentFinderByAssetNames
 	PaymentFinderByAssetCategories
 }

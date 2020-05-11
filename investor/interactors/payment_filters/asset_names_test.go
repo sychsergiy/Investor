@@ -13,17 +13,14 @@ func TestFilterPayments_Filter(t *testing.T) {
 		payment.CreatePayment("1", 2018),
 		payment.CreatePayment("2", 2020),
 	}
-	mock := interactors.PaymentFinderByAssetNameMock{}
-	mock.FindFunc = func(assetName string, period payment.Period) ([]payment.Payment, error) {
-		return payments, nil
+	mock := interactors.PaymentFinderByAssetNamesMock{
+		ReturnPayments: payments,
 	}
-
 	interactor := NewAssetNameFilter(mock)
 
 	req := AssetNameFilterRequest{
-		TimeFrom:  payment.CreateYearDate(2019),
-		TimeUntil: payment.CreateYearDate(2021),
-		AssetName: "test",
+		Periods:    []payment.Period{payment.NewYearPeriod(2020)},
+		AssetNames: []string{"test"},
 	}
 	resp, err := interactor.Filter(req)
 	if err != nil {
@@ -34,9 +31,8 @@ func TestFilterPayments_Filter(t *testing.T) {
 		}
 	}
 
-
-	mock.FindFunc = func(assetName string, period payment.Period) ([]payment.Payment, error) {
-		return nil, fmt.Errorf("mocked err")
+	mock = interactors.PaymentFinderByAssetNamesMock{
+		ReturnErr: fmt.Errorf("mocked error"),
 	}
 	interactor = NewAssetNameFilter(mock)
 	_, err = interactor.Filter(req)
