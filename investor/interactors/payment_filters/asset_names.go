@@ -13,7 +13,7 @@ func NewAssetNamesFilter(finder ports.PaymentFinderByAssetNames) AssetNamesFilte
 	return AssetNamesFilter{paymentFinder: finder}
 }
 
-type AssetNameFilterRequest struct {
+type AssetNamesFilterRequest struct {
 	Periods      []payment.Period
 	PaymentTypes []payment.Type
 	AssetNames   []string
@@ -23,7 +23,7 @@ type AssetNameFilterResponse struct {
 	Payments []payment.Payment
 }
 
-func (f AssetNamesFilter) Filter(model AssetNameFilterRequest) (AssetNameFilterResponse, error) {
+func (f AssetNamesFilter) Filter(model AssetNamesFilterRequest) (AssetNameFilterResponse, error) {
 	payments, err := f.paymentFinder.FindByAssetNames(model.AssetNames, model.Periods, model.PaymentTypes)
 	if err != nil {
 		return AssetNameFilterResponse{}, err

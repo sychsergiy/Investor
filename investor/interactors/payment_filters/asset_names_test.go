@@ -18,7 +18,7 @@ func TestFilterPayments_Filter(t *testing.T) {
 	}
 	interactor := NewAssetNamesFilter(mock)
 
-	req := AssetNameFilterRequest{
+	req := AssetNamesFilterRequest{
 		Periods:    []payment.Period{payment.NewYearPeriod(2020)},
 		AssetNames: []string{"test"},
 	}
