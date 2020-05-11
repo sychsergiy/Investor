@@ -8,12 +8,13 @@ import (
 )
 
 type App struct {
-	CreateAssetCommand       asset.CreateAssetCommand
-	ListAssetsCommand        asset.ListAssetsCommand
-	CreatePaymentCommand     payment.CreatePaymentCommand
-	ListPaymentsCommand      payment.ListPaymentsCommand
-	CalcProfitCommand        payment.CalcProfitCommand
-	FilterByAssetNameCommand payment.FilterByAssetNameCommand
+	CreateAssetCommand        asset.CreateAssetCommand
+	ListAssetsCommand         asset.ListAssetsCommand
+	CreatePaymentCommand      payment.CreatePaymentCommand
+	ListPaymentsCommand       payment.ListPaymentsCommand
+	CalcProfitCommand         payment.CalcProfitCommand
+	FilterByAssetNameCommand  payment.FilterByAssetNameCommand
+	FilterByCategoriesCommand payment.FilterByCategoriesCommand
 
 	cli *CLI
 }
@@ -27,6 +28,7 @@ func (app *App) setup() {
 	app.cli.AddCommand("calc_profit", app.CalcProfitCommand)
 
 	app.cli.AddCommand("filter_by_asset_name", app.FilterByAssetNameCommand)
+	app.cli.AddCommand("filter_by_categories", app.FilterByCategoriesCommand)
 }
 
 func (app App) Run() {

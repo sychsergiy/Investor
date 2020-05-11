@@ -14,7 +14,7 @@ type FilterByAssetNameCommand struct {
 func (c FilterByAssetNameCommand) Execute() {
 	assetName := readAssetName()
 	req := payment_filters.AssetNameFilterRequest{
-		TimeFrom:  payment.CreateYearDate(2019),
+		TimeFrom:  payment.CreateYearDate(2018),
 		TimeUntil: payment.CreateYearDate(2021),
 		AssetName: assetName,
 	}
