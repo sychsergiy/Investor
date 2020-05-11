@@ -97,14 +97,16 @@ func (r *PaymentRepository) FindByIds(ids []string) ([]paymentEntity.Payment, er
 	return r.repository.FindByIds(ids)
 }
 
-func (r *PaymentRepository) FindByAssetName(
-	assetName string, period paymentEntity.Period,
+func (r *PaymentRepository) FindByAssetNames(
+	assetNames []string,
+	periods []paymentEntity.Period,
+	paymentTypes []paymentEntity.Type,
 ) ([]paymentEntity.Payment, error) {
 	err := r.restore()
 	if err != nil {
-		return nil, fmt.Errorf("failed to find payments by ids: %v", err)
+		return nil, err
 	}
-	return r.repository.FindByAssetName(assetName, period)
+	return r.repository.FindByAssetNames(assetNames, periods, paymentTypes)
 }
 
 func (r *PaymentRepository) FindByAssetCategories(

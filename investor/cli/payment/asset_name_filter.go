@@ -5,18 +5,21 @@ import (
 	"investor/entities/payment"
 	"investor/interactors/payment_filters"
 	"log"
+	"strings"
 )
 
 type FilterByAssetNameCommand struct {
-	interactor payment_filters.AssetNameFilter
+	interactor payment_filters.AssetNamesFilter
 }
 
 func (c FilterByAssetNameCommand) Execute() {
-	assetName := readAssetName()
+	assetNames := readAssetNames()
+	paymentTypes := choosePaymentTypes()
+
 	req := payment_filters.AssetNameFilterRequest{
-		TimeFrom:  payment.CreateYearDate(2018),
-		TimeUntil: payment.CreateYearDate(2021),
-		AssetName: assetName,
+		Periods:      []payment.Period{},
+		PaymentTypes: paymentTypes,
+		AssetNames:   assetNames,
 	}
 	resp, err := c.interactor.Filter(req)
 	if err != nil {
@@ -25,12 +28,14 @@ func (c FilterByAssetNameCommand) Execute() {
 	printPayments(resp.Payments)
 }
 
-func NewFilterByAssetNameCommand(interactor payment_filters.AssetNameFilter) FilterByAssetNameCommand {
+func NewFilterByAssetNameCommand(interactor payment_filters.AssetNamesFilter) FilterByAssetNameCommand {
 	return FilterByAssetNameCommand{interactor: interactor}
 }
 
-func readAssetName() string {
-	fmt.Println("Enter asset name: ")
-	assetName := readFromConsole()
-	return assetName
+func readAssetNames() []string {
+	fmt.Printf("Enter asset names, use space as delimiter: ")
+	input := readFromConsole()
+	assetNames := strings.Split(input, " ")
+	fmt.Printf("Entered asset names: [%s]\n", strings.Join(assetNames, ", "))
+	return assetNames
 }
