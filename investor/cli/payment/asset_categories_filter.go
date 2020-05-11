@@ -23,7 +23,7 @@ func (c FilterByCategoriesCommand) Execute() {
 	paymentTypes := choosePaymentTypes()
 
 	req := payment_filters.AssetCategoriesFilterRequest{
-		Periods:         []payment_filters.Period{},
+		Periods:         []payment.Period{},
 		PaymentTypes:    paymentTypes,
 		AssetCategories: categories,
 	}

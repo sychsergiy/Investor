@@ -15,7 +15,7 @@ func NewAssetCategoriesFilter(finder ports.PaymentFinderByAssetCategories) Asset
 }
 
 type AssetCategoriesFilterRequest struct {
-	Periods         []Period
+	Periods         []payment.Period
 	PaymentTypes    []payment.Type
 	AssetCategories []asset.Category
 }
@@ -25,12 +25,8 @@ type AssetCategoriesFilterResponse struct {
 }
 
 func (f AssetCategoriesFilter) Filter(model AssetCategoriesFilterRequest) (AssetCategoriesFilterResponse, error) {
-	var periods []payment.Period
-	for _, p := range model.Periods {
-		periods = append(periods, payment.NewDurationPeriod(p.TimeFrom, p.TimeUntil))
-	}
 	payments, err := f.paymentFinder.FindByAssetCategories(
-		model.AssetCategories, periods, model.PaymentTypes,
+		model.AssetCategories, model.Periods, model.PaymentTypes,
 	)
 	if err != nil {
 		return AssetCategoriesFilterResponse{}, err
