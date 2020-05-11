@@ -8,8 +8,8 @@ import (
 )
 
 type CreatePayment struct {
-	Repository  ports.PaymentCreator
-	IDGenerator ports.IDGenerator
+	repository  ports.PaymentCreator
+	idGenerator ports.IDGenerator
 }
 
 type CreatePaymentModel struct {
@@ -21,12 +21,16 @@ type CreatePaymentModel struct {
 }
 
 func (pc CreatePayment) Create(paymentModel CreatePaymentModel) (err error) {
-	id := pc.IDGenerator.Generate()
+	id := pc.idGenerator.Generate()
 	p := paymentEntity.NewPlainPayment(
 		id, paymentModel.AssetAmount, paymentModel.AbsoluteAmount,
 		paymentModel.Asset, paymentModel.CreationDate, paymentModel.Type,
 	)
 	// todo: add validation
-	err = pc.Repository.Create(p)
+	err = pc.repository.Create(p)
 	return
+}
+
+func NewCreatePayment(repository ports.PaymentCreator, idGenerator ports.IDGenerator) CreatePayment {
+	return CreatePayment{repository, idGenerator}
 }

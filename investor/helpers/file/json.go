@@ -4,11 +4,11 @@ import (
 	"encoding/json"
 )
 
-type JSONFile struct {
+type JSON struct {
 	File
 }
 
-func (f JSONFile) Create() error {
+func (f JSON) Create() error {
 	err := f.File.Create()
 	if err != nil {
 		return err
@@ -18,7 +18,7 @@ func (f JSONFile) Create() error {
 	return err
 }
 
-func (f JSONFile) WriteJSON(data interface{}) (err error) {
+func (f JSON) WriteJSON(data interface{}) (err error) {
 	jsonData, err := json.Marshal(data)
 	if err != nil {
 		return
@@ -27,6 +27,6 @@ func (f JSONFile) WriteJSON(data interface{}) (err error) {
 	return
 }
 
-func NewJSONFile(file File) JSONFile {
-	return JSONFile{file}
+func NewJSON(file File) JSON {
+	return JSON{file}
 }

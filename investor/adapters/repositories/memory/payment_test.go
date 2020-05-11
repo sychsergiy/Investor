@@ -16,7 +16,7 @@ func CreatePaymentWithoutAsset(id string) payment.ProxyMock {
 }
 func createRepository() *PaymentRepository {
 	finderMock := AssetFinderMock{findFunc: func(assetID string) (a asset.Asset, err error) {
-		return asset.NewPlainAsset("1", asset.PreciousMetal, "test"), nil
+		return asset.NewPlain("1", asset.PreciousMetal, "test"), nil
 	}}
 	repository := NewPaymentRepository(finderMock)
 	return repository
@@ -152,8 +152,8 @@ func createPaymentRecord(paymentType payment.Type, year int, assetID string) Pay
 func TestPaymentRepository_FindByAssetCategories(t *testing.T) {
 	assetRepo := NewAssetRepository()
 	_, err := assetRepo.CreateBulk([]asset.Asset{
-		asset.NewPlainAsset("1", asset.PreciousMetal, "gold"),
-		asset.NewPlainAsset("2", asset.CryptoCurrency, "BTC"),
+		asset.NewPlain("1", asset.PreciousMetal, "gold"),
+		asset.NewPlain("2", asset.CryptoCurrency, "BTC"),
 	})
 	if err != nil {
 		t.Errorf("Unexpted err during preparation: %+v", err)
@@ -201,8 +201,8 @@ func TestPaymentRepository_FindByAssetNames(t *testing.T) {
 	gold := "gold"
 	bitcoin := "BTC"
 	_, err := assetRepo.CreateBulk([]asset.Asset{
-		asset.NewPlainAsset("1", asset.PreciousMetal, gold),
-		asset.NewPlainAsset("2", asset.CryptoCurrency, bitcoin),
+		asset.NewPlain("1", asset.PreciousMetal, gold),
+		asset.NewPlain("2", asset.CryptoCurrency, bitcoin),
 	})
 	if err != nil {
 		t.Errorf("Unexpted err during preparation: %+v", err)

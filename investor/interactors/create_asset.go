@@ -23,7 +23,7 @@ type CreateAssetResponse struct {
 
 func (ca CreateAsset) Create(assetModel CreateAssetRequest) CreateAssetResponse {
 	id := ca.idGenerator.Generate()
-	p := assetEntity.NewPlainAsset(
+	p := assetEntity.NewPlain(
 		id, assetModel.Category, assetModel.Name,
 	)
 

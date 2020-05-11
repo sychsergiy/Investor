@@ -36,7 +36,7 @@ type File interface {
 	CreatorExists
 }
 
-type IJSONFile interface {
+type JSONFile interface {
 	File
 	JSONWriter
 }

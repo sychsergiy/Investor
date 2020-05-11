@@ -9,7 +9,7 @@ import (
 func createPaymentWithType(paymentType Type) Payment {
 	return NewPlainPayment(
 		"1", 0, 0,
-		asset.NewPlainAsset("1", asset.PreciousMetal, "test"),
+		asset.NewPlain("1", asset.PreciousMetal, "test"),
 		CreateYearDate(1), paymentType,
 	)
 }
@@ -17,7 +17,7 @@ func createPaymentWithType(paymentType Type) Payment {
 func createPaymentWithCreationDate(year int) Payment {
 	return NewPlainPayment(
 		"1", 0, 0,
-		asset.NewPlainAsset("1", asset.PreciousMetal, "test"),
+		asset.NewPlain("1", asset.PreciousMetal, "test"),
 		CreateYearDate(year), Invest,
 	)
 }
@@ -109,7 +109,7 @@ func TestFilterByPeriods(t *testing.T) {
 func createPaymentWithAssetCategory(category asset.Category) Payment {
 	return NewPlainPayment(
 		"1", 0, 0,
-		asset.NewPlainAsset("1", category, "test"),
+		asset.NewPlain("1", category, "test"),
 		CreateYearDate(1), Invest,
 	)
 }
@@ -117,7 +117,7 @@ func createPaymentWithAssetCategory(category asset.Category) Payment {
 func createPaymentWithAssetName(assetName string) Payment {
 	return NewPlainPayment(
 		"1", 0, 0,
-		asset.NewPlainAsset("1", asset.PreciousMetal, assetName),
+		asset.NewPlain("1", asset.PreciousMetal, assetName),
 		CreateYearDate(1), Invest,
 	)
 }

@@ -14,7 +14,7 @@ type Data struct {
 }
 
 type Storage struct {
-	jsonFile file.IJSONFile
+	jsonFile file.JSONFile
 	data     *Data
 }
 
@@ -100,7 +100,7 @@ func (s *Storage) restore() error {
 	return nil
 }
 
-func NewStorage(jsonFile file.JSONFile) *Storage {
+func NewStorage(jsonFile file.JSON) *Storage {
 	return &Storage{
 		jsonFile: jsonFile,
 		data:     &Data{[]memory.AssetRecord{}, []memory.PaymentRecord{}},

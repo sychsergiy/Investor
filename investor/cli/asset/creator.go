@@ -10,15 +10,15 @@ import (
 	"strconv"
 )
 
-type CreateAssetCommand struct {
+type CreateCommand struct {
 	creator interactors.CreateAsset
 }
 
-func NewCreateAssetCommand(creator interactors.CreateAsset) CreateAssetCommand {
-	return CreateAssetCommand{creator}
+func NewCreateCommand(creator interactors.CreateAsset) CreateCommand {
+	return CreateCommand{creator}
 }
 
-func (c CreateAssetCommand) Execute() {
+func (c CreateCommand) Execute() {
 	category := chooseCategory()
 	name := readName()
 

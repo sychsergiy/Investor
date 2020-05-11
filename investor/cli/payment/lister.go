@@ -7,15 +7,15 @@ import (
 	"log"
 )
 
-type ListPaymentsCommand struct {
+type ListCommand struct {
 	lister interactors.ListPayments
 }
 
-func (l ListPaymentsCommand) Execute() {
+func (l ListCommand) Execute() {
 	l.List()
 }
 
-func (l ListPaymentsCommand) List() {
+func (l ListCommand) List() {
 	payments, err := l.lister.ListAll()
 	if err != nil {
 		log.Fatalf("failed to list payments: %+v", err)
@@ -50,6 +50,6 @@ func paymentToString(p payment.Payment) (str string, err error) {
 
 }
 
-func NewConsolePaymentsLister(paymentsLister interactors.ListPayments) ListPaymentsCommand {
-	return ListPaymentsCommand{paymentsLister}
+func NewConsolePaymentsLister(paymentsLister interactors.ListPayments) ListCommand {
+	return ListCommand{paymentsLister}
 }

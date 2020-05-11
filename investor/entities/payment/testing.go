@@ -6,19 +6,19 @@ import (
 )
 
 func CreatePaymentWithAmount(paymentType Type, amount, assetAmount float32) Payment {
-	a := asset.NewPlainAsset("gold", asset.PreciousMetal, "gold")
+	a := asset.NewPlain("gold", asset.PreciousMetal, "gold")
 	date := time.Date(2019, 30, 12, 11, 58, 0, 0, time.UTC)
 	return NewPlainPayment("test", assetAmount, amount, a, date, paymentType)
 }
 
 func CreatePayment(id string, year int) Payment {
-	testAsset := asset.NewPlainAsset("test", asset.CryptoCurrency, "test")
+	testAsset := asset.NewPlain("test", asset.CryptoCurrency, "test")
 	creationTime := CreateYearDate(year)
 	return NewPlainPayment(id, 0, 0, testAsset, creationTime, Invest)
 }
 
 func CreatePaymentWithAsset(id, assetID string, year int) Payment {
-	testAsset := asset.NewPlainAsset(assetID, asset.CryptoCurrency, "test")
+	testAsset := asset.NewPlain(assetID, asset.CryptoCurrency, "test")
 	creationTime := CreateYearDate(year)
 	return NewPlainPayment(id, 0, 0, testAsset, creationTime, Invest)
 }

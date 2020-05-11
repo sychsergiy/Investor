@@ -7,7 +7,7 @@ import (
 
 func TestInMemoryAssetRepository_Create(t *testing.T) {
 	repository := NewAssetRepository()
-	a := asset.NewPlainAsset("1", asset.PreciousMetal, "gold")
+	a := asset.NewPlain("1", asset.PreciousMetal, "gold")
 
 	// save first payment, no errors expected
 	err := repository.Create(a)
@@ -24,8 +24,8 @@ func TestInMemoryAssetRepository_Create(t *testing.T) {
 }
 
 func TestAssetRepository_CreateBulk(t *testing.T) {
-	a1 := asset.NewPlainAsset("1", asset.CryptoCurrency, "test")
-	a2 := asset.NewPlainAsset("2", asset.CryptoCurrency, "test")
+	a1 := asset.NewPlain("1", asset.CryptoCurrency, "test")
+	a2 := asset.NewPlain("2", asset.CryptoCurrency, "test")
 
 	repository := NewAssetRepository()
 

@@ -8,10 +8,10 @@ import (
 )
 
 type App struct {
-	CreateAssetCommand        asset.CreateAssetCommand
-	ListAssetsCommand         asset.ListAssetsCommand
-	CreatePaymentCommand      payment.CreatePaymentCommand
-	ListPaymentsCommand       payment.ListPaymentsCommand
+	CreateAssetCommand        asset.CreateCommand
+	ListAssetsCommand         asset.ListCommand
+	CreatePaymentCommand      payment.CreateCommand
+	ListPaymentsCommand       payment.ListCommand
 	CalcProfitCommand         payment.CalcProfitCommand
 	FilterByAssetNamesCommand payment.FilterByAssetNamesCommand
 	FilterByCategoriesCommand payment.FilterByCategoriesCommand

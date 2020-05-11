@@ -21,7 +21,7 @@ func writeStorageFile(t *testing.T, filename string, data Data) {
 }
 
 func createStorage(filename string) *Storage {
-	jsonFile := file.NewJSONFile(file.NewPlainFile(file.GetFilePath(filename)))
+	jsonFile := file.NewJSON(file.NewPlainFile(file.GetFilePath(filename)))
 	return NewStorage(jsonFile)
 }
 

@@ -19,7 +19,7 @@ func checkErr(t *testing.T, err error, message string) bool {
 
 func FillPaymentsRepo(t *testing.T, paymentRepo *PaymentRepository, assetRepo *AssetRepository) {
 	assetID := "assetID"
-	err := assetRepo.Create(asset.NewPlainAsset(assetID, asset.PreciousMetal, "name"))
+	err := assetRepo.Create(asset.NewPlain(assetID, asset.PreciousMetal, "name"))
 	checkErr(t, err, "asset creation")
 
 	err = paymentRepo.CreateBulk([]payment.Payment{
