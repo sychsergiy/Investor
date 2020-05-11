@@ -8,7 +8,7 @@ import (
 	"net/url"
 )
 
-type HttpClient interface {
+type HTTPClient interface {
 	Do(req *http.Request) (*http.Response, error)
 }
 
@@ -27,7 +27,7 @@ type CoinMarketCupClient struct {
 	url           string
 	apiKey        string
 	CurrenciesIDs map[CryptoCurrency]string
-	HttpClient    HttpClient
+	HTTPClient    HTTPClient
 }
 
 func NewCoinMarketCupClient(url string, apiKey string) CoinMarketCupClient {
@@ -86,7 +86,7 @@ func (c CoinMarketCupClient) FetchCurrencyRate(currency CryptoCurrency) (float32
 	if err != nil {
 		return 0, err
 	}
-	resp, err := c.HttpClient.Do(req)
+	resp, err := c.HTTPClient.Do(req)
 
 	if err != nil {
 		return 0, RateRequestFailedError{currency, err.Error()}
