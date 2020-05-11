@@ -73,7 +73,7 @@ func (r *AssetRepository) ListAll() ([]assetEntity.Asset, error) {
 func (r *AssetRepository) FindByID(assetID string) (a assetEntity.Asset, err error) {
 	record, ok := r.records[assetID]
 	if !ok {
-		err = assetEntity.AssetDoesntExistsError{AssetID: assetID}
+		err = assetEntity.NotFoundError{AssetID: assetID}
 		return
 	}
 	return record.ToAsset(), nil

@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	assetCLI "investor/cli/asset"
-	"investor/cli/payment/rate_fetcher"
+	"investor/cli/payment/rate"
 	"investor/entities/asset"
 	"investor/entities/payment"
 	"investor/interactors"
@@ -17,13 +17,13 @@ import (
 type CreatePaymentCommand struct {
 	paymentCreator interactors.CreatePayment
 	assetsLister   interactors.ListAssets
-	rateFetcher    rate_fetcher.RateFetcher
+	rateFetcher    rate.Fetcher
 }
 
 func NewCreatePaymentCommand(
 	paymentCreator interactors.CreatePayment,
 	assetsLister interactors.ListAssets,
-	rateFetcher rate_fetcher.RateFetcher,
+	rateFetcher rate.Fetcher,
 ) CreatePaymentCommand {
 	return CreatePaymentCommand{paymentCreator, assetsLister, rateFetcher}
 }
@@ -36,11 +36,11 @@ func (cpc CreatePaymentCommand) Execute() {
 }
 func (cpc CreatePaymentCommand) Create() error {
 	paymentType := choosePaymentType()
-	//asset_ := chooseAsset()
-	asset_ := cpc.selectAsset()
+	//selectedAsset := chooseAsset()
+	selectedAsset := cpc.selectAsset()
 	date := readCreationDate()
 
-	//rate, err := cpc.rateFetcher.Fetch(asset_)
+	//rate, err := cpc.rateFetcher.Fetch(selectedAsset)
 	//if err != nil {
 	//	return err
 	//}
@@ -55,15 +55,14 @@ func (cpc CreatePaymentCommand) Create() error {
 
 	model := interactors.CreatePaymentModel{
 		AssetAmount: assetAmount, AbsoluteAmount: absoluteAmount,
-		Asset: asset_, Type: paymentType, CreationDate: date,
+		Asset: selectedAsset, Type: paymentType, CreationDate: date,
 	}
 	saveRecord := readCompleteOrAbort(model)
 	if saveRecord {
 		return cpc.paymentCreator.Create(model)
-	} else {
-		fmt.Println("Aborted.")
-		return nil
 	}
+	fmt.Println("Aborted.")
+	return nil
 }
 
 func readFromConsole() string {

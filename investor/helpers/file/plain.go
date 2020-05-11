@@ -36,9 +36,8 @@ func (f PlainFile) Exists() (bool, error) {
 	if err != nil {
 		if os.IsNotExist(err) {
 			return false, nil
-		} else {
-			return false, err
 		}
+		return false, err
 	}
 	return !info.IsDir(), nil
 }
@@ -54,8 +53,7 @@ func CreateIfNotExists(file CreatorExists) (bool, error) {
 	}
 	if exists {
 		return false, nil
-	} else {
-		err := file.Create()
-		return true, err
 	}
+	err = file.Create()
+	return true, err
 }

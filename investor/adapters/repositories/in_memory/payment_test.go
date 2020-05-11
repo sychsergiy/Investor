@@ -11,7 +11,7 @@ import (
 func CreatePaymentWithoutAsset(id string) payment.PaymentProxyMock {
 	return payment.NewPaymentProxyMock(
 		payment.CreatePayment(id, 2020),
-		func() (a asset.Asset, err error) { return a, asset.AssetDoesntExistsError{AssetID: "mocked_id"} },
+		func() (a asset.Asset, err error) { return a, asset.NotFoundError{AssetID: "mocked_id"} },
 	)
 }
 func createRepository() *PaymentRepository {
@@ -41,7 +41,7 @@ func TestPaymentRepository_Create(t *testing.T) {
 	repository2 := createRepository()
 	p2 := CreatePaymentWithoutAsset("2")
 	err2 := repository2.Create(p2)
-	expectedErr2 := asset.AssetDoesntExistsError{AssetID: "mocked_id"}
+	expectedErr2 := asset.NotFoundError{AssetID: "mocked_id"}
 	if !errors.Is(err2, expectedErr2) {
 		t.Errorf("Asset with provided doesn't exist error expected")
 	}
@@ -76,7 +76,7 @@ func TestPaymentRepository_CreateBulk(t *testing.T) {
 	repository = createRepository()
 	err = repository.CreateBulk([]payment.Payment{CreatePaymentWithoutAsset("1"), p2})
 	expectedErr = PaymentBulkCreateError{
-		FailedIndex: 0, Quantity: 2, Err: asset.AssetDoesntExistsError{AssetID: "mocked_id"},
+		FailedIndex: 0, Quantity: 2, Err: asset.NotFoundError{AssetID: "mocked_id"},
 	}
 	if !errors.Is(err, expectedErr) {
 		t.Errorf("payment bulk create error with asset doesn exists root cause error expected")

@@ -1,9 +1,8 @@
-package rate_fetcher
+package rate
 
 import (
 	"encoding/json"
 	"fmt"
-	"investor/entities/asset/crypto_currency"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -15,7 +14,7 @@ type HttpClient interface {
 
 type Quote map[string]struct{ Price float32 `json:"price"` }
 
-type RateResponse struct {
+type CMCResponse struct {
 	Data map[string]struct {
 		ID     int    `json:"id"`
 		Name   string `json:"name"`
@@ -27,18 +26,18 @@ type RateResponse struct {
 type CoinMarketCupClient struct {
 	url           string
 	apiKey        string
-	CurrenciesIDs map[crypto_currency.CryptoCurrency]string
+	CurrenciesIDs map[CryptoCurrency]string
 	HttpClient    HttpClient
 }
 
 func NewCoinMarketCupClient(url string, apiKey string) CoinMarketCupClient {
 	return CoinMarketCupClient{url, apiKey,
 		// todo: fetch from CoinMarketCup
-		map[crypto_currency.CryptoCurrency]string{
-			crypto_currency.BTC:  "1",
-			crypto_currency.ETH:  "1027",
-			crypto_currency.XRP:  "52",
-			crypto_currency.DASH: "131",
+		map[CryptoCurrency]string{
+			BTC:  "1",
+			ETH:  "1027",
+			XRP:  "52",
+			DASH: "131",
 		},
 		&http.Client{},
 	}
@@ -62,7 +61,7 @@ func (c CoinMarketCupClient) BuildRequest(currencyID string) (*http.Request, err
 }
 
 type NoIDForCurrencyError struct {
-	Currency crypto_currency.CryptoCurrency
+	Currency CryptoCurrency
 }
 
 func (e NoIDForCurrencyError) Error() string {
@@ -70,7 +69,7 @@ func (e NoIDForCurrencyError) Error() string {
 }
 
 type RateRequestFailedError struct {
-	Currency crypto_currency.CryptoCurrency
+	Currency CryptoCurrency
 	Err      string
 }
 
@@ -78,7 +77,7 @@ func (e RateRequestFailedError) Error() string {
 	return fmt.Sprintf("Failed to fetche rate for currency: %s due to error:\n%s", e.Currency, e.Err)
 }
 
-func (c CoinMarketCupClient) FetchCurrencyRate(currency crypto_currency.CryptoCurrency) (float32, error) {
+func (c CoinMarketCupClient) FetchCurrencyRate(currency CryptoCurrency) (float32, error) {
 	currencyID, ok := c.CurrenciesIDs[currency]
 	if !ok {
 		return 0, NoIDForCurrencyError{currency}
@@ -94,7 +93,7 @@ func (c CoinMarketCupClient) FetchCurrencyRate(currency crypto_currency.CryptoCu
 	}
 	respBody, _ := ioutil.ReadAll(resp.Body)
 
-	var respData RateResponse
+	var respData CMCResponse
 
 	if err := json.Unmarshal(respBody, &respData); err != nil {
 		return 0, err
@@ -117,7 +116,7 @@ func (e NoPriceInUSDError) Error() string {
 	return "USD key is not in Quote map"
 }
 
-func ParsePrice(respData RateResponse, currencyID string) (float32, error) {
+func ParsePrice(respData CMCResponse, currencyID string) (float32, error) {
 	currencyData, ok := respData.Data[currencyID]
 	if !ok {
 		return 0, CurrencyIDNotFoundError{currencyID}

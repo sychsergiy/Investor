@@ -10,11 +10,11 @@ const (
 	Stock
 )
 
-type AssetDoesntExistsError struct {
+type NotFoundError struct {
 	AssetID string
 }
 
-func (e AssetDoesntExistsError) Error() string {
+func (e NotFoundError) Error() string {
 	return fmt.Sprintf("asset with id %s doesn't exist", e.AssetID)
 }
 

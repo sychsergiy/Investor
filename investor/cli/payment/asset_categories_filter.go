@@ -70,15 +70,14 @@ func chooseCategories() (categories []asset.Category) {
 			if err != nil {
 				fmt.Printf("Unexpected input, number expeted but got %s.\nRetrying ...\n", c)
 				return chooseCategories()
-			} else {
-				switch number {
-				case int(asset.PreciousMetal):
-					categories = append(categories, asset.PreciousMetal)
-				case int(asset.CryptoCurrency):
-					categories = append(categories, asset.CryptoCurrency)
-				case int(asset.Stock):
-					categories = append(categories, asset.Stock)
-				}
+			}
+			switch number {
+			case int(asset.PreciousMetal):
+				categories = append(categories, asset.PreciousMetal)
+			case int(asset.CryptoCurrency):
+				categories = append(categories, asset.CryptoCurrency)
+			case int(asset.Stock):
+				categories = append(categories, asset.Stock)
 			}
 		}
 	}

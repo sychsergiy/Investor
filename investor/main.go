@@ -6,7 +6,7 @@ import (
 	"investor/cli"
 	"investor/cli/asset"
 	"investor/cli/payment"
-	"investor/cli/payment/rate_fetcher"
+	"investor/cli/payment/rate"
 	"investor/helpers/file"
 	"investor/interactors"
 	"investor/interactors/payment_filters"
@@ -16,10 +16,10 @@ import (
 
 func setupDependencies(coinMarketCupApiKey string) cli.App {
 
-	coinMarketCupClient := rate_fetcher.NewCoinMarketCupClient(
+	coinMarketCupClient := rate.NewCoinMarketCupClient(
 		"https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest", coinMarketCupApiKey,
 	)
-	fetcher := rate_fetcher.CMCRateFetcher{
+	fetcher := rate.CMCFetcher{
 		Client: coinMarketCupClient,
 	}
 
