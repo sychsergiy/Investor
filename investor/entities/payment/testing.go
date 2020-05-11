@@ -5,6 +5,12 @@ import (
 	"time"
 )
 
+func CreatePaymentWithAmount(type_ Type, amount, assetAmount float32) Payment {
+	a := asset.NewPlainAsset("gold", asset.PreciousMetal, "gold")
+	date := time.Date(2019, 30, 12, 11, 58, 0, 0, time.UTC)
+	return NewPlainPayment("test", assetAmount, amount, a, date, type_)
+}
+
 func CreatePayment(id string, year int) Payment {
 	testAsset := asset.NewPlainAsset("test", asset.CryptoCurrency, "test")
 	creationTime := CreateYearDate(year)

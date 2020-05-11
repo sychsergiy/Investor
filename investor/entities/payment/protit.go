@@ -49,7 +49,24 @@ func (e ReturnedAssetSumMoreThanInvested) Error() string {
 	return "unable to calculate profit de returned Asset sum more than invested"
 }
 
-func CalcProfit(sums Sums) (Profit, error) {
+func CalcSumsForPayments(payments []Payment) Sums {
+	s := Sums{}
+	for _, item := range payments {
+		switch item.Type() {
+		case Return:
+			s.Returned += item.AbsoluteAmount()
+			s.ReturnedAsset += item.AssetAmount()
+		case Invest:
+			s.Invested += item.AbsoluteAmount()
+			s.InvestedAsset += item.AssetAmount()
+		default:
+			panic("unexpected payment type")
+		}
+	}
+	return s
+}
+
+func CalcProfitForAsset(sums Sums) (Profit, error) {
 	// calculate asset profit coefficient
 	// find invested capital in absolute amount (USD) and in asset
 	// a = find percentage of asset rest after all payments
