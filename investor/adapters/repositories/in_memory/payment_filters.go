@@ -1,6 +1,7 @@
 package in_memory
 
 import (
+	"investor/entities/asset"
 	"investor/entities/payment"
 	"time"
 )
@@ -39,6 +40,29 @@ func FilterByPeriod(payments []payment.Payment, periods []payment.Period) (filte
 		}
 	}
 	return filtered
+}
+
+func FilterByAssetCategory(
+	payments []payment.Payment,
+	categories []asset.Category,
+) (filtered []payment.Payment, err error) {
+	if len(categories) == 0 {
+		return payments, nil
+	}
+	for _, payment_ := range payments {
+		a, err := payment_.Asset()
+		if err != nil {
+			return nil, err
+		}
+		assetCategory := a.Category()
+		for _, category := range categories {
+			if assetCategory == category {
+				filtered = append(filtered, payment_)
+				break
+			}
+		}
+	}
+	return filtered, nil
 }
 
 func periodContains(p payment.Period, date time.Time) bool {
