@@ -11,10 +11,10 @@ type PlainPayment struct {
 	absoluteAmount float32
 	asset          asset.Asset
 	creationDate   time.Time
-	type_          Type
+	paymentType    Type
 }
 
-func (p PlainPayment) Id() string {
+func (p PlainPayment) ID() string {
 	return p.id
 }
 
@@ -35,12 +35,12 @@ func (p PlainPayment) CreationDate() time.Time {
 }
 
 func (p PlainPayment) Type() Type {
-	return p.type_
+	return p.paymentType
 }
 
 func NewPlainPayment(
 	id string, assetAmount float32, absoluteAmount float32,
-	asset asset.Asset, creationDate time.Time, type_ Type,
+	asset asset.Asset, creationDate time.Time, paymentType Type,
 ) PlainPayment {
 	return PlainPayment{
 		id:             id,
@@ -48,6 +48,6 @@ func NewPlainPayment(
 		absoluteAmount: absoluteAmount,
 		asset:          asset,
 		creationDate:   creationDate,
-		type_:          type_,
+		paymentType:    paymentType,
 	}
 }

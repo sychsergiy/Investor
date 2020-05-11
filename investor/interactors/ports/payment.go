@@ -17,8 +17,8 @@ type PaymentsLister interface {
 	ListAll() ([]payment.Payment, error)
 }
 
-type PaymentFinderByIds interface {
-	FindByIds(ids []string) ([]payment.Payment, error)
+type PaymentFinderByIDs interface {
+	FindByIDs(ids []string) ([]payment.Payment, error)
 }
 
 type PaymentFinderByAssetNames interface {
@@ -41,7 +41,7 @@ type PaymentRepository interface {
 	PaymentCreator
 	PaymentBulkCreator
 	PaymentsLister
-	PaymentFinderByIds
+	PaymentFinderByIDs
 	PaymentFinderByAssetNames
 	PaymentFinderByAssetCategories
 }

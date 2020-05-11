@@ -1,4 +1,4 @@
-package in_memory
+package memory
 
 import (
 	"investor/entities/asset"
@@ -12,19 +12,19 @@ func CreateAssetRecord(id string, name string) AssetRecord {
 func CreatePaymentRecord(id string, year int) PaymentRecord {
 	date := time.Date(year, 0, 0, 0, 0, 0, 0, time.UTC)
 	return PaymentRecord{
-		Id:             id,
+		ID:             id,
 		AssetAmount:    50,
 		AbsoluteAmount: 100,
-		AssetId:        "testAssetId",
+		AssetID:        "testAssetID",
 		Type:           0,
 		CreationDate:   date,
 	}
 }
 
 type AssetFinderMock struct {
-	findFunc func(assetId string) (asset.Asset, error)
+	findFunc func(assetID string) (asset.Asset, error)
 }
 
-func (asm AssetFinderMock) FindById(assetId string) (asset.Asset, error) {
-	return asm.findFunc(assetId)
+func (asm AssetFinderMock) FindByID(assetID string) (asset.Asset, error) {
+	return asm.findFunc(assetID)
 }

@@ -6,44 +6,43 @@ import (
 	"investor/cli"
 	"investor/cli/asset"
 	"investor/cli/payment"
-	"investor/cli/payment/rate_fetcher"
+	"investor/cli/payment/rate"
 	"investor/helpers/file"
 	"investor/interactors"
-	"investor/interactors/payment_filters"
 	"log"
 	"os"
 )
 
-func setupDependencies(coinMarketCupApiKey string) cli.App {
+func setupDependencies(coinMarketCupAPIKey string) cli.App {
 
-	coinMarketCupClient := rate_fetcher.NewCoinMarketCupClient(
-		"https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest", coinMarketCupApiKey,
+	coinMarketCupClient := rate.NewCoinMarketCupClient(
+		"https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest", coinMarketCupAPIKey,
 	)
-	fetcher := rate_fetcher.CMCRateFetcher{
+	fetcher := rate.CMCFetcher{
 		Client: coinMarketCupClient,
 	}
 
-	storage := jsonfile.NewStorage(file.NewJsonFile(file.NewPlainFile("storage.json")))
+	storage := jsonfile.NewStorage(file.NewJSON(file.NewPlainFile("storage.json")))
 
 	assetRepo := jsonfile.NewAssetRepository(storage)
 	paymentRepo := jsonfile.NewPaymentRepository(storage, assetRepo)
 
-	paymentCreateInteractor := interactors.CreatePayment{Repository: paymentRepo, IdGenerator: adapters.NewUUIDGenerator()}
-	paymentListInteractor := interactors.ListPayments{Repository: paymentRepo}
-	assetNamesFilterInteractor := payment_filters.NewAssetNamesFilter(paymentRepo)
-	categoriesFilterInteractor := payment_filters.NewAssetCategoriesFilter(paymentRepo)
+	paymentCreateInteractor := interactors.NewCreatePayment(paymentRepo, adapters.NewUUIDGenerator())
+	paymentListInteractor := interactors.NewListPayments(paymentRepo)
+	assetNamesFilterInteractor := interactors.NewPaymentAssetNamesFilter(paymentRepo)
+	categoriesFilterInteractor := interactors.NewPaymentAssetCategoriesFilter(paymentRepo)
 	assetCreateInteractor := interactors.NewCreateAsset(assetRepo, adapters.NewUUIDGenerator())
 	assetsListInteractor := interactors.NewListAssets(assetRepo)
 	calcProfitInteractor := interactors.NewCalcProfit(paymentRepo)
 
-	paymentCreateCommand := payment.NewCreatePaymentCommand(paymentCreateInteractor, assetsListInteractor, fetcher)
+	paymentCreateCommand := payment.NewCreateCommand(paymentCreateInteractor, assetsListInteractor, fetcher)
 	paymentsListCommand := payment.NewConsolePaymentsLister(paymentListInteractor)
 	filterByAssetNamesCommand := payment.NewFilterByAssetNamesCommand(assetNamesFilterInteractor)
 	filterByCategoriesCommand := payment.NewFilterByCategoriesCommand(categoriesFilterInteractor)
 	calcProfitCommand := payment.NewCalcProfitCommand(calcProfitInteractor)
 
-	assetCreateCommand := asset.NewCreateAssetCommand(assetCreateInteractor)
-	assetsListCommand := asset.NewListAssetsCommand(assetsListInteractor)
+	assetCreateCommand := asset.NewCreateCommand(assetCreateInteractor)
+	assetsListCommand := asset.NewListCommand(assetsListInteractor)
 
 	return cli.App{
 		CreateAssetCommand: assetCreateCommand,

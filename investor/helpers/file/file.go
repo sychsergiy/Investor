@@ -1,7 +1,7 @@
 package file
 
-type JsonWriter interface {
-	WriteJson(interface{}) error
+type JSONWriter interface {
+	WriteJSON(interface{}) error
 }
 
 type Path interface {
@@ -36,7 +36,7 @@ type File interface {
 	CreatorExists
 }
 
-type IJsonFile interface {
+type JSONFile interface {
 	File
-	JsonWriter
+	JSONWriter
 }

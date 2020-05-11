@@ -7,15 +7,15 @@ import (
 	"log"
 )
 
-type ListPaymentsCommand struct {
+type ListCommand struct {
 	lister interactors.ListPayments
 }
 
-func (l ListPaymentsCommand) Execute() {
+func (l ListCommand) Execute() {
 	l.List()
 }
 
-func (l ListPaymentsCommand) List() {
+func (l ListCommand) List() {
 	payments, err := l.lister.ListAll()
 	if err != nil {
 		log.Fatalf("failed to list payments: %+v", err)
@@ -43,13 +43,13 @@ func paymentToString(p payment.Payment) (str string, err error) {
 	}
 	str = fmt.Sprintf(
 		"ID: %s\nAsset name: %s\nAsset category: %s\nType: %s\nUSD amount: %f\nAsset amount: %f\nCreation date: %s",
-		p.Id(), asset.Name(), asset.Category().String(), p.Type().String(), p.AbsoluteAmount(),
+		p.ID(), asset.Name(), asset.Category().String(), p.Type().String(), p.AbsoluteAmount(),
 		p.AssetAmount(), p.CreationDate().Format("2006-01-02 15:04"),
 	)
 	return
 
 }
 
-func NewConsolePaymentsLister(paymentsLister interactors.ListPayments) ListPaymentsCommand {
-	return ListPaymentsCommand{paymentsLister}
+func NewConsolePaymentsLister(paymentsLister interactors.ListPayments) ListCommand {
+	return ListCommand{paymentsLister}
 }

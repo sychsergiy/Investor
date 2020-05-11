@@ -1,23 +1,23 @@
 package asset
 
-type PlainAsset struct {
+type Plain struct {
 	id       string
 	category Category
 	name     string
 }
 
-func (a PlainAsset) Id() string {
+func (a Plain) ID() string {
 	return a.id
 }
 
-func (a PlainAsset) Category() Category {
+func (a Plain) Category() Category {
 	return a.category
 }
 
-func (a PlainAsset) Name() string {
+func (a Plain) Name() string {
 	return a.name
 }
 
-func NewPlainAsset(id string, category Category, name string) *PlainAsset {
-	return &PlainAsset{id, category, name}
+func NewPlain(id string, category Category, name string) *Plain {
+	return &Plain{id, category, name}
 }

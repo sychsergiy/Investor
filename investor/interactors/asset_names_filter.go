@@ -1,16 +1,16 @@
-package payment_filters
+package interactors
 
 import (
 	"investor/entities/payment"
 	"investor/interactors/ports"
 )
 
-type AssetNamesFilter struct {
+type PaymentAssetNamesFilter struct {
 	paymentFinder ports.PaymentFinderByAssetNames
 }
 
-func NewAssetNamesFilter(finder ports.PaymentFinderByAssetNames) AssetNamesFilter {
-	return AssetNamesFilter{paymentFinder: finder}
+func NewPaymentAssetNamesFilter(finder ports.PaymentFinderByAssetNames) PaymentAssetNamesFilter {
+	return PaymentAssetNamesFilter{paymentFinder: finder}
 }
 
 type AssetNamesFilterRequest struct {
@@ -23,7 +23,7 @@ type AssetNameFilterResponse struct {
 	Payments []payment.Payment
 }
 
-func (f AssetNamesFilter) Filter(model AssetNamesFilterRequest) (AssetNameFilterResponse, error) {
+func (f PaymentAssetNamesFilter) Filter(model AssetNamesFilterRequest) (AssetNameFilterResponse, error) {
 	payments, err := f.paymentFinder.FindByAssetNames(model.AssetNames, model.Periods, model.PaymentTypes)
 	if err != nil {
 		return AssetNameFilterResponse{}, err

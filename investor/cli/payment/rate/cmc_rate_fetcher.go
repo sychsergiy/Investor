@@ -1,10 +1,10 @@
-package rate_fetcher
+package rate
 
 import "investor/entities/asset"
 
 // amount of USD per unit asset
 type Rate float32
 
-type RateFetcher interface {
+type Fetcher interface {
 	Fetch(asset.Asset) (Rate, error)
 }

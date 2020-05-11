@@ -1,4 +1,4 @@
-package in_memory
+package memory
 
 import (
 	"errors"
@@ -8,15 +8,15 @@ import (
 	"testing"
 )
 
-func CreatePaymentWithoutAsset(id string) payment.PaymentProxyMock {
-	return payment.NewPaymentProxyMock(
+func CreatePaymentWithoutAsset(id string) payment.ProxyMock {
+	return payment.NewProxyMock(
 		payment.CreatePayment(id, 2020),
-		func() (a asset.Asset, err error) { return a, asset.AssetDoesntExistsError{AssetId: "mocked_id"} },
+		func() (a asset.Asset, err error) { return a, asset.NotFoundError{AssetID: "mocked_id"} },
 	)
 }
 func createRepository() *PaymentRepository {
-	finderMock := AssetFinderMock{findFunc: func(assetId string) (a asset.Asset, err error) {
-		return asset.NewPlainAsset("1", asset.PreciousMetal, "test"), nil
+	finderMock := AssetFinderMock{findFunc: func(assetID string) (a asset.Asset, err error) {
+		return asset.NewPlain("1", asset.PreciousMetal, "test"), nil
 	}}
 	repository := NewPaymentRepository(finderMock)
 	return repository
@@ -33,7 +33,7 @@ func TestPaymentRepository_Create(t *testing.T) {
 
 	// try to save payment with the same id
 	err = repository.Create(p)
-	expectedErr := PaymentAlreadyExistsError{PaymentId: p.Id()}
+	expectedErr := PaymentAlreadyExistsError{PaymentID: p.ID()}
 	if err != expectedErr {
 		t.Error("Payment with id already exists error expected")
 	}
@@ -41,7 +41,7 @@ func TestPaymentRepository_Create(t *testing.T) {
 	repository2 := createRepository()
 	p2 := CreatePaymentWithoutAsset("2")
 	err2 := repository2.Create(p2)
-	expectedErr2 := asset.AssetDoesntExistsError{AssetId: "mocked_id"}
+	expectedErr2 := asset.NotFoundError{AssetID: "mocked_id"}
 	if !errors.Is(err2, expectedErr2) {
 		t.Errorf("Asset with provided doesn't exist error expected")
 	}
@@ -63,7 +63,7 @@ func TestPaymentRepository_CreateBulk(t *testing.T) {
 	repository = createRepository()
 
 	expectedErr := PaymentBulkCreateError{
-		FailedIndex: 1, Quantity: 2, Err: PaymentAlreadyExistsError{PaymentId: "1"},
+		FailedIndex: 1, Quantity: 2, Err: PaymentAlreadyExistsError{PaymentID: "1"},
 	}
 	err = repository.CreateBulk([]payment.Payment{p1, p1})
 	if err != expectedErr {
@@ -76,7 +76,7 @@ func TestPaymentRepository_CreateBulk(t *testing.T) {
 	repository = createRepository()
 	err = repository.CreateBulk([]payment.Payment{CreatePaymentWithoutAsset("1"), p2})
 	expectedErr = PaymentBulkCreateError{
-		FailedIndex: 0, Quantity: 2, Err: asset.AssetDoesntExistsError{AssetId: "mocked_id"},
+		FailedIndex: 0, Quantity: 2, Err: asset.NotFoundError{AssetID: "mocked_id"},
 	}
 	if !errors.Is(err, expectedErr) {
 		t.Errorf("payment bulk create error with asset doesn exists root cause error expected")
@@ -90,7 +90,7 @@ func TestPaymentRepository_ListAll(t *testing.T) {
 		"1": CreatePaymentRecord("1", 2020),
 		"2": CreatePaymentRecord("2", 2019),
 	}
-	expectedIds := []string{"1", "2", "3", "4"}
+	expectedIDs := []string{"1", "2", "3", "4"}
 
 	repository := createRepository()
 	repository.records = records
@@ -102,14 +102,14 @@ func TestPaymentRepository_ListAll(t *testing.T) {
 		if len(payments) != 4 {
 			t.Errorf("Four payments expected")
 		}
-		paymentsIds := payment.PaymentsToIds(payments)
-		if !reflect.DeepEqual(paymentsIds, expectedIds) {
+		paymentsIDs := payment.PaymentsToIDs(payments)
+		if !reflect.DeepEqual(paymentsIDs, expectedIDs) {
 			t.Errorf("Payments should sorted by date, from the latest to earlier")
 		}
 	}
 }
 
-func TestPaymentRepository_FindByIds(t *testing.T) {
+func TestPaymentRepository_FindByIDs(t *testing.T) {
 	repository := createRepository()
 	repository.records = map[string]PaymentRecord{
 		"4": CreatePaymentRecord("4", 2017),
@@ -118,18 +118,18 @@ func TestPaymentRepository_FindByIds(t *testing.T) {
 		"2": CreatePaymentRecord("2", 2019),
 	}
 	ids := []string{"4", "2", "3"}
-	expectedIds := []string{"2", "3", "4"}
-	payments, err := repository.FindByIds(ids)
+	expectedIDs := []string{"2", "3", "4"}
+	payments, err := repository.FindByIDs(ids)
 	if err != nil {
 		t.Errorf("Unexpected err: %+v", err)
 	} else {
-		paymentsIds := payment.PaymentsToIds(payments)
-		if !reflect.DeepEqual(expectedIds, paymentsIds) {
+		paymentsIDs := payment.PaymentsToIDs(payments)
+		if !reflect.DeepEqual(expectedIDs, paymentsIDs) {
 			t.Errorf("Unexpected payments, slice with 3 listered ids epxected")
 		}
 	}
 
-	payments, err = repository.FindByIds([]string{"not_existent"})
+	payments, err = repository.FindByIDs([]string{"not_existent"})
 	if !errors.Is(err, PaymentDoesntExistsError{"not_existent"}) {
 		t.Errorf("PaymentsDoesntExistsError expected, but got: %+v", err)
 	}
@@ -138,12 +138,12 @@ func TestPaymentRepository_FindByIds(t *testing.T) {
 	}
 }
 
-func createPaymentRecord(paymentType payment.Type, year int, assetId string) PaymentRecord {
+func createPaymentRecord(paymentType payment.Type, year int, assetID string) PaymentRecord {
 	return PaymentRecord{
-		Id:             "test",
+		ID:             "test",
 		AssetAmount:    0,
 		AbsoluteAmount: 0,
-		AssetId:        assetId,
+		AssetID:        assetID,
 		Type:           paymentType,
 		CreationDate:   payment.CreateYearDate(year),
 	}
@@ -152,8 +152,8 @@ func createPaymentRecord(paymentType payment.Type, year int, assetId string) Pay
 func TestPaymentRepository_FindByAssetCategories(t *testing.T) {
 	assetRepo := NewAssetRepository()
 	_, err := assetRepo.CreateBulk([]asset.Asset{
-		asset.NewPlainAsset("1", asset.PreciousMetal, "gold"),
-		asset.NewPlainAsset("2", asset.CryptoCurrency, "BTC"),
+		asset.NewPlain("1", asset.PreciousMetal, "gold"),
+		asset.NewPlain("2", asset.CryptoCurrency, "BTC"),
 	})
 	if err != nil {
 		t.Errorf("Unexpted err during preparation: %+v", err)
@@ -201,8 +201,8 @@ func TestPaymentRepository_FindByAssetNames(t *testing.T) {
 	gold := "gold"
 	bitcoin := "BTC"
 	_, err := assetRepo.CreateBulk([]asset.Asset{
-		asset.NewPlainAsset("1", asset.PreciousMetal, gold),
-		asset.NewPlainAsset("2", asset.CryptoCurrency, bitcoin),
+		asset.NewPlain("1", asset.PreciousMetal, gold),
+		asset.NewPlain("2", asset.CryptoCurrency, bitcoin),
 	})
 	if err != nil {
 		t.Errorf("Unexpted err during preparation: %+v", err)

@@ -1,17 +1,16 @@
-package rate_fetcher
+package rate
 
 import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"investor/entities/asset/crypto_currency"
 	"io/ioutil"
 	"net/http"
 	"testing"
 )
 
-func mockRateResponse(currencyID string, quote Quote) RateResponse {
-	return RateResponse{
+func mockRateResponse(currencyID string, quote Quote) CMCResponse {
+	return CMCResponse{
 		Data: map[string]struct {
 			ID     int    `json:"id"`
 			Name   string `json:"name"`
@@ -40,7 +39,7 @@ func TestParsePriceWrongCurrencyID(t *testing.T) {
 	data := mockRateResponse("BTC", Quote{"USD": {Price: 10}})
 	result, err := ParsePrice(data, "NotExistent")
 
-	expectedErr := CurrencyIdNotFoundError{"NotExistent"}
+	expectedErr := CurrencyIDNotFoundError{"NotExistent"}
 	if err != expectedErr {
 		t.Errorf("Not expected error when Currency id is not found")
 	} else {
@@ -87,16 +86,16 @@ func TestCoinMarketCupClient_BuildRequest(t *testing.T) {
 	}
 }
 
-type HttpClientErrorMock struct {
+type HTTPClientErrorMock struct {
 }
 
-func (c HttpClientErrorMock) Do(req *http.Request) (*http.Response, error) {
+func (c HTTPClientErrorMock) Do(req *http.Request) (*http.Response, error) {
 	return nil, fmt.Errorf("mocked error")
 }
 
-type HttpClientMock struct{}
+type HTTPClientMock struct{}
 
-func (c HttpClientMock) Do(req *http.Request) (*http.Response, error) {
+func (c HTTPClientMock) Do(req *http.Request) (*http.Response, error) {
 	rateData := mockRateResponse("1", Quote{"USD": {10}})
 	marshalled, _ := json.Marshal(rateData)
 	body := ioutil.NopCloser(bytes.NewReader(marshalled))
@@ -108,7 +107,7 @@ func (c HttpClientMock) Do(req *http.Request) (*http.Response, error) {
 
 func TestCoinMarketCupClient_FetchCurrencyRate_WrongCurrencyID(t *testing.T) {
 	client := NewCoinMarketCupClient("http://url.com", "api_key")
-	client.HttpClient = HttpClientMock{}
+	client.HTTPClient = HTTPClientMock{}
 	expectedErr := NoIDForCurrencyError{"wrong"}
 
 	rate, err := client.FetchCurrencyRate("wrong")
@@ -123,10 +122,10 @@ func TestCoinMarketCupClient_FetchCurrencyRate_WrongCurrencyID(t *testing.T) {
 
 func TestCoinMarketCupClient_FetchCurrencyRate_RequestError(t *testing.T) {
 	client := NewCoinMarketCupClient("http://url.com", "api_key")
-	client.HttpClient = HttpClientErrorMock{}
-	expectedErr := RateRequestFailedError{crypto_currency.BTC, "mocked error"}
+	client.HTTPClient = HTTPClientErrorMock{}
+	expectedErr := RateRequestFailedError{BTC, "mocked error"}
 
-	rate, err := client.FetchCurrencyRate(crypto_currency.BTC)
+	rate, err := client.FetchCurrencyRate(BTC)
 	if err != expectedErr {
 		t.Errorf("Rate request failed error expected.")
 	}
@@ -137,8 +136,8 @@ func TestCoinMarketCupClient_FetchCurrencyRate_RequestError(t *testing.T) {
 
 func TestCoinMarketCupClient_FetchCurrencyRate_Ok(t *testing.T) {
 	client := NewCoinMarketCupClient("http://url.com", "api_key")
-	client.HttpClient = HttpClientMock{}
-	rate, err := client.FetchCurrencyRate(crypto_currency.BTC)
+	client.HTTPClient = HTTPClientMock{}
+	rate, err := client.FetchCurrencyRate(BTC)
 	if err != nil {
 		t.Errorf("No error expected.")
 	}

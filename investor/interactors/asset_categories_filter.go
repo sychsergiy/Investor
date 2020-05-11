@@ -1,4 +1,4 @@
-package payment_filters
+package interactors
 
 import (
 	"investor/entities/asset"
@@ -6,12 +6,12 @@ import (
 	"investor/interactors/ports"
 )
 
-type AssetCategoriesFilter struct {
+type PaymentAssetCategoriesFilter struct {
 	paymentFinder ports.PaymentFinderByAssetCategories
 }
 
-func NewAssetCategoriesFilter(finder ports.PaymentFinderByAssetCategories) AssetCategoriesFilter {
-	return AssetCategoriesFilter{paymentFinder: finder}
+func NewPaymentAssetCategoriesFilter(finder ports.PaymentFinderByAssetCategories) PaymentAssetCategoriesFilter {
+	return PaymentAssetCategoriesFilter{paymentFinder: finder}
 }
 
 type AssetCategoriesFilterRequest struct {
@@ -24,7 +24,7 @@ type AssetCategoriesFilterResponse struct {
 	Payments []payment.Payment
 }
 
-func (f AssetCategoriesFilter) Filter(model AssetCategoriesFilterRequest) (AssetCategoriesFilterResponse, error) {
+func (f PaymentAssetCategoriesFilter) Filter(model AssetCategoriesFilterRequest) (AssetCategoriesFilterResponse, error) {
 	payments, err := f.paymentFinder.FindByAssetCategories(
 		model.AssetCategories, model.Periods, model.PaymentTypes,
 	)

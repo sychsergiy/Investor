@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	assetCLI "investor/cli/asset"
-	"investor/cli/payment/rate_fetcher"
+	"investor/cli/payment/rate"
 	"investor/entities/asset"
 	"investor/entities/payment"
 	"investor/interactors"
@@ -14,33 +14,33 @@ import (
 	"time"
 )
 
-type CreatePaymentCommand struct {
+type CreateCommand struct {
 	paymentCreator interactors.CreatePayment
 	assetsLister   interactors.ListAssets
-	rateFetcher    rate_fetcher.RateFetcher
+	rateFetcher    rate.Fetcher
 }
 
-func NewCreatePaymentCommand(
+func NewCreateCommand(
 	paymentCreator interactors.CreatePayment,
 	assetsLister interactors.ListAssets,
-	rateFetcher rate_fetcher.RateFetcher,
-) CreatePaymentCommand {
-	return CreatePaymentCommand{paymentCreator, assetsLister, rateFetcher}
+	rateFetcher rate.Fetcher,
+) CreateCommand {
+	return CreateCommand{paymentCreator, assetsLister, rateFetcher}
 }
 
-func (cpc CreatePaymentCommand) Execute() {
+func (cpc CreateCommand) Execute() {
 	err := cpc.Create()
 	if err != nil {
 		log.Fatal(err)
 	}
 }
-func (cpc CreatePaymentCommand) Create() error {
+func (cpc CreateCommand) Create() error {
 	paymentType := choosePaymentType()
-	//asset_ := chooseAsset()
-	asset_ := cpc.selectAsset()
+	//selectedAsset := chooseAsset()
+	selectedAsset := cpc.selectAsset()
 	date := readCreationDate()
 
-	//rate, err := cpc.rateFetcher.Fetch(asset_)
+	//rate, err := cpc.rateFetcher.Fetch(selectedAsset)
 	//if err != nil {
 	//	return err
 	//}
@@ -55,15 +55,14 @@ func (cpc CreatePaymentCommand) Create() error {
 
 	model := interactors.CreatePaymentModel{
 		AssetAmount: assetAmount, AbsoluteAmount: absoluteAmount,
-		Asset: asset_, Type: paymentType, CreationDate: date,
+		Asset: selectedAsset, Type: paymentType, CreationDate: date,
 	}
 	saveRecord := readCompleteOrAbort(model)
 	if saveRecord {
 		return cpc.paymentCreator.Create(model)
-	} else {
-		fmt.Println("Aborted.")
-		return nil
 	}
+	fmt.Println("Aborted.")
+	return nil
 }
 
 func readFromConsole() string {
@@ -133,7 +132,7 @@ func readAmount() float32 {
 	return float
 }
 
-func (cpc CreatePaymentCommand) selectAsset() asset.Asset {
+func (cpc CreateCommand) selectAsset() asset.Asset {
 
 	assets, err := cpc.assetsLister.ListAll()
 
@@ -150,7 +149,7 @@ func (cpc CreatePaymentCommand) selectAsset() asset.Asset {
 			fmt.Println("-------------------------------", )
 
 		}
-		str := assetCLI.ConvertAssetToString(p)
+		str := assetCLI.ToString(p)
 		fmt.Printf("Number: %d\n", i+1)
 		fmt.Println(str)
 	}
@@ -170,7 +169,7 @@ func (cpc CreatePaymentCommand) selectAsset() asset.Asset {
 
 	a := assets[number-1]
 
-	str := assetCLI.ConvertAssetToString(a)
+	str := assetCLI.ToString(a)
 	fmt.Printf("Selected asset:\n%s\n", str)
 
 	return a

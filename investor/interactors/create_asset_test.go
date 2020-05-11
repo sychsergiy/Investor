@@ -7,7 +7,7 @@ import (
 )
 
 func TestCreateAsset_Create(t *testing.T) {
-	idGeneratorMock := IdGeneratorMock{GenerateFunc: func() string { return "1" }}
+	idGeneratorMock := IDGeneratorMock{GenerateFunc: func() string { return "1" }}
 	assetCreatorMock := AssetCreatorMock{
 		CreateFunc: func(asset asset.Asset) error { return nil },
 	}
@@ -22,7 +22,7 @@ func TestCreateAsset_Create(t *testing.T) {
 
 	expectedResponse := CreateAssetResponse{
 		Created:     true,
-		GeneratedId: "1",
+		GeneratedID: "1",
 		Err:         nil,
 	}
 	if response != expectedResponse {
@@ -36,7 +36,7 @@ func TestCreateAsset_Create(t *testing.T) {
 	response = interactor.Create(createRequest)
 	expectedResponse = CreateAssetResponse{
 		Created:     false,
-		GeneratedId: "1",
+		GeneratedID: "1",
 		Err:         mockedErr,
 	}
 	if response != expectedResponse {

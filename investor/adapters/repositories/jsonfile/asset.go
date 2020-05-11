@@ -2,12 +2,12 @@ package jsonfile
 
 import (
 	"fmt"
-	"investor/adapters/repositories/in_memory"
+	"investor/adapters/repositories/memory"
 	assetEntity "investor/entities/asset"
 )
 
 type AssetRepository struct {
-	repository *in_memory.AssetRepository
+	repository *memory.AssetRepository
 	storage    *Storage
 
 	restored bool
@@ -52,7 +52,7 @@ func (r *AssetRepository) dump() error {
 
 func (r *AssetRepository) restore() error {
 	if r.restored {
-		// should be called only once to sync in_memory storage with file
+		// should be called only once to sync memory storage with file
 		return nil
 	}
 	// read payments from storage file and save in memory
@@ -72,7 +72,7 @@ func (r *AssetRepository) restore() error {
 	return err
 }
 
-func convertRecordsToEntities(records []in_memory.AssetRecord) []assetEntity.Asset {
+func convertRecordsToEntities(records []memory.AssetRecord) []assetEntity.Asset {
 	var assets []assetEntity.Asset
 	for _, record := range records {
 		assets = append(assets, record.ToAsset())
@@ -88,15 +88,15 @@ func (r *AssetRepository) ListAll() ([]assetEntity.Asset, error) {
 	return r.repository.ListAll()
 }
 
-func (r *AssetRepository) FindById(assetId string) (a assetEntity.Asset, err error) {
+func (r *AssetRepository) FindByID(assetID string) (a assetEntity.Asset, err error) {
 	err = r.restore()
 	if err != nil {
-		err = fmt.Errorf("failed to find asset by id: %s due to restore error: %w", assetId, err)
+		err = fmt.Errorf("failed to find asset by id: %s due to restore error: %w", assetID, err)
 		return
 	}
-	return r.repository.FindById(assetId)
+	return r.repository.FindByID(assetID)
 }
 
 func NewAssetRepository(s *Storage) *AssetRepository {
-	return &AssetRepository{in_memory.NewAssetRepository(), s, false}
+	return &AssetRepository{memory.NewAssetRepository(), s, false}
 }

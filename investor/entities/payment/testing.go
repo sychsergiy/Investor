@@ -5,20 +5,20 @@ import (
 	"time"
 )
 
-func CreatePaymentWithAmount(type_ Type, amount, assetAmount float32) Payment {
-	a := asset.NewPlainAsset("gold", asset.PreciousMetal, "gold")
+func CreatePaymentWithAmount(paymentType Type, amount, assetAmount float32) Payment {
+	a := asset.NewPlain("gold", asset.PreciousMetal, "gold")
 	date := time.Date(2019, 30, 12, 11, 58, 0, 0, time.UTC)
-	return NewPlainPayment("test", assetAmount, amount, a, date, type_)
+	return NewPlainPayment("test", assetAmount, amount, a, date, paymentType)
 }
 
 func CreatePayment(id string, year int) Payment {
-	testAsset := asset.NewPlainAsset("test", asset.CryptoCurrency, "test")
+	testAsset := asset.NewPlain("test", asset.CryptoCurrency, "test")
 	creationTime := CreateYearDate(year)
 	return NewPlainPayment(id, 0, 0, testAsset, creationTime, Invest)
 }
 
-func CreatePaymentWithAsset(id, assetId string, year int) Payment {
-	testAsset := asset.NewPlainAsset(assetId, asset.CryptoCurrency, "test")
+func CreatePaymentWithAsset(id, assetID string, year int) Payment {
+	testAsset := asset.NewPlain(assetID, asset.CryptoCurrency, "test")
 	creationTime := CreateYearDate(year)
 	return NewPlainPayment(id, 0, 0, testAsset, creationTime, Invest)
 }
@@ -48,15 +48,15 @@ func (p PeriodMock) Until() time.Time {
 	return p.TimeUntil
 }
 
-type PaymentProxyMock struct {
+type ProxyMock struct {
 	Payment
 	assetFunc func() (asset.Asset, error)
 }
 
-func (ppm PaymentProxyMock) Asset() (asset.Asset, error) {
+func (ppm ProxyMock) Asset() (asset.Asset, error) {
 	return ppm.assetFunc()
 }
 
-func NewPaymentProxyMock(p Payment, assetFunc func() (asset.Asset, error)) PaymentProxyMock {
-	return PaymentProxyMock{p, assetFunc}
+func NewProxyMock(p Payment, assetFunc func() (asset.Asset, error)) ProxyMock {
+	return ProxyMock{p, assetFunc}
 }

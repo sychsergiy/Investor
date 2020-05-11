@@ -6,9 +6,13 @@ import (
 )
 
 type ListPayments struct {
-	Repository ports.PaymentsLister
+	repository ports.PaymentsLister
 }
 
 func (lp ListPayments) ListAll() ([]payment.Payment, error) {
-	return lp.Repository.ListAll()
+	return lp.repository.ListAll()
+}
+
+func NewListPayments(repository ports.PaymentsLister) ListPayments {
+	return ListPayments{repository: repository}
 }

@@ -4,17 +4,17 @@ import (
 	"fmt"
 	"investor/entities/asset"
 	"investor/entities/payment"
-	"investor/interactors/payment_filters"
+	"investor/interactors"
 	"log"
 	"strconv"
 	"strings"
 )
 
 type FilterByCategoriesCommand struct {
-	interactor payment_filters.AssetCategoriesFilter
+	interactor interactors.PaymentAssetCategoriesFilter
 }
 
-func NewFilterByCategoriesCommand(interactor payment_filters.AssetCategoriesFilter) FilterByCategoriesCommand {
+func NewFilterByCategoriesCommand(interactor interactors.PaymentAssetCategoriesFilter) FilterByCategoriesCommand {
 	return FilterByCategoriesCommand{interactor: interactor}
 }
 
@@ -22,7 +22,7 @@ func (c FilterByCategoriesCommand) Execute() {
 	categories := chooseCategories()
 	paymentTypes := choosePaymentTypes()
 
-	req := payment_filters.AssetCategoriesFilterRequest{
+	req := interactors.AssetCategoriesFilterRequest{
 		Periods:         []payment.Period{},
 		PaymentTypes:    paymentTypes,
 		AssetCategories: categories,
@@ -70,15 +70,14 @@ func chooseCategories() (categories []asset.Category) {
 			if err != nil {
 				fmt.Printf("Unexpected input, number expeted but got %s.\nRetrying ...\n", c)
 				return chooseCategories()
-			} else {
-				switch number {
-				case int(asset.PreciousMetal):
-					categories = append(categories, asset.PreciousMetal)
-				case int(asset.CryptoCurrency):
-					categories = append(categories, asset.CryptoCurrency)
-				case int(asset.Stock):
-					categories = append(categories, asset.Stock)
-				}
+			}
+			switch number {
+			case int(asset.PreciousMetal):
+				categories = append(categories, asset.PreciousMetal)
+			case int(asset.CryptoCurrency):
+				categories = append(categories, asset.CryptoCurrency)
+			case int(asset.Stock):
+				categories = append(categories, asset.Stock)
 			}
 		}
 	}
