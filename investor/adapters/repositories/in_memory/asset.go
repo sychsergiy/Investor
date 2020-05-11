@@ -23,14 +23,6 @@ func (e AssetRecordAlreadyExistsError) Error() string {
 	return fmt.Sprintf("asset with id %s already exists", e.AssetId)
 }
 
-type AssetDoesntExistsError struct {
-	AssetId string
-}
-
-func (e AssetDoesntExistsError) Error() string {
-	return fmt.Sprintf("asset with id %s doesn't exist", e.AssetId)
-}
-
 func NewAssetRecord(asset assetEntity.Asset) AssetRecord {
 	return AssetRecord{asset.Id(), asset.Category(), asset.Name()}
 }
@@ -81,7 +73,7 @@ func (r *AssetRepository) ListAll() ([]assetEntity.Asset, error) {
 func (r *AssetRepository) FindById(assetId string) (a assetEntity.Asset, err error) {
 	record, ok := r.records[assetId]
 	if !ok {
-		err = AssetDoesntExistsError{AssetId: assetId}
+		err = assetEntity.AssetDoesntExistsError{AssetId: assetId}
 		return
 	}
 	return record.ToAsset(), nil

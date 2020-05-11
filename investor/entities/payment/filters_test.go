@@ -1,62 +1,61 @@
-package in_memory
+package payment
 
 import (
 	"errors"
 	"investor/entities/asset"
-	"investor/entities/payment"
 	"testing"
 )
 
-func createPaymentWithType(paymentType payment.Type) payment.Payment {
-	assetRecord := CreateAssetRecord("1", "test")
-	return payment.NewPlainPayment(
-		"1", 0, 0, assetRecord.ToAsset(),
-		payment.CreateYearDate(1), paymentType,
+func createPaymentWithType(paymentType Type) Payment {
+	return NewPlainPayment(
+		"1", 0, 0,
+		asset.NewPlainAsset("1", asset.PreciousMetal, "test"),
+		CreateYearDate(1), paymentType,
 	)
 }
 
-func createPaymentWithCreationDate(year int) payment.Payment {
-	assetRecord := CreateAssetRecord("1", "test")
-	return payment.NewPlainPayment(
-		"1", 0, 0, assetRecord.ToAsset(),
-		payment.CreateYearDate(year), payment.Invest,
+func createPaymentWithCreationDate(year int) Payment {
+	return NewPlainPayment(
+		"1", 0, 0,
+		asset.NewPlainAsset("1", asset.PreciousMetal, "test"),
+		CreateYearDate(year), Invest,
 	)
 }
 
 func TestFilterByTypes(t *testing.T) {
 	type unit struct {
-		payments          []payment.Payment
-		paymentTypes      []payment.Type
+		payments          []Payment
+		paymentTypes      []Type
 		expectedResultLen int
 	}
-	invests := []payment.Payment{
-		createPaymentWithType(payment.Invest),
-		createPaymentWithType(payment.Invest),
+	invests := []Payment{
+		createPaymentWithType(Invest),
+		createPaymentWithType(Invest),
 	}
-	returns := []payment.Payment{
-		createPaymentWithType(payment.Return),
-		createPaymentWithType(payment.Return),
+	returns := []Payment{
+		createPaymentWithType(Return),
+		createPaymentWithType(Return),
 	}
-	mixed := []payment.Payment{
-		createPaymentWithType(payment.Return),
-		createPaymentWithType(payment.Invest),
+	mixed := []Payment{
+		createPaymentWithType(Return),
+		createPaymentWithType(Invest),
 	}
 
 	units := []unit{
-		{invests, []payment.Type{payment.Invest}, 2},
-		{invests, []payment.Type{payment.Return}, 0},
-		{returns, []payment.Type{payment.Return}, 2},
-		{returns, []payment.Type{payment.Invest}, 0},
-		{mixed, []payment.Type{payment.Return}, 1},
-		{mixed, []payment.Type{payment.Invest}, 1},
+		{invests, []Type{Invest}, 2},
+		{invests, []Type{Return}, 0},
+		{returns, []Type{Return}, 2},
+		{returns, []Type{Invest}, 0},
+		{mixed, []Type{Return}, 1},
+		{mixed, []Type{Invest}, 1},
 		// return all payments when both payment Types passed
-		{invests, []payment.Type{payment.Invest, payment.Return}, 2},
-		{mixed, []payment.Type{payment.Invest, payment.Return}, 2},
-		{returns, []payment.Type{payment.Invest, payment.Return}, 2},
+		{invests, []Type{Invest, Return}, 2},
+		{mixed, []Type{Invest, Return}, 2},
+		{returns, []Type{Invest, Return}, 2},
 		// return all payments on empty payments List
-		{invests, []payment.Type{}, 2},
-		{mixed, []payment.Type{}, 2},
-		{returns, []payment.Type{}, 2},
+		{invests, []Type{}, 2},
+		{mixed, []Type{}, 2},
+		{returns, []Type{}, 2},
 	}
 
 	for _, unit := range units {
@@ -69,23 +68,23 @@ func TestFilterByTypes(t *testing.T) {
 
 func TestFilterByPeriods(t *testing.T) {
 	type unit struct {
-		payments          []payment.Payment
-		periods           []payment.Period
+		payments          []Payment
+		periods           []Period
 		expectedResultLen int
 	}
-	p1 := payment.PeriodMock{
-		TimeFrom:  payment.CreateYearDate(2010),
-		TimeUntil: payment.CreateYearDate(2012),
+	p1 := PeriodMock{
+		TimeFrom:  CreateYearDate(2010),
+		TimeUntil: CreateYearDate(2012),
 	}
-	p2 := payment.PeriodMock{
-		TimeFrom:  payment.CreateYearDate(2014),
-		TimeUntil: payment.CreateYearDate(2016),
+	p2 := PeriodMock{
+		TimeFrom:  CreateYearDate(2014),
+		TimeUntil: CreateYearDate(2016),
 	}
-	p3 := payment.PeriodMock{
-		TimeFrom:  payment.CreateYearDate(2019),
-		TimeUntil: payment.CreateYearDate(2020),
+	p3 := PeriodMock{
+		TimeFrom:  CreateYearDate(2019),
+		TimeUntil: CreateYearDate(2020),
 	}
-	payments := []payment.Payment{
+	payments := []Payment{
 		createPaymentWithCreationDate(2009),
 		createPaymentWithCreationDate(2011),
 		createPaymentWithCreationDate(2013),
@@ -93,11 +92,11 @@ func TestFilterByPeriods(t *testing.T) {
 		createPaymentWithCreationDate(2017),
 	}
 	units := []unit{
-		{payments, []payment.Period{p1, p2}, 2},
-		{payments, []payment.Period{p1}, 1},
-		{payments, []payment.Period{p2}, 1},
-		{payments, []payment.Period{p3}, 0},
-		{payments, []payment.Period{}, 5},
+		{payments, []Period{p1, p2}, 2},
+		{payments, []Period{p1}, 1},
+		{payments, []Period{p2}, 1},
+		{payments, []Period{p3}, 0},
+		{payments, []Period{}, 5},
 	}
 	for _, u := range units {
 		res := FilterByPeriods(u.payments, u.periods)
@@ -107,29 +106,29 @@ func TestFilterByPeriods(t *testing.T) {
 	}
 }
 
-func createPaymentWithAssetCategory(category asset.Category) payment.Payment {
-	return payment.NewPlainPayment(
+func createPaymentWithAssetCategory(category asset.Category) Payment {
+	return NewPlainPayment(
 		"1", 0, 0,
 		asset.NewPlainAsset("1", category, "test"),
-		payment.CreateYearDate(1), payment.Invest,
+		CreateYearDate(1), Invest,
 	)
 }
 
-func createPaymentWithAssetName(assetName string) payment.Payment {
-	return payment.NewPlainPayment(
+func createPaymentWithAssetName(assetName string) Payment {
+	return NewPlainPayment(
 		"1", 0, 0,
 		asset.NewPlainAsset("1", asset.PreciousMetal, assetName),
-		payment.CreateYearDate(1), payment.Invest,
+		CreateYearDate(1), Invest,
 	)
 }
 
 func TestFilterByAssetCategories(t *testing.T) {
 	type unit struct {
-		payments          []payment.Payment
+		payments          []Payment
 		categories        []asset.Category
 		expectedResultLen int
 	}
-	payments := []payment.Payment{
+	payments := []Payment{
 		createPaymentWithAssetCategory(asset.PreciousMetal),
 		createPaymentWithAssetCategory(asset.CryptoCurrency),
 	}
@@ -154,25 +153,25 @@ func TestFilterByAssetCategories(t *testing.T) {
 	p := NewPaymentProxyMock(
 		createPaymentWithAssetCategory(asset.PreciousMetal),
 		func() (a asset.Asset, err error) {
-			return a, AssetDoesntExistsError{"test"}
+			return a, asset.AssetDoesntExistsError{AssetId: "test"}
 		},
 	)
-	_, err := FilterByAssetCategories([]payment.Payment{p}, []asset.Category{asset.CryptoCurrency})
-	if !errors.Is(err, AssetDoesntExistsError{"test"}) {
+	_, err := FilterByAssetCategories([]Payment{p}, []asset.Category{asset.CryptoCurrency})
+	if !errors.Is(err, asset.AssetDoesntExistsError{AssetId: "test"}) {
 		t.Errorf("Asset doesnt exist error expected¬")
 	}
 }
 
 func TestFilterByAssetNames(t *testing.T) {
 	type unit struct {
-		payments          []payment.Payment
+		payments          []Payment
 		assetNames        []string
 		expectedResultLen int
 	}
 
 	asset1 := "asset1"
 	asset2 := "asset2"
-	payments := []payment.Payment{
+	payments := []Payment{
 		createPaymentWithAssetName(asset1),
 		createPaymentWithAssetName(asset2),
 	}
@@ -197,11 +196,11 @@ func TestFilterByAssetNames(t *testing.T) {
 	p := NewPaymentProxyMock(
 		createPaymentWithAssetCategory(asset.PreciousMetal),
 		func() (a asset.Asset, err error) {
-			return a, AssetDoesntExistsError{"test"}
+			return a, asset.AssetDoesntExistsError{AssetId: "test"}
 		},
 	)
-	_, err := FilterByAssetNames([]payment.Payment{p}, []string{"other"})
-	if !errors.Is(err, AssetDoesntExistsError{"test"}) {
+	_, err := FilterByAssetNames([]Payment{p}, []string{"other"})
+	if !errors.Is(err, asset.AssetDoesntExistsError{AssetId: "test"}) {
 		t.Errorf("Asset doesnt exist error expected¬")
 	}
 }

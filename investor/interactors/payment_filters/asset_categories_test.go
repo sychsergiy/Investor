@@ -2,7 +2,7 @@ package payment_filters
 
 import (
 	"errors"
-	"investor/adapters/repositories/in_memory"
+	"investor/entities/asset"
 	"investor/entities/payment"
 	"investor/interactors"
 	"reflect"
@@ -26,12 +26,12 @@ func TestAssetCategoriesFilter_Filter(t *testing.T) {
 
 	filter2 := NewAssetCategoriesFilter(
 		interactors.PaymentFinderByAssetCategoriesMock{
-			ReturnPayments: nil, ReturnErr: in_memory.AssetDoesntExistsError{AssetId: "test"},
+			ReturnPayments: nil, ReturnErr: asset.AssetDoesntExistsError{AssetId: "test"},
 		},
 	)
 
 	_, err = filter2.Filter(AssetCategoriesFilterRequest{})
-	if !errors.Is(err, in_memory.AssetDoesntExistsError{AssetId: "test"}) {
+	if !errors.Is(err, asset.AssetDoesntExistsError{AssetId: "test"}) {
 		t.Errorf("Mocked error expted")
 	}
 }

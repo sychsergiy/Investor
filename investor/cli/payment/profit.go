@@ -2,13 +2,13 @@ package payment
 
 import (
 	"fmt"
+	"investor/entities/payment"
 	"investor/interactors"
 	"log"
 )
 
 type CalcProfitCommand struct {
-	lister           interactors.ListPayments
-	profitCalculator interactors.CalcProfit
+	profitCalculator interactors.CalcAssetsProfit
 }
 
 func (l CalcProfitCommand) Execute() {
@@ -16,22 +16,29 @@ func (l CalcProfitCommand) Execute() {
 }
 
 func (l CalcProfitCommand) CalculateProfit() {
-	payments, err := l.lister.ListAll()
+	assetNames := readAssetNames()
+
+	req := interactors.CalcProfitRequest{
+		AssetNames: assetNames,
+		Periods:    []payment.Period{},
+	}
+	resp, err := l.profitCalculator.Calc(req)
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println("Calculate profit for the following payments:")
-	printPayments(payments)
-	profit, err := l.profitCalculator.Calc(payments)
-	if err != nil {
-		log.Fatal(err)
+
+	fmt.Println("\nProfit results:")
+	for _, p := range resp.Profits {
+		p.Profit.Percentage()
+		fmt.Printf(
+			"Asset Name: %s - %.1f (%.2f%%), payments count: %d;\n",
+			p.AssetName, p.Profit.Coefficient(), p.Profit.Percentage(), p.PaymentsCount,
+		)
 	}
-	fmt.Printf("Profit coeficient: %f\nProfit percentage: %f", profit.Coefficient(), profit.Percentage())
 }
 
 func NewCalcProfitCommand(
-	paymentsLister interactors.ListPayments,
-	profitCalculator interactors.CalcProfit,
+	profitCalculator interactors.CalcAssetsProfit,
 ) CalcProfitCommand {
-	return CalcProfitCommand{paymentsLister, profitCalculator}
+	return CalcProfitCommand{profitCalculator}
 }

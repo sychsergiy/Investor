@@ -2,32 +2,43 @@ package interactors
 
 import (
 	"investor/entities/payment"
+	"investor/interactors/ports"
 )
 
-func CalcSumsForPayments(payments []payment.Payment) payment.Sums {
-	s := payment.Sums{}
-	for _, item := range payments {
-		switch item.Type() {
-		case payment.Return:
-			s.Returned += item.AbsoluteAmount()
-			s.ReturnedAsset += item.AssetAmount()
-		case payment.Invest:
-			s.Invested += item.AbsoluteAmount()
-			s.InvestedAsset += item.AssetAmount()
-		default:
-			panic("unexpected payment type")
+type CalcAssetsProfit struct {
+	paymentsFilter ports.PaymentFinderByAssetNames
+}
+
+type CalcProfitRequest struct {
+	AssetNames []string
+	Periods    []payment.Period
+}
+
+type CalcAssetsProfitResponse struct {
+	Profits []payment.AssetProfit
+}
+
+func (cp CalcAssetsProfit) Calc(model CalcProfitRequest) (r CalcAssetsProfitResponse, err error) {
+	assetProfits := make([]payment.AssetProfit, 0)
+
+	for _, assetName := range model.AssetNames {
+		// todo: create separate method in repository
+		payments, err := cp.paymentsFilter.FindByAssetNames(
+			[]string{assetName}, model.Periods, []payment.Type{},
+		)
+		if err != nil {
+			return r, err
 		}
+		calculator := payment.NewProfitCalculator(payments)
+		profit, err := calculator.CalcForAsset(assetName)
+		if err != nil {
+			return r, err
+		}
+		assetProfits = append(assetProfits, profit)
 	}
-	return s
+	return CalcAssetsProfitResponse{Profits: assetProfits}, nil
 }
 
-type CalcProfit struct{}
-
-func (cp CalcProfit) Calc(payments []payment.Payment) (payment.Profit, error) {
-	sums := CalcSumsForPayments(payments)
-	return payment.CalcProfit(sums)
-}
-
-func NewCalcProfit() CalcProfit {
-	return CalcProfit{}
+func NewCalcProfit(paymentsFilter ports.PaymentFinderByAssetNames) CalcAssetsProfit {
+	return CalcAssetsProfit{paymentsFilter: paymentsFilter}
 }

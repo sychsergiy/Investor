@@ -40,16 +40,61 @@ func (e ZeroInvestedSumError) Error() string {
 type ZeroAssetReturnedError struct{}
 
 func (e ZeroAssetReturnedError) Error() string {
-	return "unable to calculate profit de to zero returned sum"
+	return "unable to calculate profit due to zero returned sum"
 }
 
 type ReturnedAssetSumMoreThanInvested struct{}
 
 func (e ReturnedAssetSumMoreThanInvested) Error() string {
-	return "unable to calculate profit de returned Asset sum more than invested"
+	return "unable to calculate profit due returned Asset sum more than invested"
 }
 
-func CalcProfit(sums Sums) (Profit, error) {
+func calcSumsForPayments(payments []Payment) Sums {
+	s := Sums{}
+	for _, item := range payments {
+		switch item.Type() {
+		case Return:
+			s.Returned += item.AbsoluteAmount()
+			s.ReturnedAsset += item.AssetAmount()
+		case Invest:
+			s.Invested += item.AbsoluteAmount()
+			s.InvestedAsset += item.AssetAmount()
+		default:
+			panic("unexpected payment type")
+		}
+	}
+	return s
+}
+
+type ProfitCalculator struct {
+	payments []Payment
+}
+
+type AssetProfit struct {
+	AssetName     string
+	Profit        Profit
+	PaymentsCount int
+}
+
+func (c ProfitCalculator) CalcForAsset(name string) (AssetProfit, error) {
+	// todo: maybe filter payments by asset name
+	//  or return error if payment with another asset exists
+
+	// all payments should have the same asset
+	sums := calcSumsForPayments(c.payments)
+	profit, err := CalcProfitForAsset(sums)
+	if err != nil {
+		return AssetProfit{}, err
+	}
+	return AssetProfit{name, profit, len(c.payments)}, nil
+}
+
+func NewProfitCalculator(payments []Payment) ProfitCalculator {
+	return ProfitCalculator{payments: payments}
+}
+
+// todo: maybe make private function
+func CalcProfitForAsset(sums Sums) (Profit, error) {
 	// calculate asset profit coefficient
 	// find invested capital in absolute amount (USD) and in asset
 	// a = find percentage of asset rest after all payments

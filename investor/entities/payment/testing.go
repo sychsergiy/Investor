@@ -5,6 +5,12 @@ import (
 	"time"
 )
 
+func CreatePaymentWithAmount(type_ Type, amount, assetAmount float32) Payment {
+	a := asset.NewPlainAsset("gold", asset.PreciousMetal, "gold")
+	date := time.Date(2019, 30, 12, 11, 58, 0, 0, time.UTC)
+	return NewPlainPayment("test", assetAmount, amount, a, date, type_)
+}
+
 func CreatePayment(id string, year int) Payment {
 	testAsset := asset.NewPlainAsset("test", asset.CryptoCurrency, "test")
 	creationTime := CreateYearDate(year)
@@ -40,4 +46,17 @@ func (p PeriodMock) From() time.Time {
 
 func (p PeriodMock) Until() time.Time {
 	return p.TimeUntil
+}
+
+type PaymentProxyMock struct {
+	Payment
+	assetFunc func() (asset.Asset, error)
+}
+
+func (ppm PaymentProxyMock) Asset() (asset.Asset, error) {
+	return ppm.assetFunc()
+}
+
+func NewPaymentProxyMock(p Payment, assetFunc func() (asset.Asset, error)) PaymentProxyMock {
+	return PaymentProxyMock{p, assetFunc}
 }

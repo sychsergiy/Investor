@@ -16,7 +16,7 @@ func (c FilterByAssetNamesCommand) Execute() {
 	assetNames := readAssetNames()
 	paymentTypes := choosePaymentTypes()
 
-	req := payment_filters.AssetNameFilterRequest{
+	req := payment_filters.AssetNamesFilterRequest{
 		Periods:      []payment.Period{},
 		PaymentTypes: paymentTypes,
 		AssetNames:   assetNames,
