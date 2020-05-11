@@ -7,7 +7,6 @@ import (
 	"testing"
 )
 
-
 func createPaymentWithType(paymentType payment.Type) payment.Payment {
 	assetRecord := CreateAssetRecord("1", "test")
 	return payment.NewPlainPayment(
@@ -116,6 +115,14 @@ func createPaymentWithAssetCategory(category asset.Category) payment.Payment {
 	)
 }
 
+func createPaymentWithAssetName(assetName string) payment.Payment {
+	return payment.NewPlainPayment(
+		"1", 0, 0,
+		asset.NewPlainAsset("1", asset.PreciousMetal, assetName),
+		payment.CreateYearDate(1), payment.Invest,
+	)
+}
+
 func TestFilterByAssetCategory(t *testing.T) {
 	type unit struct {
 		payments          []payment.Payment
@@ -151,6 +158,49 @@ func TestFilterByAssetCategory(t *testing.T) {
 		},
 	)
 	_, err := FilterByAssetCategory([]payment.Payment{p}, []asset.Category{asset.CryptoCurrency})
+	if !errors.Is(err, AssetDoesntExistsError{"test"}) {
+		t.Errorf("Asset doesnt exist error expected¬")
+	}
+}
+
+func TestFilterByAssetNames(t *testing.T) {
+	type unit struct {
+		payments          []payment.Payment
+		assetNames        []string
+		expectedResultLen int
+	}
+
+	asset1 := "asset1"
+	asset2 := "asset2"
+	payments := []payment.Payment{
+		createPaymentWithAssetName(asset1),
+		createPaymentWithAssetName(asset2),
+	}
+	units := []unit{
+		{payments, []string{asset1}, 1},
+		{payments, []string{asset2}, 1},
+		{payments, []string{asset1, asset2}, 2},
+		{payments, []string{"other"}, 0},
+		{payments, []string{}, 2},
+	}
+	for _, u := range units {
+		res, err := FilterByAssetNames(u.payments, u.assetNames)
+		if err != nil {
+			t.Errorf("Unepxected err: %+v", err)
+		} else {
+			if len(res) != u.expectedResultLen {
+				t.Errorf("Expected res len %d but got %d", u.expectedResultLen, len(res))
+			}
+		}
+	}
+
+	p := NewPaymentProxyMock(
+		createPaymentWithAssetCategory(asset.PreciousMetal),
+		func() (a asset.Asset, err error) {
+			return a, AssetDoesntExistsError{"test"}
+		},
+	)
+	_, err := FilterByAssetNames([]payment.Payment{p}, []string{"other"})
 	if !errors.Is(err, AssetDoesntExistsError{"test"}) {
 		t.Errorf("Asset doesnt exist error expected¬")
 	}

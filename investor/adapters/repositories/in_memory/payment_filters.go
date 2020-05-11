@@ -65,6 +65,29 @@ func FilterByAssetCategory(
 	return filtered, nil
 }
 
+func FilterByAssetNames(
+	payments []payment.Payment,
+	assetNames []string,
+) (filtered []payment.Payment, err error) {
+	if len(assetNames) == 0 {
+		return payments, nil
+	}
+	for _, payment_ := range payments {
+		a, err := payment_.Asset()
+		if err != nil {
+			return nil, err
+		}
+		name := a.Name()
+		for _, assetName := range assetNames {
+			if name == assetName {
+				filtered = append(filtered, payment_)
+				break
+			}
+		}
+	}
+	return filtered, nil
+}
+
 func periodContains(p payment.Period, date time.Time) bool {
 	if date.After(p.From()) && date.Before(p.Until()) {
 		return true
