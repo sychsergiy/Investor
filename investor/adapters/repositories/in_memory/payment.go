@@ -163,31 +163,42 @@ func sortByCreationDate(payments []paymentEntity.Payment) []paymentEntity.Paymen
 	return payments
 }
 
-func (r *PaymentRepository) FindByAssetName(
-	assetName string, period paymentEntity.Period,
-) ([]paymentEntity.Payment, error) {
-	payments := make([]paymentEntity.Payment, 0)
-	for _, record := range r.records {
-		if periodContains(period, record.CreationDate) {
-			payment := r.createPaymentProxy(record)
-			a, err := payment.Asset()
-			if err != nil {
-				return nil, err
-			}
-			if a.Name() == assetName {
-				payments = append(payments, payment)
-			}
-		}
+func (r *PaymentRepository) FindByAssetCategories(
+	categories []asset.Category,
+	periods []paymentEntity.Period,
+	paymentTypes []paymentEntity.Type,
+) (filtered []paymentEntity.Payment, err error) {
+	payments, err := r.ListAll()
+	if err != nil {
+		return nil, err
 	}
-	sortByCreationDate(payments)
-	return payments, nil
+	filtered, err = FilterByAssetCategories(payments, categories)
+	if err != nil {
+		return nil, err
+	}
+	filtered = FilterByPeriods(filtered, periods)
+	filtered = FilterByTypes(filtered, paymentTypes)
+	sortByCreationDate(filtered)
+	return
 }
 
-func periodContains(p paymentEntity.Period, date time.Time) bool {
-	if date.After(p.From()) && date.Before(p.Until()) {
-		return true
+func (r *PaymentRepository) FindByAssetNames(
+	assetNames []string,
+	periods []paymentEntity.Period,
+	paymentTypes []paymentEntity.Type,
+) ([]paymentEntity.Payment, error) {
+	payments, err := r.ListAll()
+	if err != nil {
+		return nil, err
 	}
-	return false
+	payments, err = FilterByAssetNames(payments, assetNames)
+	if err != nil {
+		return nil, err
+	}
+	payments = FilterByPeriods(payments, periods)
+	payments = FilterByTypes(payments, paymentTypes)
+	sortByCreationDate(payments)
+	return payments, nil
 }
 
 func (r *PaymentRepository) FindByIds(ids []string) ([]paymentEntity.Payment, error) {

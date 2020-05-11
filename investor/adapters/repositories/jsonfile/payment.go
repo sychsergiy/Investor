@@ -3,6 +3,7 @@ package jsonfile
 import (
 	"fmt"
 	"investor/adapters/repositories/in_memory"
+	"investor/entities/asset"
 	paymentEntity "investor/entities/payment"
 )
 
@@ -96,14 +97,30 @@ func (r *PaymentRepository) FindByIds(ids []string) ([]paymentEntity.Payment, er
 	return r.repository.FindByIds(ids)
 }
 
-func (r *PaymentRepository) FindByAssetName(
-	assetName string, period paymentEntity.Period,
+func (r *PaymentRepository) FindByAssetNames(
+	assetNames []string,
+	periods []paymentEntity.Period,
+	paymentTypes []paymentEntity.Type,
 ) ([]paymentEntity.Payment, error) {
 	err := r.restore()
 	if err != nil {
-		return nil, fmt.Errorf("failed to find payments by ids: %v", err)
+		return nil, err
 	}
-	return r.repository.FindByAssetName(assetName, period)
+	return r.repository.FindByAssetNames(assetNames, periods, paymentTypes)
+}
+
+func (r *PaymentRepository) FindByAssetCategories(
+	categories []asset.Category,
+	periods []paymentEntity.Period,
+	paymentTypes []paymentEntity.Type,
+) (filtered []paymentEntity.Payment, err error) {
+	err = r.restore()
+	if err != nil {
+		return nil, err
+	}
+	return r.repository.FindByAssetCategories(
+		categories, periods, paymentTypes,
+	)
 }
 
 func NewPaymentRepository(storage *Storage, assetFinder in_memory.AssetFinderById) *PaymentRepository {

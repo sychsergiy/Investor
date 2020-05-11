@@ -31,13 +31,15 @@ func setupDependencies(coinMarketCupApiKey string) cli.App {
 	paymentCreateInteractor := interactors.CreatePayment{Repository: paymentRepo, IdGenerator: adapters.NewUUIDGenerator()}
 	paymentListInteractor := interactors.ListPayments{Repository: paymentRepo}
 	assetNameFilterInteractor := payment_filters.NewAssetNameFilter(paymentRepo)
+	categoriesFilterInteractor := payment_filters.NewAssetCategoriesFilter(paymentRepo)
 	assetCreateInteractor := interactors.NewCreateAsset(assetRepo, adapters.NewUUIDGenerator())
 	assetsListInteractor := interactors.NewListAssets(assetRepo)
 	calcProfitInteractor := interactors.NewCalcProfit()
 
 	paymentCreateCommand := payment.NewCreatePaymentCommand(paymentCreateInteractor, assetsListInteractor, fetcher)
 	paymentsListCommand := payment.NewConsolePaymentsLister(paymentListInteractor)
-	filterByAssetNameCommand := payment.NewFilterByAssetNameCommand(assetNameFilterInteractor)
+	filterByAssetNamesCommand := payment.NewFilterByAssetNamesCommand(assetNameFilterInteractor)
+	filterByCategoriesCommand := payment.NewFilterByCategoriesCommand(categoriesFilterInteractor)
 	calcProfitCommand := payment.NewCalcProfitCommand(paymentListInteractor, calcProfitInteractor)
 
 	assetCreateCommand := asset.NewCreateAssetCommand(assetCreateInteractor)
@@ -47,10 +49,11 @@ func setupDependencies(coinMarketCupApiKey string) cli.App {
 		CreateAssetCommand: assetCreateCommand,
 		ListAssetsCommand:  assetsListCommand,
 
-		CreatePaymentCommand:     paymentCreateCommand,
-		ListPaymentsCommand:      paymentsListCommand,
-		FilterByAssetNameCommand: filterByAssetNameCommand,
-		CalcProfitCommand:        calcProfitCommand,
+		CreatePaymentCommand:      paymentCreateCommand,
+		ListPaymentsCommand:       paymentsListCommand,
+		FilterByAssetNamesCommand: filterByAssetNamesCommand,
+		CalcProfitCommand:         calcProfitCommand,
+		FilterByCategoriesCommand: filterByCategoriesCommand,
 	}
 }
 func main() {
