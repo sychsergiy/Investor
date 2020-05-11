@@ -40,13 +40,13 @@ func (e ZeroInvestedSumError) Error() string {
 type ZeroAssetReturnedError struct{}
 
 func (e ZeroAssetReturnedError) Error() string {
-	return "unable to calculate profit de to zero returned sum"
+	return "unable to calculate profit due to zero returned sum"
 }
 
 type ReturnedAssetSumMoreThanInvested struct{}
 
 func (e ReturnedAssetSumMoreThanInvested) Error() string {
-	return "unable to calculate profit de returned Asset sum more than invested"
+	return "unable to calculate profit due returned Asset sum more than invested"
 }
 
 func calcSumsForPayments(payments []Payment) Sums {
