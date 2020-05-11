@@ -134,3 +134,44 @@ func TestFilter_ByPeriods(t *testing.T) {
 		}
 	}
 }
+
+func TestFilter_ByAssetCategories(t *testing.T) {
+	type unit struct {
+		payments          []Payment
+		categories        []asset.Category
+		expectedResultLen int
+	}
+	payments := []Payment{
+		createPaymentWithAssetCategory(asset.PreciousMetal),
+		createPaymentWithAssetCategory(asset.CryptoCurrency),
+	}
+	units := []unit{
+		{payments, []asset.Category{asset.PreciousMetal}, 1},
+		{payments, []asset.Category{asset.CryptoCurrency}, 1},
+		{payments, []asset.Category{asset.PreciousMetal, asset.CryptoCurrency}, 2},
+		{payments, []asset.Category{asset.Stock}, 0},
+		{payments, []asset.Category{}, 2},
+	}
+	for _, u := range units {
+		res, err := NewFilter(u.payments).ByAssetCategories(u.categories)
+		if err != nil {
+			t.Errorf("Unepxected err: %+v", err)
+		} else {
+			paymentsLen := len(res.Payments())
+			if paymentsLen != u.expectedResultLen {
+				t.Errorf("Expected res len %d but got %d", u.expectedResultLen, paymentsLen)
+			}
+		}
+	}
+
+	p := NewPaymentProxyMock(
+		createPaymentWithAssetCategory(asset.PreciousMetal),
+		func() (a asset.Asset, err error) {
+			return a, asset.AssetDoesntExistsError{AssetId: "test"}
+		},
+	)
+	_, err := FilterByAssetCategories([]Payment{p}, []asset.Category{asset.CryptoCurrency})
+	if !errors.Is(err, asset.AssetDoesntExistsError{AssetId: "test"}) {
+		t.Errorf("Asset doesnt exist error expected¬")
+	}
+}

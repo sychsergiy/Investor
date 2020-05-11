@@ -1,5 +1,7 @@
 package payment
 
+import "investor/entities/asset"
+
 type Filter struct {
 	payments []Payment
 }
@@ -27,6 +29,14 @@ func (f *Filter) ByTypes(types []Type) *Filter {
 	return f
 }
 
+func (f *Filter) ByAssetCategories(categories []asset.Category) (*Filter, error) {
+	payments, err := FilterByAssetCategories(f.payments, categories)
+	if err != nil {
+		return nil, err
+	}
+	f.payments = payments
+	return f, nil
+}
 func (f Filter) Payments() []Payment {
 	return f.payments
 }
