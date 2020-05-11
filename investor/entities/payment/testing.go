@@ -47,3 +47,16 @@ func (p PeriodMock) From() time.Time {
 func (p PeriodMock) Until() time.Time {
 	return p.TimeUntil
 }
+
+type PaymentProxyMock struct {
+	Payment
+	assetFunc func() (asset.Asset, error)
+}
+
+func (ppm PaymentProxyMock) Asset() (asset.Asset, error) {
+	return ppm.assetFunc()
+}
+
+func NewPaymentProxyMock(p Payment, assetFunc func() (asset.Asset, error)) PaymentProxyMock {
+	return PaymentProxyMock{p, assetFunc}
+}

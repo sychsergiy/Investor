@@ -73,15 +73,15 @@ func TestPaymentRepository_Integration_ListAll(t *testing.T) {
 	}
 
 	// test create returns error on none existent asset id
-	p := in_memory.NewPaymentProxyMock(
+	p := payment.NewPaymentProxyMock(
 		payment.CreatePayment("1", 2020),
 		func() (a asset.Asset, err error) {
-			return a, in_memory.AssetDoesntExistsError{AssetId: "not_exists"}
+			return a, asset.AssetDoesntExistsError{AssetId: "not_exists"}
 		},
 	)
 	err = repo3.Create(p)
 	if err != nil {
-		expectedErr := in_memory.AssetDoesntExistsError{AssetId: "not_exists"}
+		expectedErr := asset.AssetDoesntExistsError{AssetId: "not_exists"}
 		if !errors.Is(err, expectedErr) {
 			t.Errorf("AssetDoesntExistsError error expected, but got %s", err)
 		}

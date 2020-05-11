@@ -2,23 +2,22 @@ package payment
 
 import (
 	"errors"
-	"investor/adapters/repositories/in_memory"
 	"investor/entities/asset"
 	"testing"
 )
 
 func createPaymentWithType(paymentType Type) Payment {
-	assetRecord := in_memory.CreateAssetRecord("1", "test")
 	return NewPlainPayment(
-		"1", 0, 0, assetRecord.ToAsset(),
+		"1", 0, 0,
+		asset.NewPlainAsset("1", asset.PreciousMetal, "test"),
 		CreateYearDate(1), paymentType,
 	)
 }
 
 func createPaymentWithCreationDate(year int) Payment {
-	assetRecord := in_memory.CreateAssetRecord("1", "test")
 	return NewPlainPayment(
-		"1", 0, 0, assetRecord.ToAsset(),
+		"1", 0, 0,
+		asset.NewPlainAsset("1", asset.PreciousMetal, "test"),
 		CreateYearDate(year), Invest,
 	)
 }
@@ -151,14 +150,14 @@ func TestFilterByAssetCategories(t *testing.T) {
 		}
 	}
 
-	p := in_memory.NewPaymentProxyMock(
+	p := NewPaymentProxyMock(
 		createPaymentWithAssetCategory(asset.PreciousMetal),
 		func() (a asset.Asset, err error) {
-			return a, in_memory.AssetDoesntExistsError{"test"}
+			return a, asset.AssetDoesntExistsError{AssetId: "test"}
 		},
 	)
 	_, err := FilterByAssetCategories([]Payment{p}, []asset.Category{asset.CryptoCurrency})
-	if !errors.Is(err, in_memory.AssetDoesntExistsError{"test"}) {
+	if !errors.Is(err, asset.AssetDoesntExistsError{AssetId: "test"}) {
 		t.Errorf("Asset doesnt exist error expected¬")
 	}
 }
@@ -194,14 +193,14 @@ func TestFilterByAssetNames(t *testing.T) {
 		}
 	}
 
-	p := in_memory.NewPaymentProxyMock(
+	p := NewPaymentProxyMock(
 		createPaymentWithAssetCategory(asset.PreciousMetal),
 		func() (a asset.Asset, err error) {
-			return a, in_memory.AssetDoesntExistsError{"test"}
+			return a, asset.AssetDoesntExistsError{AssetId: "test"}
 		},
 	)
 	_, err := FilterByAssetNames([]Payment{p}, []string{"other"})
-	if !errors.Is(err, in_memory.AssetDoesntExistsError{"test"}) {
+	if !errors.Is(err, asset.AssetDoesntExistsError{AssetId: "test"}) {
 		t.Errorf("Asset doesnt exist error expected¬")
 	}
 }
