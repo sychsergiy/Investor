@@ -3,7 +3,7 @@ package in_memory
 import (
 	"fmt"
 	"investor/entities/asset"
-	paymentEntity "investor/entities/payment"
+	"investor/entities/payment"
 	"sort"
 	"time"
 )
@@ -13,12 +13,12 @@ type AssetFinderById interface {
 }
 
 type PaymentRecord struct {
-	Id             string             `json:"id"`
-	AssetAmount    float32            `json:"asset_amount"`
-	AbsoluteAmount float32            `json:"absolute_amount"`
-	AssetId        string             `json:"asset_id"`
-	Type           paymentEntity.Type `json:"type"`
-	CreationDate   time.Time          `json:"creation_date"`
+	Id             string       `json:"id"`
+	AssetAmount    float32      `json:"asset_amount"`
+	AbsoluteAmount float32      `json:"absolute_amount"`
+	AssetId        string       `json:"asset_id"`
+	Type           payment.Type `json:"type"`
+	CreationDate   time.Time    `json:"creation_date"`
 }
 
 type PaymentProxy struct {
@@ -46,7 +46,7 @@ func (p PaymentProxy) CreationDate() time.Time {
 	return p.record.CreationDate
 }
 
-func (p PaymentProxy) Type() paymentEntity.Type {
+func (p PaymentProxy) Type() payment.Type {
 	return p.record.Type
 }
 func NewPaymentProxy(record PaymentRecord, assetFinder AssetFinderById) PaymentProxy {
@@ -57,7 +57,7 @@ func (r PaymentRepository) createPaymentProxy(record PaymentRecord) PaymentProxy
 	return NewPaymentProxy(record, r.assetFinder)
 }
 
-func NewPaymentRecord(payment paymentEntity.Payment) (pr PaymentRecord, err error) {
+func NewPaymentRecord(payment payment.Payment) (pr PaymentRecord, err error) {
 	a, err := payment.Asset()
 	if err != nil {
 		return pr, err
@@ -112,7 +112,7 @@ type PaymentRepository struct {
 	records     map[string]PaymentRecord
 }
 
-func (r *PaymentRepository) Create(payment paymentEntity.Payment) error {
+func (r *PaymentRepository) Create(payment payment.Payment) error {
 	record, err := NewPaymentRecord(payment)
 	if err != nil {
 		return err
@@ -130,9 +130,9 @@ func (r *PaymentRepository) Create(payment paymentEntity.Payment) error {
 	}
 }
 
-func (r *PaymentRepository) CreateBulk(payments []paymentEntity.Payment) error {
-	for createdCount, payment := range payments {
-		err := r.Create(payment)
+func (r *PaymentRepository) CreateBulk(payments []payment.Payment) error {
+	for createdCount, p := range payments {
+		err := r.Create(p)
 		if err != nil {
 			return PaymentBulkCreateError{
 				FailedIndex: createdCount,
@@ -144,8 +144,8 @@ func (r *PaymentRepository) CreateBulk(payments []paymentEntity.Payment) error {
 	return nil
 }
 
-func (r *PaymentRepository) ListAll() ([]paymentEntity.Payment, error) {
-	var payments []paymentEntity.Payment
+func (r *PaymentRepository) ListAll() ([]payment.Payment, error) {
+	var payments []payment.Payment
 	for _, record := range r.records {
 		paymentProxy := r.createPaymentProxy(record)
 		payments = append(payments, paymentProxy)
@@ -155,7 +155,7 @@ func (r *PaymentRepository) ListAll() ([]paymentEntity.Payment, error) {
 	return payments, nil
 }
 
-func sortByCreationDate(payments []paymentEntity.Payment) []paymentEntity.Payment {
+func sortByCreationDate(payments []payment.Payment) []payment.Payment {
 	sort.Slice(payments, func(i, j int) bool {
 		payments[i].CreationDate()
 		return payments[i].CreationDate().After(payments[j].CreationDate())
@@ -165,44 +165,44 @@ func sortByCreationDate(payments []paymentEntity.Payment) []paymentEntity.Paymen
 
 func (r *PaymentRepository) FindByAssetCategories(
 	categories []asset.Category,
-	periods []paymentEntity.Period,
-	paymentTypes []paymentEntity.Type,
-) (filtered []paymentEntity.Payment, err error) {
+	periods []payment.Period,
+	paymentTypes []payment.Type,
+) (filtered []payment.Payment, err error) {
 	payments, err := r.ListAll()
 	if err != nil {
 		return nil, err
 	}
-	filtered, err = FilterByAssetCategories(payments, categories)
+	filtered, err = payment.FilterByAssetCategories(payments, categories)
 	if err != nil {
 		return nil, err
 	}
-	filtered = FilterByPeriods(filtered, periods)
-	filtered = FilterByTypes(filtered, paymentTypes)
+	filtered = payment.FilterByPeriods(filtered, periods)
+	filtered = payment.FilterByTypes(filtered, paymentTypes)
 	sortByCreationDate(filtered)
 	return
 }
 
 func (r *PaymentRepository) FindByAssetNames(
 	assetNames []string,
-	periods []paymentEntity.Period,
-	paymentTypes []paymentEntity.Type,
-) ([]paymentEntity.Payment, error) {
+	periods []payment.Period,
+	paymentTypes []payment.Type,
+) ([]payment.Payment, error) {
 	payments, err := r.ListAll()
 	if err != nil {
 		return nil, err
 	}
-	payments, err = FilterByAssetNames(payments, assetNames)
+	payments, err = payment.FilterByAssetNames(payments, assetNames)
 	if err != nil {
 		return nil, err
 	}
-	payments = FilterByPeriods(payments, periods)
-	payments = FilterByTypes(payments, paymentTypes)
+	payments = payment.FilterByPeriods(payments, periods)
+	payments = payment.FilterByTypes(payments, paymentTypes)
 	sortByCreationDate(payments)
 	return payments, nil
 }
 
-func (r *PaymentRepository) FindByIds(ids []string) ([]paymentEntity.Payment, error) {
-	var payments []paymentEntity.Payment
+func (r *PaymentRepository) FindByIds(ids []string) ([]payment.Payment, error) {
+	var payments []payment.Payment
 
 	for _, id := range ids {
 		p, ok := r.records[id]
@@ -222,7 +222,7 @@ func (r *PaymentRepository) Records() (records []PaymentRecord) {
 	return
 }
 
-func (r *PaymentRepository) ConvertRecordToEntity(record PaymentRecord) (p paymentEntity.Payment) {
+func (r *PaymentRepository) ConvertRecordToEntity(record PaymentRecord) (p payment.Payment) {
 	return r.createPaymentProxy(record)
 }
 

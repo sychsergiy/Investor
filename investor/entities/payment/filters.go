@@ -1,12 +1,11 @@
-package in_memory
+package payment
 
 import (
 	"investor/entities/asset"
-	"investor/entities/payment"
 	"time"
 )
 
-func paymentTypesContains(paymentTypes []payment.Type, paymentType payment.Type) bool {
+func paymentTypesContains(paymentTypes []Type, paymentType Type) bool {
 	for _, pt := range paymentTypes {
 		if pt == paymentType {
 			return true
@@ -15,7 +14,7 @@ func paymentTypesContains(paymentTypes []payment.Type, paymentType payment.Type)
 	return false
 }
 
-func FilterByTypes(payments []payment.Payment, paymentTypes []payment.Type) (filtered []payment.Payment) {
+func FilterByTypes(payments []Payment, paymentTypes []Type) (filtered []Payment) {
 	if len(paymentTypes) == 0 {
 		return payments
 	}
@@ -27,7 +26,7 @@ func FilterByTypes(payments []payment.Payment, paymentTypes []payment.Type) (fil
 	return filtered
 }
 
-func FilterByPeriods(payments []payment.Payment, periods []payment.Period) (filtered []payment.Payment) {
+func FilterByPeriods(payments []Payment, periods []Period) (filtered []Payment) {
 	if len(periods) == 0 {
 		return payments
 	}
@@ -43,9 +42,9 @@ func FilterByPeriods(payments []payment.Payment, periods []payment.Period) (filt
 }
 
 func FilterByAssetCategories(
-	payments []payment.Payment,
+	payments []Payment,
 	categories []asset.Category,
-) (filtered []payment.Payment, err error) {
+) (filtered []Payment, err error) {
 	if len(categories) == 0 {
 		return payments, nil
 	}
@@ -66,9 +65,9 @@ func FilterByAssetCategories(
 }
 
 func FilterByAssetNames(
-	payments []payment.Payment,
+	payments []Payment,
 	assetNames []string,
-) (filtered []payment.Payment, err error) {
+) (filtered []Payment, err error) {
 	if len(assetNames) == 0 {
 		return payments, nil
 	}
@@ -88,7 +87,7 @@ func FilterByAssetNames(
 	return filtered, nil
 }
 
-func periodContains(p payment.Period, date time.Time) bool {
+func periodContains(p Period, date time.Time) bool {
 	if date.After(p.From()) && date.Before(p.Until()) {
 		return true
 	}
