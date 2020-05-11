@@ -133,38 +133,38 @@ func TestPlainFile_Create(t *testing.T) {
 	}
 }
 
-func TestJsonFile_Create(t *testing.T) {
+func TestJSONFile_Create(t *testing.T) {
 	filename := "test_json_file_create_1.json"
-	jf := NewJsonFile(PlainFile{GetFilePath(filename)})
+	jf := NewJSONFile(PlainFile{GetFilePath(filename)})
 	err := jf.Create()
 	if err != nil {
 		t.Errorf("Unepxected err: %s", err)
 	} else {
 		content := ReadFile(filename)
 		if string(content) != "{}" {
-			t.Errorf("Json file with empty map expected")
+			t.Errorf("JSON file with empty map expected")
 		}
 	}
 }
 
-func TestJsonFile_Write(t *testing.T) {
+func TestJSONFile_Write(t *testing.T) {
 	// setup
 	filename := "test_json_file_write_1.json"
 	WriteTextToFile(t, filename, "")
 
 	// test write
-	jf := NewJsonFile(PlainFile{GetFilePath(filename)})
-	err := jf.WriteJson("test")
+	jf := NewJSONFile(PlainFile{GetFilePath(filename)})
+	err := jf.WriteJSON("test")
 	if err != nil {
 		t.Errorf("Unepxected err: %s", err)
 	} else {
 		content := ReadFile(filename)
 		if string(content) != "\"test\"" {
-			t.Errorf("Json file with empty map expected")
+			t.Errorf("JSON file with empty map expected")
 		}
 	}
 
-	err = jf.WriteJson(map[string]int{"test": 1})
+	err = jf.WriteJSON(map[string]int{"test": 1})
 	if err != nil {
 		t.Errorf("Unexpected err: %s", err)
 	} else {
@@ -177,7 +177,7 @@ func TestJsonFile_Write(t *testing.T) {
 
 func TestCreateIfNotExists(t *testing.T) {
 	filename := "test_create_if_not_exists.json"
-	jf := NewJsonFile(NewPlainFile(GetFilePath(filename)))
+	jf := NewJSONFile(NewPlainFile(GetFilePath(filename)))
 	created, err := CreateIfNotExists(jf)
 	if err != nil {
 		t.Errorf("Unexpected err: %s", err)
@@ -191,7 +191,7 @@ func TestCreateIfNotExists(t *testing.T) {
 	filename2 := "test_create_if_not_exists_2.json"
 	WriteTextToFile(t, filename2, "")
 	// test with existent file
-	jf2 := NewJsonFile(NewPlainFile(GetFilePath(filename2)))
+	jf2 := NewJSONFile(NewPlainFile(GetFilePath(filename2)))
 	created, err = CreateIfNotExists(jf2)
 	if err != nil {
 		t.Errorf("Unexpected err: %s", err)

@@ -23,7 +23,7 @@ func setupDependencies(coinMarketCupApiKey string) cli.App {
 		Client: coinMarketCupClient,
 	}
 
-	storage := jsonfile.NewStorage(file.NewJsonFile(file.NewPlainFile("storage.json")))
+	storage := jsonfile.NewStorage(file.NewJSONFile(file.NewPlainFile("storage.json")))
 
 	assetRepo := jsonfile.NewAssetRepository(storage)
 	paymentRepo := jsonfile.NewPaymentRepository(storage, assetRepo)

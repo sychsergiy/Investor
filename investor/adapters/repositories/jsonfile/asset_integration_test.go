@@ -7,7 +7,7 @@ import (
 )
 
 func TestAssetRepository_Integration_ListAll(t *testing.T) {
-	jsonFile := file.NewJsonFile(file.NewPlainFile(file.GetFilePath("test_list_all_assets.json")))
+	jsonFile := file.NewJSONFile(file.NewPlainFile(file.GetFilePath("test_list_all_assets.json")))
 	repo := NewAssetRepository(NewStorage(jsonFile))
 
 	_, err := repo.CreateBulk([]assetEntity.Asset{

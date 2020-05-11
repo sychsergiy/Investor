@@ -21,7 +21,7 @@ func writeStorageFile(t *testing.T, filename string, data Data) {
 }
 
 func createStorage(filename string) *Storage {
-	jsonFile := file.NewJsonFile(file.NewPlainFile(file.GetFilePath(filename)))
+	jsonFile := file.NewJSONFile(file.NewPlainFile(file.GetFilePath(filename)))
 	return NewStorage(jsonFile)
 }
 
@@ -71,12 +71,12 @@ func TestStorage_UpdateAssets(t *testing.T) {
 	filename := "test_updates_assets.json"
 	data := getDataMock()
 	err := createStorage(filename).UpdateAssets(data.Assets)
-	expectedJson := "{\"assets\":[{\"id\":\"1\",\"category\":0,\"name\":\"test\"}],\"payments\":[]}"
+	expectedJSON := "{\"assets\":[{\"id\":\"1\",\"category\":0,\"name\":\"test\"}],\"payments\":[]}"
 	if err != nil {
 		t.Errorf("Unepxected err: %+v", err)
 	} else {
 		content := file.ReadFile(filename)
-		if string(content) != expectedJson {
+		if string(content) != expectedJSON {
 			t.Errorf("Asset malformed during writing to storage file")
 		}
 	}
@@ -86,12 +86,12 @@ func TestStorage_UpdatePayments(t *testing.T) {
 	filename := "test_update_payments.json"
 	data := getDataMock()
 	err := createStorage(filename).UpdatePayments(data.Payments)
-	expectedJson := "{\"assets\":[],\"payments\":[{\"id\":\"1\",\"asset_amount\":50,\"absolute_amount\":100,\"asset_id\":\"testAssetID\",\"type\":0,\"creation_date\":\"2019-11-30T00:00:00Z\"}]}"
+	expectedJSON := "{\"assets\":[],\"payments\":[{\"id\":\"1\",\"asset_amount\":50,\"absolute_amount\":100,\"asset_id\":\"testAssetID\",\"type\":0,\"creation_date\":\"2019-11-30T00:00:00Z\"}]}"
 	if err != nil {
 		t.Errorf("Unepxected err: %+v", err)
 	} else {
 		content := file.ReadFile(filename)
-		if string(content) != expectedJson {
+		if string(content) != expectedJSON {
 			t.Errorf("Asset malformed during writing to storage file")
 		}
 	}

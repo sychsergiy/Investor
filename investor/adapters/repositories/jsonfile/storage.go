@@ -14,7 +14,7 @@ type Data struct {
 }
 
 type Storage struct {
-	jsonFile file.IJsonFile
+	jsonFile file.IJSONFile
 	data     *Data
 }
 
@@ -60,7 +60,7 @@ func (s Storage) dump() error {
 		return fmt.Errorf("storage dump: %w", err)
 	}
 
-	err = s.jsonFile.WriteJson(s.data)
+	err = s.jsonFile.WriteJSON(s.data)
 	if err != nil {
 		return fmt.Errorf("writing json storage file: %w", err)
 	}
@@ -71,7 +71,7 @@ func (s Storage) ensureFileExists() error {
 	created, err := file.CreateIfNotExists(s.jsonFile)
 	if created {
 		log.Printf("\nWARNING: file: %s doesn't exists. Create empty.\n", s.jsonFile.Path())
-		return s.jsonFile.WriteJson(s.data)
+		return s.jsonFile.WriteJSON(s.data)
 	}
 	if err != nil {
 		return fmt.Errorf("ensure file exists: %w", err)
@@ -100,7 +100,7 @@ func (s *Storage) restore() error {
 	return nil
 }
 
-func NewStorage(jsonFile file.JsonFile) *Storage {
+func NewStorage(jsonFile file.JSONFile) *Storage {
 	return &Storage{
 		jsonFile: jsonFile,
 		data:     &Data{[]in_memory.AssetRecord{}, []in_memory.PaymentRecord{}},
