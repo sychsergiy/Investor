@@ -5,8 +5,88 @@ import (
 	"testing"
 )
 
+func TestProfitCalculator_CalcForAsset(t *testing.T) {
+	type unit struct {
+		payments       []Payment
+		assetName      string
+		expectedProfit AssetProfit
+	}
+	units := []unit{
+		{payments: []Payment{
+			CreatePaymentWithAmount(Invest, 100, 1),
+			CreatePaymentWithAmount(Invest, 100, 1),
+			CreatePaymentWithAmount(Return, 200, 1),
+		},
+			assetName: "test",
+			expectedProfit: AssetProfit{
+				AssetName:     "test",
+				Profit:        NewProfitFromCoefficient(2),
+				PaymentsCount: 3,
+			},
+		},
+
+
+		{payments: []Payment{
+			CreatePaymentWithAmount(Invest, 100, 1),
+			CreatePaymentWithAmount(Return, 25, 0.5),
+			CreatePaymentWithAmount(Return, 25, 0.5),
+		},
+			assetName: "test",
+			expectedProfit: AssetProfit{
+				AssetName:     "test",
+				Profit:        NewProfitFromCoefficient(0.5),
+				PaymentsCount: 3,
+			},
+		},
+	}
+
+	for _, u := range units {
+		calculator := NewProfitCalculator(u.payments)
+		profit, err := calculator.CalcForAsset(u.assetName)
+		if err != nil {
+			t.Errorf("Unexpected err: %+v", err)
+		}
+		if profit != u.expectedProfit {
+			t.Errorf("Unexpeted profit value")
+		}
+	}
+
+	type errUnit struct {
+		payments    []Payment
+		assetName   string
+		expectedErr error
+	}
+
+	errUnits := []errUnit{
+		{[]Payment{
+			CreatePaymentWithAmount(Invest, 100, 1),
+			CreatePaymentWithAmount(Invest, 100, 1),
+		},
+			"test",
+			ZeroAssetReturnedError{},
+		},
+
+		{[]Payment{
+			CreatePaymentWithAmount(Invest, 100, 1),
+			CreatePaymentWithAmount(Return, 25, 1),
+			CreatePaymentWithAmount(Return, 25, 1),
+		},
+			"test",
+			ReturnedAssetSumMoreThanInvested{},
+		},
+	}
+
+	for _, u := range errUnits {
+		calculator := NewProfitCalculator(u.payments)
+		_, err := calculator.CalcForAsset(u.assetName)
+		if err != u.expectedErr {
+			t.Errorf("Expected err: %+v, but got: %+v", err, u.expectedErr)
+		}
+	}
+}
+
 func TestCalcSumsForPayments(t *testing.T) {
-	sums := CalcSumsForPayments([]Payment{
+	sums := calcSumsForPayments([]Payment{
 		CreatePaymentWithAmount(Invest, 100, 3),
 		CreatePaymentWithAmount(Return, 25, 1),
 		CreatePaymentWithAmount(Return, 25, 1),
