@@ -6,7 +6,7 @@ type PlainAsset struct {
 	name     string
 }
 
-func (a PlainAsset) Id() string {
+func (a PlainAsset) ID() string {
 	return a.id
 }
 

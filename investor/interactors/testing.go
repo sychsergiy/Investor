@@ -13,11 +13,11 @@ func (acm AssetCreatorMock) Create(asset asset.Asset) error {
 	return acm.CreateFunc(asset)
 }
 
-type IdGeneratorMock struct {
+type IDGeneratorMock struct {
 	GenerateFunc func() string
 }
 
-type PaymentFinderByIdsMock struct {
+type PaymentFinderByIDsMock struct {
 	FindFunc func(ids []string) ([]payment.Payment, error)
 }
 
@@ -32,7 +32,7 @@ func (m PaymentFinderByAssetNamesMock) FindByAssetNames(
 	return m.ReturnPayments, m.ReturnErr
 }
 
-func (m PaymentFinderByIdsMock) FindByIds(ids []string) ([]payment.Payment, error) {
+func (m PaymentFinderByIDsMock) FindByIDs(ids []string) ([]payment.Payment, error) {
 	return m.FindFunc(ids)
 }
 
@@ -47,6 +47,6 @@ func (m PaymentFinderByAssetCategoriesMock) FindByAssetCategories(
 	return m.ReturnPayments, m.ReturnErr
 }
 
-func (igm IdGeneratorMock) Generate() string {
+func (igm IDGeneratorMock) Generate() string {
 	return igm.GenerateFunc()
 }

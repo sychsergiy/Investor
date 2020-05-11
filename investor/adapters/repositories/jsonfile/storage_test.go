@@ -86,7 +86,7 @@ func TestStorage_UpdatePayments(t *testing.T) {
 	filename := "test_update_payments.json"
 	data := getDataMock()
 	err := createStorage(filename).UpdatePayments(data.Payments)
-	expectedJson := "{\"assets\":[],\"payments\":[{\"id\":\"1\",\"asset_amount\":50,\"absolute_amount\":100,\"asset_id\":\"testAssetId\",\"type\":0,\"creation_date\":\"2019-11-30T00:00:00Z\"}]}"
+	expectedJson := "{\"assets\":[],\"payments\":[{\"id\":\"1\",\"asset_amount\":50,\"absolute_amount\":100,\"asset_id\":\"testAssetID\",\"type\":0,\"creation_date\":\"2019-11-30T00:00:00Z\"}]}"
 	if err != nil {
 		t.Errorf("Unepxected err: %+v", err)
 	} else {

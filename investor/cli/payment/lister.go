@@ -43,7 +43,7 @@ func paymentToString(p payment.Payment) (str string, err error) {
 	}
 	str = fmt.Sprintf(
 		"ID: %s\nAsset name: %s\nAsset category: %s\nType: %s\nUSD amount: %f\nAsset amount: %f\nCreation date: %s",
-		p.Id(), asset.Name(), asset.Category().String(), p.Type().String(), p.AbsoluteAmount(),
+		p.ID(), asset.Name(), asset.Category().String(), p.Type().String(), p.AbsoluteAmount(),
 		p.AssetAmount(), p.CreationDate().Format("2006-01-02 15:04"),
 	)
 	return

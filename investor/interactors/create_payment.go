@@ -9,7 +9,7 @@ import (
 
 type CreatePayment struct {
 	Repository  ports.PaymentCreator
-	IdGenerator ports.IdGenerator
+	IDGenerator ports.IDGenerator
 }
 
 type CreatePaymentModel struct {
@@ -21,7 +21,7 @@ type CreatePaymentModel struct {
 }
 
 func (pc CreatePayment) Create(paymentModel CreatePaymentModel) (err error) {
-	id := pc.IdGenerator.Generate()
+	id := pc.IDGenerator.Generate()
 	p := paymentEntity.NewPlainPayment(
 		id, paymentModel.AssetAmount, paymentModel.AbsoluteAmount,
 		paymentModel.Asset, paymentModel.CreationDate, paymentModel.Type,

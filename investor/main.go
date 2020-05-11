@@ -28,7 +28,7 @@ func setupDependencies(coinMarketCupApiKey string) cli.App {
 	assetRepo := jsonfile.NewAssetRepository(storage)
 	paymentRepo := jsonfile.NewPaymentRepository(storage, assetRepo)
 
-	paymentCreateInteractor := interactors.CreatePayment{Repository: paymentRepo, IdGenerator: adapters.NewUUIDGenerator()}
+	paymentCreateInteractor := interactors.CreatePayment{Repository: paymentRepo, IDGenerator: adapters.NewUUIDGenerator()}
 	paymentListInteractor := interactors.ListPayments{Repository: paymentRepo}
 	assetNamesFilterInteractor := payment_filters.NewAssetNamesFilter(paymentRepo)
 	categoriesFilterInteractor := payment_filters.NewAssetCategoriesFilter(paymentRepo)

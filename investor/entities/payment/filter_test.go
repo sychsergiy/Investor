@@ -42,11 +42,11 @@ func TestFilter_ByAssetNames(t *testing.T) {
 	p := NewPaymentProxyMock(
 		createPaymentWithAssetCategory(asset.PreciousMetal),
 		func() (a asset.Asset, err error) {
-			return a, asset.AssetDoesntExistsError{AssetId: "test"}
+			return a, asset.AssetDoesntExistsError{AssetID: "test"}
 		},
 	)
 	_, err := FilterByAssetNames([]Payment{p}, []string{"other"})
-	if !errors.Is(err, asset.AssetDoesntExistsError{AssetId: "test"}) {
+	if !errors.Is(err, asset.AssetDoesntExistsError{AssetID: "test"}) {
 		t.Errorf("Asset doesnt exist error expected¬")
 	}
 }
@@ -167,11 +167,11 @@ func TestFilter_ByAssetCategories(t *testing.T) {
 	p := NewPaymentProxyMock(
 		createPaymentWithAssetCategory(asset.PreciousMetal),
 		func() (a asset.Asset, err error) {
-			return a, asset.AssetDoesntExistsError{AssetId: "test"}
+			return a, asset.AssetDoesntExistsError{AssetID: "test"}
 		},
 	)
 	_, err := FilterByAssetCategories([]Payment{p}, []asset.Category{asset.CryptoCurrency})
-	if !errors.Is(err, asset.AssetDoesntExistsError{AssetId: "test"}) {
+	if !errors.Is(err, asset.AssetDoesntExistsError{AssetID: "test"}) {
 		t.Errorf("Asset doesnt exist error expected¬")
 	}
 }

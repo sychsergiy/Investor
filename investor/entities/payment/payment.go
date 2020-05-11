@@ -17,7 +17,7 @@ func (t Type) String() string {
 }
 
 type Payment interface {
-	Id() string
+	ID() string
 	AssetAmount() float32
 	AbsoluteAmount() float32
 	Asset() (asset.Asset, error)
@@ -25,9 +25,9 @@ type Payment interface {
 	CreationDate() time.Time
 }
 
-func PaymentsToIds(payments []Payment) (ids []string) {
+func PaymentsToIDs(payments []Payment) (ids []string) {
 	for _, p := range payments {
-		ids = append(ids, p.Id())
+		ids = append(ids, p.ID())
 	}
 	return
 }

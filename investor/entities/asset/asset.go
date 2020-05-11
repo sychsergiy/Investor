@@ -11,11 +11,11 @@ const (
 )
 
 type AssetDoesntExistsError struct {
-	AssetId string
+	AssetID string
 }
 
 func (e AssetDoesntExistsError) Error() string {
-	return fmt.Sprintf("asset with id %s doesn't exist", e.AssetId)
+	return fmt.Sprintf("asset with id %s doesn't exist", e.AssetID)
 }
 
 func (c Category) String() string {
@@ -23,7 +23,7 @@ func (c Category) String() string {
 }
 
 type Asset interface {
-	Id() string
+	ID() string
 	Category() Category
 	Name() string
 }

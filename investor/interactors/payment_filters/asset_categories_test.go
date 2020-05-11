@@ -26,12 +26,12 @@ func TestAssetCategoriesFilter_Filter(t *testing.T) {
 
 	filter2 := NewAssetCategoriesFilter(
 		interactors.PaymentFinderByAssetCategoriesMock{
-			ReturnPayments: nil, ReturnErr: asset.AssetDoesntExistsError{AssetId: "test"},
+			ReturnPayments: nil, ReturnErr: asset.AssetDoesntExistsError{AssetID: "test"},
 		},
 	)
 
 	_, err = filter2.Filter(AssetCategoriesFilterRequest{})
-	if !errors.Is(err, asset.AssetDoesntExistsError{AssetId: "test"}) {
+	if !errors.Is(err, asset.AssetDoesntExistsError{AssetID: "test"}) {
 		t.Errorf("Mocked error expted")
 	}
 }

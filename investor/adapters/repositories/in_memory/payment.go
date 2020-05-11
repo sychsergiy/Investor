@@ -8,26 +8,26 @@ import (
 	"time"
 )
 
-type AssetFinderById interface {
-	FindById(id string) (asset.Asset, error)
+type AssetFinderByID interface {
+	FindByID(id string) (asset.Asset, error)
 }
 
 type PaymentRecord struct {
-	Id             string       `json:"id"`
+	ID             string       `json:"id"`
 	AssetAmount    float32      `json:"asset_amount"`
 	AbsoluteAmount float32      `json:"absolute_amount"`
-	AssetId        string       `json:"asset_id"`
+	AssetID        string       `json:"asset_id"`
 	Type           payment.Type `json:"type"`
 	CreationDate   time.Time    `json:"creation_date"`
 }
 
 type PaymentProxy struct {
 	record      PaymentRecord
-	assetFinder AssetFinderById
+	assetFinder AssetFinderByID
 }
 
-func (p PaymentProxy) Id() string {
-	return p.record.Id
+func (p PaymentProxy) ID() string {
+	return p.record.ID
 }
 
 func (p PaymentProxy) AssetAmount() float32 {
@@ -39,7 +39,7 @@ func (p PaymentProxy) AbsoluteAmount() float32 {
 }
 
 func (p PaymentProxy) Asset() (asset.Asset, error) {
-	return p.assetFinder.FindById(p.record.AssetId)
+	return p.assetFinder.FindByID(p.record.AssetID)
 }
 
 func (p PaymentProxy) CreationDate() time.Time {
@@ -49,7 +49,7 @@ func (p PaymentProxy) CreationDate() time.Time {
 func (p PaymentProxy) Type() payment.Type {
 	return p.record.Type
 }
-func NewPaymentProxy(record PaymentRecord, assetFinder AssetFinderById) PaymentProxy {
+func NewPaymentProxy(record PaymentRecord, assetFinder AssetFinderByID) PaymentProxy {
 	return PaymentProxy{record, assetFinder}
 }
 
@@ -63,10 +63,10 @@ func NewPaymentRecord(payment payment.Payment) (pr PaymentRecord, err error) {
 		return pr, err
 	}
 	pr = PaymentRecord{
-		Id:             payment.Id(),
+		ID:             payment.ID(),
 		AssetAmount:    payment.AssetAmount(),
 		AbsoluteAmount: payment.AbsoluteAmount(),
-		AssetId:        a.Id(),
+		AssetID:        a.ID(),
 		Type:           payment.Type(),
 		CreationDate:   payment.CreationDate(),
 	}
@@ -74,7 +74,7 @@ func NewPaymentRecord(payment payment.Payment) (pr PaymentRecord, err error) {
 }
 
 type PaymentAlreadyExistsError struct {
-	PaymentId string
+	PaymentID string
 }
 
 type PaymentBulkCreateError struct {
@@ -84,11 +84,11 @@ type PaymentBulkCreateError struct {
 }
 
 type PaymentDoesntExistsError struct {
-	PaymentId string
+	PaymentID string
 }
 
 func (e PaymentDoesntExistsError) Error() string {
-	return fmt.Sprintf("payment with id %s not found", e.PaymentId)
+	return fmt.Sprintf("payment with id %s not found", e.PaymentID)
 }
 
 func (e PaymentBulkCreateError) Error() string {
@@ -103,12 +103,12 @@ func (e PaymentBulkCreateError) Unwrap() error {
 }
 
 func (e PaymentAlreadyExistsError) Error() string {
-	return fmt.Sprintf("payment with id %s already exists", e.PaymentId)
+	return fmt.Sprintf("payment with id %s already exists", e.PaymentID)
 
 }
 
 type PaymentRepository struct {
-	assetFinder AssetFinderById
+	assetFinder AssetFinderByID
 	records     map[string]PaymentRecord
 }
 
@@ -117,15 +117,15 @@ func (r *PaymentRepository) Create(payment payment.Payment) error {
 	if err != nil {
 		return err
 	}
-	_, err = r.assetFinder.FindById(record.AssetId)
+	_, err = r.assetFinder.FindByID(record.AssetID)
 	if err != nil {
 		return err
 	}
-	_, idExists := r.records[payment.Id()]
+	_, idExists := r.records[payment.ID()]
 	if idExists {
-		return PaymentAlreadyExistsError{PaymentId: payment.Id()}
+		return PaymentAlreadyExistsError{PaymentID: payment.ID()}
 	} else {
-		r.records[payment.Id()] = record
+		r.records[payment.ID()] = record
 		return nil
 	}
 }
@@ -201,13 +201,13 @@ func (r *PaymentRepository) FindByAssetNames(
 	return payments, nil
 }
 
-func (r *PaymentRepository) FindByIds(ids []string) ([]payment.Payment, error) {
+func (r *PaymentRepository) FindByIDs(ids []string) ([]payment.Payment, error) {
 	var payments []payment.Payment
 
 	for _, id := range ids {
 		p, ok := r.records[id]
 		if !ok {
-			return nil, PaymentDoesntExistsError{PaymentId: id}
+			return nil, PaymentDoesntExistsError{PaymentID: id}
 		}
 		payments = append(payments, r.createPaymentProxy(p))
 	}
@@ -226,7 +226,7 @@ func (r *PaymentRepository) ConvertRecordToEntity(record PaymentRecord) (p payme
 	return r.createPaymentProxy(record)
 }
 
-func NewPaymentRepository(assetFinder AssetFinderById) *PaymentRepository {
+func NewPaymentRepository(assetFinder AssetFinderByID) *PaymentRepository {
 	return &PaymentRepository{
 		assetFinder,
 		make(map[string]PaymentRecord),

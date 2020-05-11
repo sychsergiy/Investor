@@ -88,13 +88,13 @@ func (r *AssetRepository) ListAll() ([]assetEntity.Asset, error) {
 	return r.repository.ListAll()
 }
 
-func (r *AssetRepository) FindById(assetId string) (a assetEntity.Asset, err error) {
+func (r *AssetRepository) FindByID(assetID string) (a assetEntity.Asset, err error) {
 	err = r.restore()
 	if err != nil {
-		err = fmt.Errorf("failed to find asset by id: %s due to restore error: %w", assetId, err)
+		err = fmt.Errorf("failed to find asset by id: %s due to restore error: %w", assetID, err)
 		return
 	}
-	return r.repository.FindById(assetId)
+	return r.repository.FindByID(assetID)
 }
 
 func NewAssetRepository(s *Storage) *AssetRepository {

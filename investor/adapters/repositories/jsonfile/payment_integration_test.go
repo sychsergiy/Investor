@@ -18,14 +18,14 @@ func checkErr(t *testing.T, err error, message string) bool {
 }
 
 func FillPaymentsRepo(t *testing.T, paymentRepo *PaymentRepository, assetRepo *AssetRepository) {
-	assetId := "assetId"
-	err := assetRepo.Create(asset.NewPlainAsset(assetId, asset.PreciousMetal, "name"))
+	assetID := "assetID"
+	err := assetRepo.Create(asset.NewPlainAsset(assetID, asset.PreciousMetal, "name"))
 	checkErr(t, err, "asset creation")
 
 	err = paymentRepo.CreateBulk([]payment.Payment{
-		payment.CreatePaymentWithAsset("1", assetId, 2015),
-		payment.CreatePaymentWithAsset("2", assetId, 2016),
-		payment.CreatePaymentWithAsset("3", assetId, 2017),
+		payment.CreatePaymentWithAsset("1", assetID, 2015),
+		payment.CreatePaymentWithAsset("2", assetID, 2016),
+		payment.CreatePaymentWithAsset("3", assetID, 2017),
 	})
 	checkErr(t, err, "payment bulk creation")
 }
@@ -53,7 +53,7 @@ func TestPaymentRepository_Integration_ListAll(t *testing.T) {
 	}
 
 	// test create works after restore (restored with first ListAll() call)
-	err = repo2.Create(payment.CreatePaymentWithAsset("4", "assetId", 2018))
+	err = repo2.Create(payment.CreatePaymentWithAsset("4", "assetID", 2018))
 	checkErr(t, err, "payment creation")
 	payments2, err = repo2.ListAll()
 	checkErr(t, err, "payments list")
@@ -63,7 +63,7 @@ func TestPaymentRepository_Integration_ListAll(t *testing.T) {
 
 	// test create work before first restoring
 	repo3 := NewPaymentRepository(storage, assetRepo)
-	err = repo3.Create(payment.CreatePaymentWithAsset("5", "assetId", 2019))
+	err = repo3.Create(payment.CreatePaymentWithAsset("5", "assetID", 2019))
 	checkErr(t, err, "payment creation")
 	payments3, err := repo3.ListAll()
 	checkErr(t, err, "payments list")
@@ -76,12 +76,12 @@ func TestPaymentRepository_Integration_ListAll(t *testing.T) {
 	p := payment.NewPaymentProxyMock(
 		payment.CreatePayment("1", 2020),
 		func() (a asset.Asset, err error) {
-			return a, asset.AssetDoesntExistsError{AssetId: "not_exists"}
+			return a, asset.AssetDoesntExistsError{AssetID: "not_exists"}
 		},
 	)
 	err = repo3.Create(p)
 	if err != nil {
-		expectedErr := asset.AssetDoesntExistsError{AssetId: "not_exists"}
+		expectedErr := asset.AssetDoesntExistsError{AssetID: "not_exists"}
 		if !errors.Is(err, expectedErr) {
 			t.Errorf("AssetDoesntExistsError error expected, but got %s", err)
 		}
@@ -90,26 +90,26 @@ func TestPaymentRepository_Integration_ListAll(t *testing.T) {
 	}
 }
 
-func TestPaymentRepository_Integration_FindByIds(t *testing.T) {
+func TestPaymentRepository_Integration_FindByIDs(t *testing.T) {
 	storage := createStorage("test_payments_by_ids.json")
 	assetRepo := NewAssetRepository(storage)
 	repo := NewPaymentRepository(storage, assetRepo)
 
 	FillPaymentsRepo(t, repo, assetRepo)
 
-	payments, err := repo.FindByIds([]string{"1", "3"})
+	payments, err := repo.FindByIDs([]string{"1", "3"})
 	if err != nil {
 		t.Errorf("Unexpected err %+v", err)
 	} else {
-		expectedIds := []string{"3", "1"}
-		ids := payment.PaymentsToIds(payments)
-		if !reflect.DeepEqual(ids, expectedIds) {
+		expectedIDs := []string{"3", "1"}
+		ids := payment.PaymentsToIDs(payments)
+		if !reflect.DeepEqual(ids, expectedIDs) {
 			t.Errorf("Unexpected payment ids")
 		}
 	}
 
-	payments, err = repo.FindByIds([]string{"not_existent"})
-	if !errors.Is(err, in_memory.PaymentDoesntExistsError{PaymentId: "not_existent"}) {
+	payments, err = repo.FindByIDs([]string{"not_existent"})
+	if !errors.Is(err, in_memory.PaymentDoesntExistsError{PaymentID: "not_existent"}) {
 		t.Errorf("Unexpected err %+v", err)
 	}
 	if payments != nil {

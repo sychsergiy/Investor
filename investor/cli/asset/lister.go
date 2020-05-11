@@ -31,7 +31,7 @@ func (l ListAssetsCommand) List() {
 func ConvertAssetToString(a asset.Asset) string {
 	return fmt.Sprintf(
 		"ID: %s\nName: %s\nCategory: %s\n",
-		a.Id(), a.Name(), a.Category(),
+		a.ID(), a.Name(), a.Category(),
 	)
 
 }

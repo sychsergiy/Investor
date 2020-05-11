@@ -1,5 +1,5 @@
 package ports
 
-type IdGenerator interface {
+type IDGenerator interface {
 	Generate() string
 }

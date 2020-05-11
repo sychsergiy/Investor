@@ -7,7 +7,7 @@ import (
 
 type CreateAsset struct {
 	repository  ports.AssetCreator
-	idGenerator ports.IdGenerator
+	idGenerator ports.IDGenerator
 }
 
 type CreateAssetRequest struct {
@@ -17,7 +17,7 @@ type CreateAssetRequest struct {
 
 type CreateAssetResponse struct {
 	Created     bool
-	GeneratedId string
+	GeneratedID string
 	Err         error
 }
 
@@ -31,18 +31,18 @@ func (ca CreateAsset) Create(assetModel CreateAssetRequest) CreateAssetResponse 
 	if err != nil {
 		return CreateAssetResponse{
 			Created:     false,
-			GeneratedId: id,
+			GeneratedID: id,
 			Err:         err,
 		}
 	} else {
 		return CreateAssetResponse{
 			Created:     true,
-			GeneratedId: id,
+			GeneratedID: id,
 			Err:         nil,
 		}
 	}
 }
 
-func NewCreateAsset(repository ports.AssetCreator, idGenerator ports.IdGenerator) CreateAsset {
+func NewCreateAsset(repository ports.AssetCreator, idGenerator ports.IDGenerator) CreateAsset {
 	return CreateAsset{repository: repository, idGenerator: idGenerator}
 }

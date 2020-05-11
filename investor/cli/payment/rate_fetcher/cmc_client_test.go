@@ -40,7 +40,7 @@ func TestParsePriceWrongCurrencyID(t *testing.T) {
 	data := mockRateResponse("BTC", Quote{"USD": {Price: 10}})
 	result, err := ParsePrice(data, "NotExistent")
 
-	expectedErr := CurrencyIdNotFoundError{"NotExistent"}
+	expectedErr := CurrencyIDNotFoundError{"NotExistent"}
 	if err != expectedErr {
 		t.Errorf("Not expected error when Currency id is not found")
 	} else {

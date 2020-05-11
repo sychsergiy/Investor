@@ -14,7 +14,7 @@ type PlainPayment struct {
 	type_          Type
 }
 
-func (p PlainPayment) Id() string {
+func (p PlainPayment) ID() string {
 	return p.id
 }
 

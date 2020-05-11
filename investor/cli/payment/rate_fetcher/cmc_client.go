@@ -102,11 +102,11 @@ func (c CoinMarketCupClient) FetchCurrencyRate(currency crypto_currency.CryptoCu
 	return ParsePrice(respData, currencyID)
 }
 
-type CurrencyIdNotFoundError struct {
+type CurrencyIDNotFoundError struct {
 	CurrencyID string
 }
 
-func (e CurrencyIdNotFoundError) Error() string {
+func (e CurrencyIDNotFoundError) Error() string {
 	return fmt.Sprintf("Data for currencyID: %s not found in CoinMarketCup response", e.CurrencyID)
 }
 
@@ -120,7 +120,7 @@ func (e NoPriceInUSDError) Error() string {
 func ParsePrice(respData RateResponse, currencyID string) (float32, error) {
 	currencyData, ok := respData.Data[currencyID]
 	if !ok {
-		return 0, CurrencyIdNotFoundError{currencyID}
+		return 0, CurrencyIDNotFoundError{currencyID}
 	}
 
 	data, ok2 := currencyData.Quote["USD"]

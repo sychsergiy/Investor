@@ -17,8 +17,8 @@ func CreatePayment(id string, year int) Payment {
 	return NewPlainPayment(id, 0, 0, testAsset, creationTime, Invest)
 }
 
-func CreatePaymentWithAsset(id, assetId string, year int) Payment {
-	testAsset := asset.NewPlainAsset(assetId, asset.CryptoCurrency, "test")
+func CreatePaymentWithAsset(id, assetID string, year int) Payment {
+	testAsset := asset.NewPlainAsset(assetID, asset.CryptoCurrency, "test")
 	creationTime := CreateYearDate(year)
 	return NewPlainPayment(id, 0, 0, testAsset, creationTime, Invest)
 }
