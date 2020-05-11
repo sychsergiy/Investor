@@ -167,19 +167,19 @@ func (r *PaymentRepository) FindByAssetCategories(
 	categories []asset.Category,
 	periods []payment.Period,
 	paymentTypes []payment.Type,
-) (filtered []payment.Payment, err error) {
+) ([]payment.Payment, error) {
 	payments, err := r.ListAll()
 	if err != nil {
 		return nil, err
 	}
-	filtered, err = payment.FilterByAssetCategories(payments, categories)
+	filter := payment.NewFilter(payments)
+	filter, err = filter.ByAssetCategories(categories)
 	if err != nil {
 		return nil, err
 	}
-	filtered = payment.FilterByPeriods(filtered, periods)
-	filtered = payment.FilterByTypes(filtered, paymentTypes)
+	filtered := filter.ByPeriods(periods).ByTypes(paymentTypes).Payments()
 	sortByCreationDate(filtered)
-	return
+	return filtered, nil
 }
 
 func (r *PaymentRepository) FindByAssetNames(
@@ -191,12 +191,12 @@ func (r *PaymentRepository) FindByAssetNames(
 	if err != nil {
 		return nil, err
 	}
-	payments, err = payment.FilterByAssetNames(payments, assetNames)
+	filter := payment.NewFilter(payments)
+	filter, err = filter.ByAssetNames(assetNames)
 	if err != nil {
 		return nil, err
 	}
-	payments = payment.FilterByPeriods(payments, periods)
-	payments = payment.FilterByTypes(payments, paymentTypes)
+	payments = filter.ByPeriods(periods).ByTypes(paymentTypes).Payments()
 	sortByCreationDate(payments)
 	return payments, nil
 }
@@ -209,7 +209,7 @@ func (r *PaymentRepository) FindByIds(ids []string) ([]payment.Payment, error) {
 		if !ok {
 			return nil, PaymentDoesntExistsError{PaymentId: id}
 		}
-		payments = append(payments, NewPaymentProxy(p, r.assetFinder))
+		payments = append(payments, r.createPaymentProxy(p))
 	}
 	sortByCreationDate(payments)
 	return payments, nil
