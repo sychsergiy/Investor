@@ -4,13 +4,11 @@ import (
 	"fmt"
 	"investor/entities/payment"
 	"investor/interactors"
-	"investor/interactors/payment_filters"
 	"log"
 )
 
 type CalcProfitCommand struct {
-	filter           payment_filters.AssetNamesFilter
-	profitCalculator interactors.CalcProfit
+	profitCalculator interactors.CalcAssetsProfit
 }
 
 func (l CalcProfitCommand) Execute() {
@@ -20,27 +18,27 @@ func (l CalcProfitCommand) Execute() {
 func (l CalcProfitCommand) CalculateProfit() {
 	assetNames := readAssetNames()
 
-	var model = payment_filters.AssetNameFilterRequest{
-		Periods:      []payment.Period{},
-		PaymentTypes: []payment.Type{},
-		AssetNames:   assetNames,
+	req := interactors.CalcProfitRequest{
+		AssetNames: assetNames,
+		Periods:    []payment.Period{},
 	}
-	resp, err := l.filter.Filter(model)
+	resp, err := l.profitCalculator.Calc(req)
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println("Calculate profit for the following payments:")
-	printPayments(resp.Payments)
-	profit, err := l.profitCalculator.Calc(resp.Payments)
-	if err != nil {
-		log.Fatal(err)
+
+	fmt.Println("\nProfit results:")
+	for _, p := range resp.Profits {
+		p.Profit.Percentage()
+		fmt.Printf(
+			"Asset Name: %s - %.1f (%.2f%%), payments count: %d;\n",
+			p.AssetName, p.Profit.Coefficient(), p.Profit.Percentage(), p.PaymentsCount,
+		)
 	}
-	fmt.Printf("Profit coeficient: %f\nProfit percentage: %f", profit.Coefficient(), profit.Percentage())
 }
 
 func NewCalcProfitCommand(
-	paymentsFilter payment_filters.AssetNamesFilter,
-	profitCalculator interactors.CalcProfit,
+	profitCalculator interactors.CalcAssetsProfit,
 ) CalcProfitCommand {
-	return CalcProfitCommand{paymentsFilter, profitCalculator}
+	return CalcProfitCommand{profitCalculator}
 }
