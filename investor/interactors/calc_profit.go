@@ -30,8 +30,7 @@ func (cp CalcAssetsProfit) Calc(model CalcProfitRequest) (r CalcAssetsProfitResp
 		if err != nil {
 			return r, err
 		}
-		calculator := profit.NewProfitCalculator(payments)
-		p, err := calculator.CalcForAsset(assetName)
+		p, err := profit.CalcForAsset(payments, assetName)
 		if err != nil {
 			return r, err
 		}

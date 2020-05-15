@@ -68,35 +68,27 @@ func calcSumsForPayments(payments []payment.Payment) Sums {
 	return s
 }
 
-type ProfitCalculator struct {
-	payments []payment.Payment
-}
-
 type AssetProfit struct {
 	AssetName     string
 	Profit        Profit
 	PaymentsCount int
 }
 
-func (c ProfitCalculator) CalcForAsset(name string) (AssetProfit, error) {
+func CalcForAsset(payments []payment.Payment, name string) (AssetProfit, error) {
 	// todo: maybe filter payments by asset name
 	//  or return error if payment with another asset exists
 
 	// all payments should have the same asset
-	sums := calcSumsForPayments(c.payments)
-	profit, err := CalcProfitForAsset(sums)
+	sums := calcSumsForPayments(payments)
+	profit, err := calcProfitForAsset(sums)
 	if err != nil {
 		return AssetProfit{}, err
 	}
-	return AssetProfit{name, profit, len(c.payments)}, nil
-}
-
-func NewProfitCalculator(payments []payment.Payment) ProfitCalculator {
-	return ProfitCalculator{payments: payments}
+	return AssetProfit{name, profit, len(payments)}, nil
 }
 
 // todo: maybe make private function
-func CalcProfitForAsset(sums Sums) (Profit, error) {
+func calcProfitForAsset(sums Sums) (Profit, error) {
 	// calculate asset profit coefficient
 	// find invested capital in absolute amount (USD) and in asset
 	// a = find percentage of asset rest after all payments

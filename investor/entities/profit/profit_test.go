@@ -25,8 +25,6 @@ func TestProfitCalculator_CalcForAsset(t *testing.T) {
 				PaymentsCount: 3,
 			},
 		},
-
-
 		{payments: []payment.Payment{
 			payment.CreatePaymentWithAmount(payment.Invest, 100, 1),
 			payment.CreatePaymentWithAmount(payment.Return, 25, 0.5),
@@ -42,8 +40,7 @@ func TestProfitCalculator_CalcForAsset(t *testing.T) {
 	}
 
 	for _, u := range units {
-		calculator := NewProfitCalculator(u.payments)
-		profit, err := calculator.CalcForAsset(u.assetName)
+		profit, err := CalcForAsset(u.payments, u.assetName)
 		if err != nil {
 			t.Errorf("Unexpected err: %+v", err)
 		}
@@ -66,7 +63,6 @@ func TestProfitCalculator_CalcForAsset(t *testing.T) {
 			"test",
 			ZeroAssetReturnedError{},
 		},
-
 		{[]payment.Payment{
 			payment.CreatePaymentWithAmount(payment.Invest, 100, 1),
 			payment.CreatePaymentWithAmount(payment.Return, 25, 1),
@@ -78,8 +74,7 @@ func TestProfitCalculator_CalcForAsset(t *testing.T) {
 	}
 
 	for _, u := range errUnits {
-		calculator := NewProfitCalculator(u.payments)
-		_, err := calculator.CalcForAsset(u.assetName)
+		_, err := CalcForAsset(u.payments, u.assetName)
 		if err != u.expectedErr {
 			t.Errorf("Expected err: %+v, but got: %+v", err, u.expectedErr)
 		}
@@ -131,7 +126,7 @@ func TestCalcProfitForAsset(t *testing.T) {
 		ReturnedAsset: 5,
 	}
 	expectedErr := ZeroInvestedSumError{}
-	profit, err := CalcProfitForAsset(zeroInvestedSums)
+	profit, err := calcProfitForAsset(zeroInvestedSums)
 	if !errors.Is(err, expectedErr) {
 		t.Errorf("Zero invested sum error expected")
 	}
@@ -146,7 +141,7 @@ func TestCalcProfitForAsset(t *testing.T) {
 		ReturnedAsset: 0,
 	}
 	expectedErr2 := ZeroAssetReturnedError{}
-	profit, err = CalcProfitForAsset(zeroReturnedSums)
+	profit, err = calcProfitForAsset(zeroReturnedSums)
 	if !errors.Is(err, expectedErr2) {
 		t.Errorf("Zero returned sum error expected")
 	}
@@ -154,7 +149,7 @@ func TestCalcProfitForAsset(t *testing.T) {
 		t.Errorf("Profit nil value expected")
 	}
 
-	profit, err = CalcProfitForAsset(Sums{
+	profit, err = calcProfitForAsset(Sums{
 		Invested:      100,
 		Returned:      200,
 		InvestedAsset: 1,
@@ -171,7 +166,7 @@ func TestCalcProfitForAsset(t *testing.T) {
 		}
 	}
 
-	profit, err = CalcProfitForAsset(Sums{
+	profit, err = calcProfitForAsset(Sums{
 		Invested:      100,
 		Returned:      100,
 		InvestedAsset: 1,
@@ -188,7 +183,7 @@ func TestCalcProfitForAsset(t *testing.T) {
 		}
 	}
 
-	profit, err = CalcProfitForAsset(Sums{
+	profit, err = calcProfitForAsset(Sums{
 		Invested:      400,
 		Returned:      100,
 		InvestedAsset: 1,
@@ -205,7 +200,7 @@ func TestCalcProfitForAsset(t *testing.T) {
 		}
 	}
 
-	profit, err = CalcProfitForAsset(Sums{
+	profit, err = calcProfitForAsset(Sums{
 		Invested:      400,
 		Returned:      100,
 		InvestedAsset: 1,
