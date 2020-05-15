@@ -1,21 +1,22 @@
-package payment
+package profit
 
 import (
 	"errors"
+	"investor/entities/payment"
 	"testing"
 )
 
 func TestProfitCalculator_CalcForAsset(t *testing.T) {
 	type unit struct {
-		payments       []Payment
+		payments       []payment.Payment
 		assetName      string
 		expectedProfit AssetProfit
 	}
 	units := []unit{
-		{payments: []Payment{
-			CreatePaymentWithAmount(Invest, 100, 1),
-			CreatePaymentWithAmount(Invest, 100, 1),
-			CreatePaymentWithAmount(Return, 200, 1),
+		{payments: []payment.Payment{
+			payment.CreatePaymentWithAmount(payment.Invest, 100, 1),
+			payment.CreatePaymentWithAmount(payment.Invest, 100, 1),
+			payment.CreatePaymentWithAmount(payment.Return, 200, 1),
 		},
 			assetName: "test",
 			expectedProfit: AssetProfit{
@@ -26,10 +27,10 @@ func TestProfitCalculator_CalcForAsset(t *testing.T) {
 		},
 
 
-		{payments: []Payment{
-			CreatePaymentWithAmount(Invest, 100, 1),
-			CreatePaymentWithAmount(Return, 25, 0.5),
-			CreatePaymentWithAmount(Return, 25, 0.5),
+		{payments: []payment.Payment{
+			payment.CreatePaymentWithAmount(payment.Invest, 100, 1),
+			payment.CreatePaymentWithAmount(payment.Return, 25, 0.5),
+			payment.CreatePaymentWithAmount(payment.Return, 25, 0.5),
 		},
 			assetName: "test",
 			expectedProfit: AssetProfit{
@@ -52,24 +53,24 @@ func TestProfitCalculator_CalcForAsset(t *testing.T) {
 	}
 
 	type errUnit struct {
-		payments    []Payment
+		payments    []payment.Payment
 		assetName   string
 		expectedErr error
 	}
 
 	errUnits := []errUnit{
-		{[]Payment{
-			CreatePaymentWithAmount(Invest, 100, 1),
-			CreatePaymentWithAmount(Invest, 100, 1),
+		{[]payment.Payment{
+			payment.CreatePaymentWithAmount(payment.Invest, 100, 1),
+			payment.CreatePaymentWithAmount(payment.Invest, 100, 1),
 		},
 			"test",
 			ZeroAssetReturnedError{},
 		},
 
-		{[]Payment{
-			CreatePaymentWithAmount(Invest, 100, 1),
-			CreatePaymentWithAmount(Return, 25, 1),
-			CreatePaymentWithAmount(Return, 25, 1),
+		{[]payment.Payment{
+			payment.CreatePaymentWithAmount(payment.Invest, 100, 1),
+			payment.CreatePaymentWithAmount(payment.Return, 25, 1),
+			payment.CreatePaymentWithAmount(payment.Return, 25, 1),
 		},
 			"test",
 			ReturnedAssetSumMoreThanInvested{},
@@ -86,10 +87,10 @@ func TestProfitCalculator_CalcForAsset(t *testing.T) {
 }
 
 func TestCalcSumsForPayments(t *testing.T) {
-	sums := calcSumsForPayments([]Payment{
-		CreatePaymentWithAmount(Invest, 100, 3),
-		CreatePaymentWithAmount(Return, 25, 1),
-		CreatePaymentWithAmount(Return, 25, 1),
+	sums := calcSumsForPayments([]payment.Payment{
+		payment.CreatePaymentWithAmount(payment.Invest, 100, 3),
+		payment.CreatePaymentWithAmount(payment.Return, 25, 1),
+		payment.CreatePaymentWithAmount(payment.Return, 25, 1),
 	})
 	expectedSums := Sums{
 		Invested:      100,

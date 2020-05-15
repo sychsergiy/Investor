@@ -1,4 +1,6 @@
-package payment
+package profit
+
+import "investor/entities/payment"
 
 type Profit interface {
 	Coefficient() float32
@@ -49,14 +51,14 @@ func (e ReturnedAssetSumMoreThanInvested) Error() string {
 	return "unable to calculate profit due returned Asset sum more than invested"
 }
 
-func calcSumsForPayments(payments []Payment) Sums {
+func calcSumsForPayments(payments []payment.Payment) Sums {
 	s := Sums{}
 	for _, item := range payments {
 		switch item.Type() {
-		case Return:
+		case payment.Return:
 			s.Returned += item.AbsoluteAmount()
 			s.ReturnedAsset += item.AssetAmount()
-		case Invest:
+		case payment.Invest:
 			s.Invested += item.AbsoluteAmount()
 			s.InvestedAsset += item.AssetAmount()
 		default:
@@ -67,7 +69,7 @@ func calcSumsForPayments(payments []Payment) Sums {
 }
 
 type ProfitCalculator struct {
-	payments []Payment
+	payments []payment.Payment
 }
 
 type AssetProfit struct {
@@ -89,7 +91,7 @@ func (c ProfitCalculator) CalcForAsset(name string) (AssetProfit, error) {
 	return AssetProfit{name, profit, len(c.payments)}, nil
 }
 
-func NewProfitCalculator(payments []Payment) ProfitCalculator {
+func NewProfitCalculator(payments []payment.Payment) ProfitCalculator {
 	return ProfitCalculator{payments: payments}
 }
 
