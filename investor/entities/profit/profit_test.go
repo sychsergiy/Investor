@@ -21,7 +21,7 @@ func TestProfitCalculator_CalcForAsset(t *testing.T) {
 			assetName: "test",
 			expectedProfit: AssetProfit{
 				AssetName:     "test",
-				Profit:        NewProfitFromCoefficient(2),
+				Profit:        NewFromCoefficient(2),
 				PaymentsCount: 3,
 			},
 		},
@@ -33,7 +33,7 @@ func TestProfitCalculator_CalcForAsset(t *testing.T) {
 			assetName: "test",
 			expectedProfit: AssetProfit{
 				AssetName:     "test",
-				Profit:        NewProfitFromCoefficient(0.5),
+				Profit:        NewFromCoefficient(0.5),
 				PaymentsCount: 3,
 			},
 		},
@@ -99,7 +99,7 @@ func TestCalcSumsForPayments(t *testing.T) {
 }
 
 func TestNewProfitFromPercentage(t *testing.T) {
-	profit := NewProfitFromPercentage(50)
+	profit := NewFromPercentage(50)
 	if profit.Percentage() != 50 {
 		t.Errorf("unexpected percentege value")
 	}
@@ -109,7 +109,7 @@ func TestNewProfitFromPercentage(t *testing.T) {
 }
 
 func TestNewProfitFromCoefficient(t *testing.T) {
-	profit := NewProfitFromCoefficient(0.5)
+	profit := NewFromCoefficient(0.5)
 	if profit.Percentage() != -50 {
 		t.Errorf("unexpected percentege value")
 	}
@@ -211,5 +211,49 @@ func TestCalcProfitForAsset(t *testing.T) {
 	}
 	if profit != nil {
 		t.Errorf("Profit nil value expected")
+	}
+}
+
+func TestCalcRateFromDesirableProfit(t *testing.T) {
+	type unit struct {
+		payments        []payment.Payment
+		desirableProfit Profit
+		expectedRate    float32
+		expectedErr     error
+	}
+	units := []unit{
+		{payments: []payment.Payment{
+			payment.CreatePaymentWithAmount(payment.Invest, 100, 1),
+			payment.CreatePaymentWithAmount(payment.Invest, 100, 1),
+			payment.CreatePaymentWithAmount(payment.Return, 100, 1),
+		},
+			desirableProfit: NewFromCoefficient(2),
+			expectedRate:    300,
+		},
+		{payments: []payment.Payment{
+			payment.CreatePaymentWithAmount(payment.Invest, 200, 1),
+			payment.CreatePaymentWithAmount(payment.Return, 25, 0.75),
+			payment.CreatePaymentWithAmount(payment.Return, 25, 0.15),
+		},
+			desirableProfit: NewFromCoefficient(0.5),
+			expectedRate:    500,
+		},
+		{payments: []payment.Payment{
+			payment.CreatePaymentWithAmount(payment.Invest, 200, 1),
+			payment.CreatePaymentWithAmount(payment.Return, 100, 1),
+		},
+			desirableProfit: NewFromCoefficient(2),
+			expectedErr:     LessThanZeroAssetRestError{},
+		},
+	}
+
+	for i, u := range units {
+		rate, err := CalcRateFromDesirableProfit(u.desirableProfit, u.payments)
+		if err != u.expectedErr {
+			t.Errorf("Unexpected error on unit %d", i)
+		}
+		if rate != u.expectedRate {
+			t.Errorf("Unexpected rate on unit %d", i)
+		}
 	}
 }

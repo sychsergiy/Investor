@@ -27,7 +27,7 @@ func TestCalcProfit_Calc(t *testing.T) {
 				Profits: []profit.AssetProfit{
 					{
 						AssetName:     "test",
-						Profit:        profit.NewProfitFromCoefficient(2),
+						Profit:        profit.NewFromCoefficient(2),
 						PaymentsCount: 3,
 					},
 				},
@@ -45,7 +45,7 @@ func TestCalcProfit_Calc(t *testing.T) {
 				[]profit.AssetProfit{
 					{
 						AssetName:     "test",
-						Profit:        profit.NewProfitFromCoefficient(0.5),
+						Profit:        profit.NewFromCoefficient(0.5),
 						PaymentsCount: 3,
 					},
 				},

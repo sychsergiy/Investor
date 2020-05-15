@@ -1,6 +1,10 @@
 package profit
 
-import "investor/entities/payment"
+import (
+	"fmt"
+	"investor/entities/payment"
+	"math"
+)
 
 type Profit interface {
 	Coefficient() float32
@@ -18,11 +22,11 @@ func (p FloatProfit) Percentage() float32 {
 	return (p.value - 1) * 100
 }
 
-func NewProfitFromCoefficient(coefficient float32) FloatProfit {
+func NewFromCoefficient(coefficient float32) FloatProfit {
 	return FloatProfit{coefficient}
 }
 
-func NewProfitFromPercentage(percentage float32) FloatProfit {
+func NewFromPercentage(percentage float32) FloatProfit {
 	return FloatProfit{percentage/100 + 1}
 }
 
@@ -68,6 +72,35 @@ func calcSumsForPayments(payments []payment.Payment) Sums {
 	return s
 }
 
+type LessThanZeroAssetRestError struct {
+	value float32
+}
+
+func (e LessThanZeroAssetRestError) Error() string {
+	return fmt.Sprintf(
+		"not able to calc profit due to less than zero asset rest, value: %f", e.value,
+	)
+}
+
+// only for payments from one asset
+func CalcRateFromDesirableProfit(
+	profit Profit, payments []payment.Payment,
+) (float32, error) {
+	sums := calcSumsForPayments(payments)
+	desiredSum := profit.Coefficient() * sums.Invested
+
+	//
+	sumShouldBeReturned := desiredSum - sums.Returned
+	assetRest := sums.InvestedAsset - sums.ReturnedAsset
+	if assetRest == 0 {
+		return 0, LessThanZeroAssetRestError{}
+	}
+	rate := sumShouldBeReturned / assetRest
+
+	rate = float32(math.Round(float64(rate)*100) / 100)
+	return rate, nil
+}
+
 type AssetProfit struct {
 	AssetName     string
 	Profit        Profit
@@ -87,7 +120,6 @@ func CalcForAsset(payments []payment.Payment, name string) (AssetProfit, error) 
 	return AssetProfit{name, profit, len(payments)}, nil
 }
 
-// todo: maybe make private function
 func calcProfitForAsset(sums Sums) (Profit, error) {
 	// calculate asset profit coefficient
 	// find invested capital in absolute amount (USD) and in asset
@@ -116,5 +148,5 @@ func calcProfitForAsset(sums Sums) (Profit, error) {
 
 	returnPart := sums.Returned / sums.Invested
 
-	return NewProfitFromCoefficient(returnPart / assetSpendPart), nil
+	return NewFromCoefficient(returnPart / assetSpendPart), nil
 }
