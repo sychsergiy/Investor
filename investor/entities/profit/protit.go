@@ -92,7 +92,7 @@ func CalcRateFromDesirableProfit(
 	//
 	sumShouldBeReturned := desiredSum - sums.Returned
 	assetRest := sums.InvestedAsset - sums.ReturnedAsset
-	if assetRest == 0 {
+	if assetRest <= 0 {
 		return 0, LessThanZeroAssetRestError{}
 	}
 	rate := sumShouldBeReturned / assetRest
