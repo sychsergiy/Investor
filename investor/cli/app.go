@@ -13,6 +13,7 @@ type App struct {
 	CreatePaymentCommand      payment.CreateCommand
 	ListPaymentsCommand       payment.ListCommand
 	CalcProfitCommand         payment.CalcProfitCommand
+	CalcRateFromProfitCommand payment.CalcRateFromProfitCommand
 	FilterByAssetNamesCommand payment.FilterByAssetNamesCommand
 	FilterByCategoriesCommand payment.FilterByCategoriesCommand
 
@@ -26,6 +27,7 @@ func (app *App) setup() {
 	app.cli.AddCommand("list_payments", app.ListPaymentsCommand)
 	app.cli.AddCommand("list_assets", app.ListAssetsCommand)
 	app.cli.AddCommand("calc_profit", app.CalcProfitCommand)
+	app.cli.AddCommand("calc_rate_from_profit", app.CalcRateFromProfitCommand)
 
 	app.cli.AddCommand("filter_by_asset_names", app.FilterByAssetNamesCommand)
 	app.cli.AddCommand("filter_by_categories", app.FilterByCategoriesCommand)

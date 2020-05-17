@@ -1,4 +1,10 @@
-package payment
+package profit
+
+import (
+	"fmt"
+	"investor/entities/payment"
+	"math"
+)
 
 type Profit interface {
 	Coefficient() float32
@@ -16,11 +22,11 @@ func (p FloatProfit) Percentage() float32 {
 	return (p.value - 1) * 100
 }
 
-func NewProfitFromCoefficient(coefficient float32) FloatProfit {
+func NewFromCoefficient(coefficient float32) FloatProfit {
 	return FloatProfit{coefficient}
 }
 
-func NewProfitFromPercentage(percentage float32) FloatProfit {
+func NewFromPercentage(percentage float32) FloatProfit {
 	return FloatProfit{percentage/100 + 1}
 }
 
@@ -49,14 +55,14 @@ func (e ReturnedAssetSumMoreThanInvested) Error() string {
 	return "unable to calculate profit due returned Asset sum more than invested"
 }
 
-func calcSumsForPayments(payments []Payment) Sums {
+func calcSumsForPayments(payments []payment.Payment) Sums {
 	s := Sums{}
 	for _, item := range payments {
 		switch item.Type() {
-		case Return:
+		case payment.Return:
 			s.Returned += item.AbsoluteAmount()
 			s.ReturnedAsset += item.AssetAmount()
-		case Invest:
+		case payment.Invest:
 			s.Invested += item.AbsoluteAmount()
 			s.InvestedAsset += item.AssetAmount()
 		default:
@@ -66,8 +72,33 @@ func calcSumsForPayments(payments []Payment) Sums {
 	return s
 }
 
-type ProfitCalculator struct {
-	payments []Payment
+type LessThanZeroAssetRestError struct {
+	value float32
+}
+
+func (e LessThanZeroAssetRestError) Error() string {
+	return fmt.Sprintf(
+		"not able to calc profit due to less than zero asset rest, value: %f", e.value,
+	)
+}
+
+// only for payments from one asset
+func CalcRateFromDesirableProfit(
+	profit Profit, payments []payment.Payment,
+) (float32, error) {
+	sums := calcSumsForPayments(payments)
+	desiredSum := profit.Coefficient() * sums.Invested
+
+	//
+	sumShouldBeReturned := desiredSum - sums.Returned
+	assetRest := sums.InvestedAsset - sums.ReturnedAsset
+	if assetRest <= 0 {
+		return 0, LessThanZeroAssetRestError{}
+	}
+	rate := sumShouldBeReturned / assetRest
+
+	rate = float32(math.Round(float64(rate)*100) / 100)
+	return rate, nil
 }
 
 type AssetProfit struct {
@@ -76,25 +107,20 @@ type AssetProfit struct {
 	PaymentsCount int
 }
 
-func (c ProfitCalculator) CalcForAsset(name string) (AssetProfit, error) {
+func CalcForAsset(payments []payment.Payment, name string) (AssetProfit, error) {
 	// todo: maybe filter payments by asset name
 	//  or return error if payment with another asset exists
 
 	// all payments should have the same asset
-	sums := calcSumsForPayments(c.payments)
-	profit, err := CalcProfitForAsset(sums)
+	sums := calcSumsForPayments(payments)
+	profit, err := calcProfitForAsset(sums)
 	if err != nil {
 		return AssetProfit{}, err
 	}
-	return AssetProfit{name, profit, len(c.payments)}, nil
+	return AssetProfit{name, profit, len(payments)}, nil
 }
 
-func NewProfitCalculator(payments []Payment) ProfitCalculator {
-	return ProfitCalculator{payments: payments}
-}
-
-// todo: maybe make private function
-func CalcProfitForAsset(sums Sums) (Profit, error) {
+func calcProfitForAsset(sums Sums) (Profit, error) {
 	// calculate asset profit coefficient
 	// find invested capital in absolute amount (USD) and in asset
 	// a = find percentage of asset rest after all payments
@@ -122,5 +148,5 @@ func CalcProfitForAsset(sums Sums) (Profit, error) {
 
 	returnPart := sums.Returned / sums.Invested
 
-	return NewProfitFromCoefficient(returnPart / assetSpendPart), nil
+	return NewFromCoefficient(returnPart / assetSpendPart), nil
 }

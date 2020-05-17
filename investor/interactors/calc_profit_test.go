@@ -3,6 +3,7 @@ package interactors
 import (
 	"errors"
 	"investor/entities/payment"
+	"investor/entities/profit"
 	"reflect"
 	"testing"
 )
@@ -23,10 +24,10 @@ func TestCalcProfit_Calc(t *testing.T) {
 			},
 			assetNames: []string{"test"},
 			expectedResp: CalcAssetsProfitResponse{
-				Profits: []payment.AssetProfit{
+				Profits: []profit.AssetProfit{
 					{
 						AssetName:     "test",
-						Profit:        payment.NewProfitFromCoefficient(2),
+						Profit:        profit.NewFromCoefficient(2),
 						PaymentsCount: 3,
 					},
 				},
@@ -41,10 +42,10 @@ func TestCalcProfit_Calc(t *testing.T) {
 			},
 			assetNames: []string{"test"},
 			expectedResp: CalcAssetsProfitResponse{
-				[]payment.AssetProfit{
+				[]profit.AssetProfit{
 					{
 						AssetName:     "test",
-						Profit:        payment.NewProfitFromCoefficient(0.5),
+						Profit:        profit.NewFromCoefficient(0.5),
 						PaymentsCount: 3,
 					},
 				},
@@ -58,7 +59,7 @@ func TestCalcProfit_Calc(t *testing.T) {
 			},
 			assetNames:   []string{"test"},
 			expectedResp: CalcAssetsProfitResponse{},
-			expectedErr:  payment.ZeroInvestedSumError{},
+			expectedErr:  profit.ZeroInvestedSumError{},
 		},
 		{
 			payments: []payment.Payment{
@@ -68,7 +69,7 @@ func TestCalcProfit_Calc(t *testing.T) {
 			},
 			assetNames:   []string{"test"},
 			expectedResp: CalcAssetsProfitResponse{},
-			expectedErr:  payment.ReturnedAssetSumMoreThanInvested{},
+			expectedErr:  profit.ReturnedAssetSumMoreThanInvested{},
 		},
 	}
 

@@ -2,6 +2,7 @@ package interactors
 
 import (
 	"investor/entities/payment"
+	"investor/entities/profit"
 	"investor/interactors/ports"
 )
 
@@ -15,11 +16,11 @@ type CalcProfitRequest struct {
 }
 
 type CalcAssetsProfitResponse struct {
-	Profits []payment.AssetProfit
+	Profits []profit.AssetProfit
 }
 
 func (cp CalcAssetsProfit) Calc(model CalcProfitRequest) (r CalcAssetsProfitResponse, err error) {
-	assetProfits := make([]payment.AssetProfit, 0)
+	assetProfits := make([]profit.AssetProfit, 0)
 
 	for _, assetName := range model.AssetNames {
 		// todo: create separate method in repository
@@ -29,12 +30,11 @@ func (cp CalcAssetsProfit) Calc(model CalcProfitRequest) (r CalcAssetsProfitResp
 		if err != nil {
 			return r, err
 		}
-		calculator := payment.NewProfitCalculator(payments)
-		profit, err := calculator.CalcForAsset(assetName)
+		p, err := profit.CalcForAsset(payments, assetName)
 		if err != nil {
 			return r, err
 		}
-		assetProfits = append(assetProfits, profit)
+		assetProfits = append(assetProfits, p)
 	}
 	return CalcAssetsProfitResponse{Profits: assetProfits}, nil
 }
