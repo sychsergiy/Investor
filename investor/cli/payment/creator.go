@@ -136,15 +136,18 @@ func (cpc CreateCommand) selectAsset() asset.Asset {
 
 	assets, err := cpc.assetsLister.ListAll()
 
-	assetsLen := len(assets)
-
 	if err != nil {
 		log.Fatalf("Err :%+v", err)
 	}
+	return selectAsset(assets)
+}
+
+func selectAsset(availableAssets []asset.Asset) asset.Asset {
+	assetsLen := len(availableAssets)
 
 	fmt.Println("-------------Assets------------------")
 
-	for i, p := range assets {
+	for i, p := range availableAssets {
 		if i != 0 && i != assetsLen {
 			fmt.Println("-------------------------------", )
 
@@ -167,10 +170,10 @@ func (cpc CreateCommand) selectAsset() asset.Asset {
 		log.Fatal("wrong input, out of assets range")
 	}
 
-	a := assets[number-1]
+	a := availableAssets[number-1]
 
 	str := assetCLI.ToString(a)
 	fmt.Printf("Selected asset:\n%s\n", str)
-
 	return a
+
 }

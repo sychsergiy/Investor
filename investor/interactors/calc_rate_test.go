@@ -27,9 +27,9 @@ func TestCalcRateFromProfit_CalcRate(t *testing.T) {
 			desirableProfit: profit.NewFromCoefficient(2),
 			expectedErr:     nil,
 			expectedResponse: CalcRateFromProfitResponse{
-				assetName:     assetName,
-				paymentsCount: 3,
-				assetRate:     300,
+				AssetName:     assetName,
+				PaymentsCount: 3,
+				AssetRate:     300,
 			},
 		},
 		{payments: []payment.Payment{
@@ -40,9 +40,9 @@ func TestCalcRateFromProfit_CalcRate(t *testing.T) {
 			desirableProfit: profit.NewFromCoefficient(2),
 			expectedErr:     nil,
 			expectedResponse: CalcRateFromProfitResponse{
-				assetName:     assetName,
-				paymentsCount: 3,
-				assetRate:     3500,
+				AssetName:     assetName,
+				PaymentsCount: 3,
+				AssetRate:     3500,
 			},
 		},
 		{payments: []payment.Payment{
@@ -58,9 +58,9 @@ func TestCalcRateFromProfit_CalcRate(t *testing.T) {
 		interactor := NewCalcRateFromProfit(PaymentFinderByAssetNamesMock{ReturnPayments: u.payments})
 		resp, err := interactor.Calc(
 			CalcRateFromProfitRequest{
-				assetName:       assetName,
-				periods:         []payment.Period{},
-				desirableProfit: u.desirableProfit,
+				AssetName:       assetName,
+				Periods:         []payment.Period{},
+				DesirableProfit: u.desirableProfit,
 			},
 		)
 		if !errors.Is(err, u.expectedErr) {

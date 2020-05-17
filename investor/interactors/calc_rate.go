@@ -11,36 +11,36 @@ type CalcRateFromProfit struct {
 }
 
 type CalcRateFromProfitRequest struct {
-	assetName       string
-	periods         []payment.Period
-	desirableProfit profit.Profit
+	AssetName       string
+	Periods         []payment.Period
+	DesirableProfit profit.Profit
 }
 
 type CalcRateFromProfitResponse struct {
-	assetName     string
-	paymentsCount int
-	assetRate     float32
+	AssetName     string
+	PaymentsCount int
+	AssetRate     float32
 }
 
 func (c CalcRateFromProfit) Calc(model CalcRateFromProfitRequest) (
 	CalcRateFromProfitResponse, error,
 ) {
 	payments, err := c.paymentsFilter.FindByAssetNames(
-		[]string{model.assetName},
-		model.periods,
+		[]string{model.AssetName},
+		model.Periods,
 		[]payment.Type{},
 	)
 	if err != nil {
 		return CalcRateFromProfitResponse{}, err
 	}
-	rate, err := profit.CalcRateFromDesirableProfit(model.desirableProfit, payments)
+	rate, err := profit.CalcRateFromDesirableProfit(model.DesirableProfit, payments)
 	if err != nil {
 		return CalcRateFromProfitResponse{}, err
 	}
 	return CalcRateFromProfitResponse{
-		assetName:     model.assetName,
-		paymentsCount: len(payments),
-		assetRate:     rate,
+		AssetName:     model.AssetName,
+		PaymentsCount: len(payments),
+		AssetRate:     rate,
 	}, nil
 }
 
